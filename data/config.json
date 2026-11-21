@@ -1,22 +1,22 @@
 {
   "version": 1,
-  "updatedAt": 0,
+  "updatedAt": 1795270992800,
   "groomName": "Nguyễn Văn Nam",
   "brideName": "Nguyễn Thị Kim Tiến",
   "groom": {
-    "parent": "Bà: Nguyễn Thị ...",
+    "parent": "Bà: Nguyễn Thị Xuyến",
     "province": "Thành phố Hà Nội",
     "ward": "Xã Thanh Oai",
-    "detailAddress": "Thị trấn Kim Bài",
-    "venueNote": "Có chỗ đỗ xe thuận tiện ngay gần rạp tiệc",
+    "detailAddress": "Đội 2, Cát Động, Kim Bài",
+    "venueNote": "",
     "partyDate": "2027-01-02",
     "partyTime": "16:30",
     "ceremonyDate": "2027-01-03",
-    "ceremonyTime": "08:00",
-    "bankName": "Vietcombank — CN Hà Nội",
-    "bankAcc": "0011 0045 67890",
+    "ceremonyTime": "14:00",
+    "bankName": "Tiên Phong - TPBank",
+    "bankAcc": "01867965501",
     "bankOwner": "NGUYEN VAN NAM",
-    "qrImage": ""
+    "qrImage": "images/custom/qr-groom.jpg?v=1795270992800"
   },
   "bride": {
     "parent": "Bà: Trần Thị ...",
