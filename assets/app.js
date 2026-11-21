@@ -69,12 +69,30 @@
       music: `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><path d="M16 28V12l14-2.5V25"/><circle cx="13" cy="28" r="3"/><circle cx="27" cy="25" r="3"/><path d="M16 16.5 30 14"/></svg>`
     },
 
+    venues: {
+      groom: {
+        title: 'Tư Gia Nhà Trai',
+        addr: 'Thị trấn Kim Bài, Huyện Thanh Oai, TP. Hà Nội',
+        note: 'Có chỗ đỗ xe thuận tiện ngay gần rạp tiệc',
+        mapUrl: 'https://www.google.com/maps/search/?api=1&query=Thi+tran+Kim+Bai+Thanh+Oai+Ha+Noi',
+        embedUrl: 'https://maps.google.com/maps?q=Thi+tran+Kim+Bai+Thanh+Oai+Ha+Noi&t=m&z=15&ie=UTF8&iwloc=&output=embed'
+      },
+      bride: {
+        title: 'Tư Gia Nhà Gái',
+        addr: 'Thôn Cầu Cả, Xã Cổ Loa, Huyện Đông Anh, TP. Hà Nội',
+        note: 'Bãi đỗ ô tô đầu đường cách tư gia khoảng 10 phút đi bộ nhẹ',
+        mapUrl: 'https://www.google.com/maps/search/?api=1&query=Thon+Cau+Ca+Co+Loa+Dong+Anh+Ha+Noi',
+        embedUrl: 'https://maps.google.com/maps?q=Thon+Cau+Ca+Co+Loa+Dong+Anh+Ha+Noi&t=m&z=15&ie=UTF8&iwloc=&output=embed'
+      }
+    },
+
     modes: {
       both: {
         isBrideFirst: false,
         heroDateSub: '02 – 03 . 01 . 2027',
         countdownTarget: '2027-01-02T16:30:00+07:00',
         showSideSelect: true,
+        venueKeys: ['groom', 'bride'],
         events: [
           {
             tag: 'Nhà Trai · Lễ Thành Hôn',
@@ -83,10 +101,7 @@
             day: '02',
             year: 'NĂM 2027',
             lunar: '(Tức ngày 25 – 26 tháng 11 năm Bính Ngọ)',
-            venueName: 'Tư Gia Nhà Trai',
-            venueAddr: 'Thị trấn Kim Bài, Huyện Thanh Oai, TP. Hà Nội',
-            mapUrl: 'https://www.google.com/maps/search/?api=1&query=Thi+tran+Kim+Bai+Thanh+Oai+Ha+Noi',
-            mapLabel: 'Chỉ đường Nhà Trai'
+            subNote: 'Tổ chức tại Tư gia Nhà Trai — Thị trấn Kim Bài, Thanh Oai'
           },
           {
             tag: 'Nhà Gái · Lễ Vu Quy',
@@ -95,10 +110,7 @@
             day: '02',
             year: 'NĂM 2027',
             lunar: '(Tức ngày 25 – 26 tháng 11 năm Bính Ngọ)',
-            venueName: 'Tư Gia Nhà Gái',
-            venueAddr: 'Thôn Cầu Cả, Xã Cổ Loa, Huyện Đông Anh, TP. Hà Nội',
-            mapUrl: 'https://www.google.com/maps/search/?api=1&query=Thon+Cau+Ca+Co+Loa+Dong+Anh+Ha+Noi',
-            mapLabel: 'Chỉ đường Nhà Gái'
+            subNote: 'Tổ chức tại Tư gia Nhà Gái — Thôn Cầu Cả, Cổ Loa, Đông Anh'
           }
         ],
         timeline: [
@@ -114,6 +126,7 @@
         heroDateSub: '16:30 · 02 . 01 . 2027',
         countdownTarget: '2027-01-02T16:30:00+07:00',
         showSideSelect: false,
+        venueKeys: ['groom'],
         events: [
           {
             tag: 'Tiệc Cưới Nhà Trai',
@@ -122,10 +135,7 @@
             day: '02',
             year: 'NĂM 2027',
             lunar: '(Tức ngày 25 tháng 11 năm Bính Ngọ)',
-            venueName: 'Tư Gia Nhà Trai',
-            venueAddr: 'Thị trấn Kim Bài, Huyện Thanh Oai, TP. Hà Nội',
-            mapUrl: 'https://www.google.com/maps/search/?api=1&query=Thi+tran+Kim+Bai+Thanh+Oai+Ha+Noi',
-            mapLabel: 'Chỉ đường / Directions'
+            subNote: 'Đón tiếp Quý khách, bạn bè & đồng nghiệp chung vui cùng gia đình'
           },
           {
             tag: 'Lễ Thành Hôn',
@@ -134,10 +144,7 @@
             day: '03',
             year: 'NĂM 2027',
             lunar: '(Tức ngày 26 tháng 11 năm Bính Ngọ)',
-            venueName: 'Tư Gia Nhà Trai',
-            venueAddr: 'Cỗ sáng từ 08:00 · 10:00 Rước dâu · 13:15 Đón dâu nhập gia',
-            mapUrl: 'https://www.google.com/maps/search/?api=1&query=Thi+tran+Kim+Bai+Thanh+Oai+Ha+Noi',
-            mapLabel: 'Bản đồ Nhà Trai'
+            subNote: 'Cỗ sáng từ 08:00 · 10:00 Rước dâu · 13:15 Đón dâu nhập gia'
           }
         ],
         timeline: [
@@ -153,6 +160,7 @@
         heroDateSub: '16:30 · 02 . 01 . 2027',
         countdownTarget: '2027-01-02T16:30:00+07:00',
         showSideSelect: false,
+        venueKeys: ['bride'],
         events: [
           {
             tag: 'Tiệc Cưới Nhà Gái',
@@ -161,10 +169,7 @@
             day: '02',
             year: 'NĂM 2027',
             lunar: '(Tức ngày 25 tháng 11 năm Bính Ngọ)',
-            venueName: 'Tư Gia Nhà Gái',
-            venueAddr: 'Thôn Cầu Cả, Xã Cổ Loa, Huyện Đông Anh, TP. Hà Nội',
-            mapUrl: 'https://www.google.com/maps/search/?api=1&query=Thon+Cau+Ca+Co+Loa+Dong+Anh+Ha+Noi',
-            mapLabel: 'Chỉ đường / Directions'
+            subNote: 'Đón tiếp Quý khách, bạn bè & người thân chung vui cùng gia đình'
           },
           {
             tag: 'Lễ Vu Quy',
@@ -173,10 +178,7 @@
             day: '03',
             year: 'NĂM 2027',
             lunar: '(Tức ngày 26 tháng 11 năm Bính Ngọ)',
-            venueName: 'Tư Gia Nhà Gái',
-            venueAddr: '09:30 Đón khách · 11:15 Lễ Xin Dâu · 11:45 Lễ Đưa Dâu',
-            mapUrl: 'https://www.google.com/maps/search/?api=1&query=Thon+Cau+Ca+Co+Loa+Dong+Anh+Ha+Noi',
-            mapLabel: 'Bản đồ Nhà Gái'
+            subNote: '09:30 Đón khách · 11:15 Lễ Xin Dâu · 11:45 Lễ Đưa Dâu'
           }
         ],
         timeline: [
@@ -266,7 +268,7 @@
     $('formalNameTop').textContent = first;
     $('formalNameBottom').textContent = second;
 
-    // Formal Event Blocks
+    // Formal Event Time Blocks (clean date/time only, no duplicate map buttons)
     $('formalEventsList').innerHTML = cfg.events.map((ev, idx) => `
       <div class="formal-event reveal" style="--d:${idx * 90}ms;">
         <p class="fe-tag">${ev.tag}</p>
@@ -278,14 +280,41 @@
           <span class="fe-side">${ev.year}</span>
         </div>
         <p class="fe-lunar">${ev.lunar}</p>
-        <p class="fe-venue-kicker">Tại / At</p>
-        <p class="fe-venue-name">${ev.venueName}</p>
-        <p class="fe-venue-addr">${ev.venueAddr}</p>
-        <a href="${ev.mapUrl}" target="_blank" rel="noopener noreferrer" class="fe-map-btn">
-          <span>📍</span><span>${ev.mapLabel}</span>
-        </a>
+        ${ev.subNote ? `<p class="fe-sub-note">${ev.subNote}</p>` : ''}
       </div>
     `).join('');
+
+    // Unified Location Map Thumbnail Cards (1 clean mini map preview + 1 button per house)
+    const isMultiVenue = cfg.venueKeys.length > 1;
+    $('formalVenuesList').innerHTML = cfg.venueKeys.map((key, idx) => {
+      const v = CONFIG.venues[key];
+      const btnText = isMultiVenue
+        ? (key === 'groom' ? 'Chỉ đường Nhà Trai' : 'Chỉ đường Nhà Gái')
+        : 'Xem chỉ đường';
+      return `
+        <div class="venue-map-card reveal" style="--d:${idx * 100}ms;">
+          <p class="fe-venue-kicker">Địa điểm tổ chức · Location</p>
+          <p class="fe-venue-name">${v.title}</p>
+          <p class="fe-venue-addr">${v.addr}</p>
+          <a href="${v.mapUrl}" target="_blank" rel="noopener noreferrer" class="mini-map-thumb" aria-label="Mở bản đồ Google Maps tới ${v.title}">
+            <iframe
+              title="Bản đồ thu nhỏ ${v.title}"
+              src="${v.embedUrl}"
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              tabindex="-1"></iframe>
+          </a>
+          <p class="venue-map-note">${v.note}</p>
+          <a href="${v.mapUrl}" target="_blank" rel="noopener noreferrer" class="fe-map-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            <span>${btnText}</span>
+          </a>
+        </div>
+      `;
+    }).join('');
 
     // Polaroid story bg
     $('storyBgImg').src = CONFIG.photos.storyBg;

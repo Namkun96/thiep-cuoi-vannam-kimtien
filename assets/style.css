@@ -14,12 +14,12 @@
   --burgundy: #6E0C17;
   --burgundy-mid: #821220;
   --burgundy-dark: #4E0710;
-  --gold: #A2855E;
-  --gold-light: #CBB390;
+  --gold: #8E7047;
+  --gold-light: #BFA47C;
   --gold-pale: #E9DEC9;
-  --ink: #342B28;
-  --muted: #766860;
-  --line: #E6DDD1;
+  --ink: #271F1D;
+  --muted: #5A4E47;
+  --line: #E2D7C9;
   --serif: 'Cormorant Garamond', 'Palatino Linotype', Georgia, serif;
   --accent-script: 'Great Vibes', 'Cormorant Garamond', cursive;
   --sans: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -32,7 +32,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: var(--sans);
-  font-weight: 400;
+  font-weight: 500;
   color: var(--ink);
   background: radial-gradient(circle at 50% 0%, #3A161B 0%, #1C0D10 68%, #13080A 100%);
   min-height: 100vh;
@@ -186,11 +186,11 @@ a { text-decoration: none; color: inherit; }
 .door-couple {
   font-family: var(--serif);
   font-style: italic;
-  font-size: clamp(25px, 6.8vw, 30px);
-  font-weight: 400;
+  font-size: clamp(26px, 7vw, 31px);
+  font-weight: 700;
   letter-spacing: 0.02em;
-  line-height: 1.2;
-  color: #F7EBDA;
+  line-height: 1.22;
+  color: #FFF6EB;
   margin: 0 0 10px;
 }
 .door-couple .door-amp {
@@ -204,21 +204,23 @@ a { text-decoration: none; color: inherit; }
 }
 .door-guest-line {
   font-family: var(--serif);
-  font-size: 16px;
-  letter-spacing: 0.08em;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
   color: var(--gold-pale);
   margin: 0 0 18px;
 }
 .door-hint {
   display: inline-block;
-  font-size: 10.5px;
-  letter-spacing: 0.28em;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: rgba(233, 222, 201, 0.85);
+  color: rgba(240, 230, 212, 0.94);
   padding: 8px 18px;
   border-radius: 999px;
-  border: 1px solid rgba(233, 222, 201, 0.36);
-  background: rgba(0, 0, 0, 0.16);
+  border: 1px solid rgba(233, 222, 201, 0.45);
+  background: rgba(0, 0, 0, 0.2);
 }
 
 @keyframes sealGlow {
@@ -338,17 +340,17 @@ body.hero-ready .hero-cover-img {
   color: #FFFFFF;
 }
 
-/* Crisp, airy, ultra-readable Editorial Serif Italic for full Vietnamese names */
+/* Crisp, bold, ultra-readable Editorial Serif Italic for full Vietnamese names */
 .hero-couple-names {
   font-family: var(--serif);
   font-style: italic;
-  font-size: clamp(29px, 7.8vw, 37px);
-  font-weight: 400;
-  letter-spacing: 0.02em;
+  font-size: clamp(30px, 8vw, 38px);
+  font-weight: 700;
+  letter-spacing: 0.015em;
   line-height: 1.18;
   margin: 0 0 12px;
   color: #FFFDF9;
-  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.55);
   opacity: 0;
   transform: translateY(18px);
   transition: opacity 1s ease 0.35s, transform 1s cubic-bezier(0.22, 1, 0.36, 1) 0.35s;
@@ -369,9 +371,9 @@ body.hero-ready .hero-cover-img {
 
 .hero-save-line {
   font-family: var(--serif);
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.34em;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--gold-pale);
   margin: 0 0 6px;
@@ -382,9 +384,10 @@ body.hero-ready .hero-cover-img {
 
 .hero-date-sub {
   font-family: var(--serif);
-  font-size: 15px;
-  letter-spacing: 0.22em;
-  color: rgba(255, 253, 249, 0.88);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: rgba(255, 253, 249, 0.96);
   margin: 0;
   opacity: 0;
   transition: opacity 0.9s ease 0.72s;
@@ -490,9 +493,9 @@ body.hero-ready .hero-date-sub {
 
 .letter-kicker {
   font-family: var(--serif);
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.2em;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--gold);
   line-height: 1.5;
@@ -502,8 +505,8 @@ body.hero-ready .hero-date-sub {
 .letter-names {
   font-family: var(--serif);
   font-style: italic;
-  font-size: clamp(20px, 5.4vw, 24px);
-  font-weight: 500;
+  font-size: clamp(20.5px, 5.5vw, 24.5px);
+  font-weight: 700;
   line-height: 1.24;
   color: var(--gold);
   margin: 0 0 14px;
@@ -524,9 +527,9 @@ body.hero-ready .hero-date-sub {
 
 .letter-cd-kicker {
   font-family: var(--serif);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.2em;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--muted);
   margin: 0 0 8px;
@@ -546,20 +549,22 @@ body.hero-ready .hero-date-sub {
 }
 .lcd-num {
   font-family: var(--serif);
-  font-size: 25px;
-  font-weight: 600;
+  font-size: 26px;
+  font-weight: 700;
   color: var(--burgundy);
   line-height: 1;
 }
 .lcd-lbl {
   font-family: var(--serif);
-  font-size: 11px;
+  font-size: 11.5px;
+  font-weight: 600;
   color: var(--muted);
   margin-top: 3px;
 }
 .lcd-sep {
   font-family: var(--serif);
   font-size: 20px;
+  font-weight: 600;
   color: var(--gold);
 }
 
@@ -672,31 +677,33 @@ body.hero-ready .hero-date-sub {
 
 .fam-col-title {
   font-family: var(--serif);
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 700;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--gold);
   margin: 0 0 2px;
 }
 .fam-col-en {
   font-family: var(--serif);
-  font-size: 10.5px;
-  letter-spacing: 0.16em;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--muted);
   margin: 0 0 8px;
 }
 .fam-col-parent {
   font-family: var(--serif);
-  font-size: 16.5px;
-  font-weight: 600;
+  font-size: 17px;
+  font-weight: 700;
   color: var(--ink);
   line-height: 1.4;
   margin: 0 0 4px;
 }
 .fam-col-addr {
-  font-size: 11px;
+  font-size: 11.5px;
+  font-weight: 500;
   color: var(--muted);
   line-height: 1.5;
   margin: 0;
@@ -704,17 +711,18 @@ body.hero-ready .hero-date-sub {
 
 .invite-formal-kicker {
   font-family: var(--serif);
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 0.22em;
+  font-size: 14.5px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--gold);
   margin: 0 0 3px;
 }
 .invite-formal-en {
   font-family: var(--serif);
-  font-size: 11px;
-  letter-spacing: 0.2em;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--muted);
   margin: 0 0 12px;
@@ -723,15 +731,15 @@ body.hero-ready .hero-date-sub {
 .guest-underline {
   display: inline-block;
   font-family: var(--serif);
-  font-size: 25px;
-  font-weight: 600;
+  font-size: 25.5px;
+  font-weight: 700;
   color: var(--ink);
   padding: 0 18px 6px;
-  border-bottom: 1px solid var(--gold-light);
+  border-bottom: 1.5px solid var(--gold-light);
   margin: 0 0 22px;
 }
 
-/* Crisp, spacious, super-readable diagonal Serif couple names */
+/* Crisp, bold, super-readable diagonal Serif couple names */
 .formal-couple-names {
   max-width: 356px;
   margin: 0 auto 24px;
@@ -741,8 +749,8 @@ body.hero-ready .hero-date-sub {
   font-family: var(--serif);
   font-style: italic;
   font-size: clamp(27px, 7.2vw, 34px);
-  font-weight: 400;
-  line-height: 1.12;
+  font-weight: 700;
+  line-height: 1.14;
   white-space: nowrap;
   color: var(--burgundy);
   text-align: left;
@@ -751,7 +759,7 @@ body.hero-ready .hero-date-sub {
 }
 .formal-name-amp {
   font-family: var(--accent-script);
-  font-size: 26px;
+  font-size: 27px;
   color: var(--gold);
   line-height: 0.85;
   margin: 3px 0;
@@ -762,8 +770,8 @@ body.hero-ready .hero-date-sub {
   font-family: var(--serif);
   font-style: italic;
   font-size: clamp(27px, 7.2vw, 34px);
-  font-weight: 400;
-  line-height: 1.12;
+  font-weight: 700;
+  line-height: 1.14;
   white-space: nowrap;
   color: var(--burgundy);
   text-align: right;
@@ -782,9 +790,9 @@ body.hero-ready .hero-date-sub {
 
 .fe-tag {
   font-family: var(--serif);
-  font-size: 16px;
+  font-size: 16.5px;
   font-weight: 700;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--burgundy);
   margin: 0 0 6px;
@@ -792,8 +800,9 @@ body.hero-ready .hero-date-sub {
 
 .fe-time-lead {
   font-family: var(--serif);
-  font-size: 13px;
-  letter-spacing: 0.18em;
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--muted);
   margin: 0 0 4px;
@@ -801,9 +810,10 @@ body.hero-ready .hero-date-sub {
 
 .fe-time-val {
   font-family: var(--serif);
-  font-size: 18px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
+  font-size: 17.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  line-height: 1.45;
   color: var(--ink);
   margin: 0 0 14px;
 }
@@ -819,20 +829,20 @@ body.hero-ready .hero-date-sub {
 .fe-side {
   font-family: var(--serif);
   font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0.16em;
+  font-weight: 700;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--gold);
   padding: 6px 2px;
-  border-top: 1px solid var(--gold-pale);
-  border-bottom: 1px solid var(--gold-pale);
+  border-top: 1.5px solid var(--gold-pale);
+  border-bottom: 1.5px solid var(--gold-pale);
   min-width: 96px;
 }
 
 .fe-day-big {
   font-family: var(--serif);
   font-size: 56px;
-  font-weight: 400;
+  font-weight: 600;
   line-height: 0.9;
   color: var(--burgundy);
 }
@@ -840,57 +850,133 @@ body.hero-ready .hero-date-sub {
 .fe-lunar {
   font-family: var(--serif);
   font-style: italic;
-  font-size: 15.5px;
+  font-size: 16px;
+  font-weight: 600;
   color: var(--muted);
-  margin: 4px 0 14px;
+  margin: 4px 0 8px;
+}
+
+.fe-sub-note {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  line-height: 1.55;
+  max-width: 326px;
+  margin: 0 auto;
+}
+
+/* Unified Venue Location & Miniature Map Preview Cards */
+.formal-venues {
+  margin-top: 6px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding-top: 22px;
+}
+
+.venue-map-card {
+  padding: 20px 16px 22px;
+  border-radius: 14px;
+  background: var(--paper-warm);
+  border: 1px solid var(--line);
+  box-shadow: 0 10px 26px rgba(46, 20, 24, 0.06);
 }
 
 .fe-venue-kicker {
   font-family: var(--serif);
-  font-size: 11px;
-  letter-spacing: 0.22em;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--gold);
   margin: 0 0 4px;
 }
 .fe-venue-name {
   font-family: var(--serif);
-  font-size: 18px;
+  font-size: 19.5px;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--ink);
+  color: var(--burgundy);
   margin: 0 0 4px;
 }
 .fe-venue-addr {
-  font-size: 12px;
-  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink);
   line-height: 1.55;
   max-width: 320px;
+  margin: 0 auto 14px;
+}
+
+.mini-map-thumb {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 182px;
+  border-radius: 11px;
+  overflow: hidden;
+  border: 1.5px solid var(--gold-light);
+  box-shadow: 0 8px 20px rgba(78, 7, 16, 0.12);
   margin: 0 auto 12px;
+  background-color: #EFE9DE;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='182' viewBox='0 0 320 182'%3E%3Crect width='320' height='182' fill='%23F3EEE5'/%3E%3Cg stroke='%23DFD4C3' stroke-width='1.5' fill='none'%3E%3Cpath d='M0 44 Q90 36 160 66 T320 50'/%3E%3Cpath d='M0 124 Q110 104 200 132 T320 112'/%3E%3Cpath d='M78 0 Q96 90 64 182'/%3E%3Cpath d='M224 0 Q205 90 238 182'/%3E%3C/g%3E%3Ccircle cx='160' cy='86' r='8' fill='%236E0C17' fill-opacity='0.22'/%3E%3Ccircle cx='160' cy='86' r='3.5' fill='%236E0C17'/%3E%3C/svg%3E");
+  background-size: cover;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.mini-map-thumb:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px rgba(78, 7, 16, 0.18);
+}
+.mini-map-thumb iframe {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  pointer-events: none;
+}
+
+.venue-map-note {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--muted);
+  line-height: 1.5;
+  margin: 0 auto 14px;
+  max-width: 310px;
 }
 
 .fe-map-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 8px 20px;
+  gap: 8px;
+  padding: 10px 24px;
   border-radius: 999px;
-  border: 1px solid var(--gold-light);
-  background: var(--paper-warm);
-  color: var(--burgundy);
+  border: 1.5px solid var(--burgundy);
+  background: var(--burgundy);
+  color: #FFFDF9;
   font-family: var(--serif);
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 700;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 6px 16px rgba(110, 12, 23, 0.2);
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+}
+.fe-map-btn svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
 }
 .fe-map-btn:hover {
-  background: var(--burgundy);
-  border-color: var(--burgundy);
-  color: #FFFFFF;
+  background: var(--burgundy-dark);
+  border-color: var(--burgundy-dark);
+}
+.fe-map-btn:active {
+  transform: scale(0.97);
 }
 
 /* Subtle Botanical Peony Bottom Border */
@@ -973,9 +1059,9 @@ body.hero-ready .hero-date-sub {
 }
 .polaroid-name {
   font-family: var(--serif);
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   line-height: 1.3;
   text-transform: uppercase;
   color: var(--ink);
@@ -985,9 +1071,10 @@ body.hero-ready .hero-date-sub {
 .story-copy {
   font-family: var(--serif);
   font-style: italic;
-  font-size: 16px;
-  line-height: 1.6;
-  color: rgba(255, 249, 242, 0.92);
+  font-size: 16.5px;
+  font-weight: 500;
+  line-height: 1.62;
+  color: rgba(255, 250, 244, 0.96);
   margin: 0;
 }
 
@@ -1011,9 +1098,9 @@ body.hero-ready .hero-date-sub {
 
 .cal-sub-month {
   font-family: var(--serif);
-  font-size: 16px;
-  font-weight: 600;
-  letter-spacing: 0.24em;
+  font-size: 16.5px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--ink);
   margin: 0 0 18px;
@@ -1031,7 +1118,7 @@ body.hero-ready .hero-date-sub {
 
 .cal-hd {
   font-family: var(--serif);
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 700;
   letter-spacing: 0.12em;
   color: var(--gold);
@@ -1044,12 +1131,12 @@ body.hero-ready .hero-date-sub {
 
 .cal-cell {
   font-family: var(--serif);
-  font-size: 16px;
-  font-weight: 500;
+  font-size: 16.5px;
+  font-weight: 600;
   color: var(--ink);
   padding: 4px 0;
 }
-.cal-cell.sun { color: var(--burgundy); font-weight: 600; }
+.cal-cell.sun { color: var(--burgundy); font-weight: 700; }
 
 .cal-heart-mark {
   position: relative;
@@ -1092,7 +1179,8 @@ body.hero-ready .hero-date-sub {
   gap: 16px;
   flex-wrap: wrap;
   font-family: var(--serif);
-  font-size: 14px;
+  font-size: 14.5px;
+  font-weight: 600;
   color: var(--muted);
   margin-bottom: 34px;
   font-variant-numeric: lining-nums tabular-nums;
@@ -1156,7 +1244,7 @@ body.hero-ready .hero-date-sub {
 
 .tl-time-str {
   font-family: var(--serif);
-  font-size: 17px;
+  font-size: 17.5px;
   font-weight: 700;
   color: var(--burgundy);
   letter-spacing: 0.08em;
@@ -1164,17 +1252,18 @@ body.hero-ready .hero-date-sub {
 }
 .tl-label-str {
   font-family: var(--serif);
-  font-size: 14.5px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
   color: var(--ink);
-  margin: 0 0 2px;
+  margin: 0 0 3px;
 }
 .tl-sub-str {
-  font-size: 11px;
+  font-size: 11.5px;
+  font-weight: 500;
   color: var(--muted);
-  line-height: 1.4;
+  line-height: 1.45;
   margin: 0;
 }
 
@@ -1190,9 +1279,9 @@ body.hero-ready .hero-date-sub {
 }
 .dress-sub {
   font-family: var(--serif);
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.2em;
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--ink);
   margin: 0 0 12px;
@@ -1289,8 +1378,9 @@ body.hero-ready .hero-date-sub {
 .vinyl-song-name {
   font-family: var(--serif);
   font-style: italic;
-  font-size: 17px;
-  letter-spacing: 0.06em;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
   color: var(--gold-pale);
   margin: 0;
 }
@@ -1370,7 +1460,8 @@ body.hero-ready .hero-date-sub {
 
 .rsvp-intro {
   font-family: var(--serif);
-  font-size: 17px;
+  font-size: 17.5px;
+  font-weight: 600;
   line-height: 1.55;
   color: var(--ink);
   max-width: 340px;
@@ -1392,7 +1483,8 @@ body.hero-ready .hero-date-sub {
   border: 1px solid #DFD4C6;
   background: #FFFFFF;
   color: var(--ink);
-  font-size: 13px;
+  font-size: 13.5px;
+  font-weight: 500;
   outline: none;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -1409,7 +1501,7 @@ body.hero-ready .hero-date-sub {
   background: var(--gold);
   color: #FFFFFF;
   font-family: var(--serif);
-  font-size: 15px;
+  font-size: 15.5px;
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -1430,7 +1522,7 @@ body.hero-ready .hero-date-sub {
 }
 .wishes-kicker {
   font-family: var(--serif);
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -1450,7 +1542,8 @@ body.hero-ready .hero-date-sub {
   border-radius: 8px;
   background: var(--paper-warm);
   border: 1px solid var(--line);
-  font-size: 12px;
+  font-size: 12.5px;
+  font-weight: 500;
 }
 .wish-top {
   display: flex;
@@ -1459,16 +1552,17 @@ body.hero-ready .hero-date-sub {
   gap: 8px;
   margin-bottom: 4px;
 }
-.wish-author { font-weight: 600; color: var(--burgundy); }
+.wish-author { font-weight: 700; color: var(--burgundy); }
 .wish-tag {
-  font-size: 10px;
+  font-size: 10.5px;
+  font-weight: 600;
   color: var(--muted);
   padding: 2px 8px;
   border-radius: 999px;
   background: #FFFFFF;
   border: 1px solid var(--line);
 }
-.wish-body { margin: 0; color: var(--muted); line-height: 1.5; }
+.wish-body { margin: 0; color: var(--muted); line-height: 1.5; font-weight: 500; }
 
 /* Refined Minimalist Hộp Mừng Cưới */
 .gift-block {
@@ -1477,13 +1571,14 @@ body.hero-ready .hero-date-sub {
 }
 .gift-heading {
   font-family: var(--serif);
-  font-size: 26px;
-  font-weight: 600;
+  font-size: 27px;
+  font-weight: 700;
   color: var(--burgundy);
   margin: 0 0 4px;
 }
 .gift-note {
-  font-size: 12px;
+  font-size: 12.5px;
+  font-weight: 500;
   color: var(--muted);
   margin: 0 0 16px;
 }
@@ -1515,14 +1610,15 @@ body.hero-ready .hero-date-sub {
 }
 .gift-tile-title {
   font-family: var(--serif);
-  font-size: 18px;
+  font-size: 18.5px;
   font-weight: 700;
   color: var(--ink);
 }
 .gift-tile-sub {
-  font-size: 11px;
+  font-size: 11.5px;
+  font-weight: 600;
   color: var(--gold);
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
 }
 
 /* ===== 10. CINEMATIC DARK-VIGNETTE "Thank you!" FOOTER (JMII 00:36 - 00:37) ===== */
@@ -1559,9 +1655,10 @@ body.hero-ready .hero-date-sub {
 }
 .footer-quote {
   font-family: var(--serif);
-  font-size: 17px;
+  font-size: 17.5px;
+  font-weight: 600;
   line-height: 1.6;
-  color: rgba(255, 250, 244, 0.94);
+  color: rgba(255, 250, 244, 0.96);
   max-width: 330px;
   margin: 0 auto 14px;
 }
@@ -1583,8 +1680,9 @@ body.hero-ready .hero-date-sub {
   gap: 5px;
   text-align: center;
   font-family: var(--serif);
-  font-size: 11.5px;
-  letter-spacing: 0.11em;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
   color: var(--muted);
   border-top: 1px solid var(--line);
 }
@@ -1602,10 +1700,10 @@ body.hero-ready .hero-date-sub {
   align-items: center;
   padding: 6px 4px;
   border-radius: 999px;
-  background: rgba(255, 253, 249, 0.94);
+  background: rgba(255, 253, 249, 0.95);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(203, 179, 144, 0.62);
+  border: 1px solid rgba(203, 179, 144, 0.65);
   box-shadow: 0 10px 30px rgba(32, 12, 15, 0.22);
   transition: opacity 0.55s ease, transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -1636,13 +1734,13 @@ body:not(.hero-ready) .bottom-nav {
 .bnav-item svg {
   width: 17px;
   height: 17px;
-  stroke-width: 1.7;
+  stroke-width: 1.85;
   transition: transform 0.2s ease;
 }
 
 .bnav-item span {
   font-size: 10px;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0.02em;
   line-height: 1.1;
   white-space: nowrap;
@@ -1657,7 +1755,7 @@ body:not(.hero-ready) .bottom-nav {
   background: rgba(110, 12, 23, 0.09);
 }
 .bnav-item.active span {
-  font-weight: 600;
+  font-weight: 700;
 }
 
 /* ===== DISCREET FLOATING AUDIO DISC TOGGLE (ABOVE FIXED FOOTER MENU) ===== */
@@ -1788,7 +1886,8 @@ body:not(.hero-ready) .bottom-nav {
 }
 .rsvp-thanks-text {
   font-family: var(--serif);
-  font-size: 17px;
+  font-size: 17.5px;
+  font-weight: 600;
   line-height: 1.55;
   color: var(--ink);
   margin: 0 0 10px;
