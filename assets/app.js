@@ -1,10 +1,9 @@
 /* ==========================================================================
-   THIỆP CƯỚI VĂN NAM & KIM TIẾN — SHARED APPLICATION LOGIC
-   Supports 3 clean switcher-free links:
-     - /           (mode="both"     — Thiệp chung 2 gia đình)
-     - /nha-trai/  (mode="nha-trai" — Thiệp riêng Nhà Trai, 16h30 02/01/2027)
-     - /nha-gai/   (mode="nha-gai"  — Thiệp riêng Nhà Gái,  16h30 02/01/2027)
-   Supports ?khach=Tên+Khách+Mời on all 3 URLs!
+   THIỆP CƯỚI VĂN NAM & KIM TIẾN — LUXURY INDOCHINE EDITORIAL ENGINE
+   Supports 3 independent switcher-free URLs:
+     - /           (mode="both"     — Đầy đủ Nhà Trai & Nhà Gái)
+     - /nha-trai/  (mode="nha-trai" — Riêng Nhà Trai, 16:30 · 02/01/2027)
+     - /nha-gai/   (mode="nha-gai"  — Riêng Nhà Gái,  16:30 · 02/01/2027)
    ========================================================================== */
 
 (() => {
@@ -25,7 +24,6 @@
     groomHomeShort: 'Thị trấn Kim Bài, Thanh Oai<br/>TP. Hà Nội',
     brideHomeShort: 'Thôn Cầu Cả, Cổ Loa, Đông Anh<br/>TP. Hà Nội',
 
-    // Thông tin ngân hàng & đường dẫn ảnh QR thật (để trống "" sẽ hiện QR mẫu)
     groomBank: {
       name: 'Vietcombank — CN Hà Nội',
       acc: '0011 0045 67890',
@@ -42,209 +40,150 @@
     // Dán link Google Apps Script Web App để tự động lưu xác nhận RSVP về Google Sheet:
     RSVP_ENDPOINT: '',
 
-    // Danh sách ảnh cưới (thay ảnh thật chỉ cần thay file trong thư mục images/)
     photos: {
       hero: asset('images/hero-arch.webp'),
-      duoGroom: asset('images/arch-closeup.webp'),
-      duoBride: asset('images/aodai-closeup.webp'),
-      strip1: asset('images/aodai-full.webp'),
-      strip2: asset('images/hero-arch.webp'),
-      strip3: asset('images/bouquet.webp'),
+      interlude: asset('images/banner-rings.webp'),
+      storyBg: asset('images/hands-rings.webp'),
+      polaroidGroom: asset('images/arch-closeup.webp'),
+      polaroidBride: asset('images/aodai-closeup.webp'),
+      vinylLabel: asset('images/arch-closeup.webp'),
+      rsvpThanks: asset('images/aodai-closeup.webp'),
+      footerBg: asset('images/banner-rings.webp'),
       album: [
+        asset('images/banner-rings.webp'),
         asset('images/aodai-full.webp'),
         asset('images/arch-closeup.webp'),
-        asset('images/banner-rings.webp'),
-        asset('images/bouquet.webp'),
         asset('images/hands-rings.webp'),
+        asset('images/hero-arch.webp'),
         asset('images/aodai-closeup.webp'),
-        asset('images/hero-arch.webp')
-      ],
-      footer: asset('images/aodai-full.webp')
+        asset('images/bouquet.webp')
+      ]
     },
 
-    // Địa điểm tổ chức (có nhúng bản đồ Google Maps trực quan + link chỉ đường)
-    venues: {
-      groom: {
-        title: 'TƯ GIA NHÀ TRAI',
-        addr: 'Thị trấn Kim Bài, Huyện Thanh Oai, TP. Hà Nội',
-        park: '🚗 Có chỗ đỗ xe thuận tiện ngay gần rạp tiệc',
-        mapUrl: 'https://www.google.com/maps/search/?api=1&query=Thi+tran+Kim+Bai+Thanh+Oai+Ha+Noi',
-        embedUrl: 'https://maps.google.com/maps?q=Thi+tran+Kim+Bai+Thanh+Oai+Ha+Noi&t=k&z=16&ie=UTF8&iwloc=&output=embed'
-      },
-      bride: {
-        title: 'TƯ GIA NHÀ GÁI',
-        addr: 'Thôn Cầu Cả, Xã Cổ Loa, Huyện Đông Anh, TP. Hà Nội',
-        park: '🚶 Bãi đỗ ô tô đầu đường cách tư gia khoảng 10 phút đi bộ nhẹ',
-        mapUrl: 'https://www.google.com/maps/search/?api=1&query=Thon+Cau+Ca+Co+Loa+Dong+Anh+Ha+Noi',
-        embedUrl: 'https://maps.google.com/maps?q=Thon+Cau+Ca+Co+Loa+Dong+Anh+Ha+Noi&t=k&z=16&ie=UTF8&iwloc=&output=embed'
-      }
+    // Minimalist line-art SVG icons matching the Jmii Timeline
+    icons: {
+      camera: `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><path d="M7 14h5l2.5-3.5h11L28 14h5a2.5 2.5 0 0 1 2.5 2.5v13A2.5 2.5 0 0 1 33 32H7a2.5 2.5 0 0 1-2.5-2.5v-13A2.5 2.5 0 0 1 7 14Z"/><circle cx="20" cy="22.5" r="5.5"/><circle cx="30" cy="18" r="1" fill="currentColor"/></svg>`,
+      rings: `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><circle cx="15.5" cy="23" r="8"/><circle cx="24.5" cy="23" r="8"/><path d="M15.5 11.5 13 8.5h5l-2.5 3Z"/><path d="M15.5 11.5v3.5"/></svg>`,
+      feast: `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><path d="M8 26h24"/><path d="M10 26a10 10 0 0 1 20 0"/><path d="M20 16v-2.5"/><circle cx="20" cy="12" r="1.5"/><path d="M6 29.5h28"/></svg>`,
+      car: `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><path d="M9 24h22l-2.5-7.5A2 2 0 0 0 26.6 15H13.4a2 2 0 0 0-1.9 1.5L9 24Z"/><path d="M7 24h26v4.5a1.5 1.5 0 0 1-1.5 1.5h-23A1.5 1.5 0 0 1 7 28.5V24Z"/><circle cx="13" cy="27" r="1.4"/><circle cx="27" cy="27" r="1.4"/><path d="M20 11.5c0 0 2.5-2.5 4.2-1 1.4 1.3 0 3.3-4.2 4.5-4.2-1.2-5.6-3.2-4.2-4.5 1.7-1.5 4.2 1 4.2 1Z"/></svg>`,
+      music: `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><path d="M16 28V12l14-2.5V25"/><circle cx="13" cy="28" r="3"/><circle cx="27" cy="25" r="3"/><path d="M16 16.5 30 14"/></svg>`
     },
 
-    // 3 chế độ link độc lập (không còn thanh chuyển đổi phiên bản)
     modes: {
       both: {
         isBrideFirst: false,
-        envTitle: 'Thiệp Mời Lễ Thành Hôn & Vu Quy',
-        envDate: '02 – 03 . 01 . 2027',
-        heroMeta: 'T7 · <strong>02.01</strong> &nbsp;•&nbsp; CN · <strong>03.01.2027</strong>',
-        announceHeading: 'Trân Trọng Thông Báo Lễ Thành Hôn &amp; Lễ Vu Quy',
-        inviteSub: 'Đến dự bữa tiệc thân mật mừng hạnh phúc cùng hai gia đình chúng tôi',
-        countdownLabel: 'Tiệc cưới sẽ diễn ra sau:',
+        heroDateSub: '02 – 03 . 01 . 2027',
         countdownTarget: '2027-01-02T16:30:00+07:00',
-        primaryMap: 'groom',
-        venueKeys: ['groom', 'bride'],
+        showSideSelect: true,
         events: [
           {
-            title: 'Tiệc Cưới Nhà Trai',
-            weekday: 'Thứ Bảy',
-            time: '16H30',
+            tag: 'Nhà Trai · Lễ Thành Hôn',
+            timeVal: '16:30, THỨ BẢY (TIỆC CƯỚI) · 08:00, CHỦ NHẬT (LỄ CHÍNH)',
+            month: 'THÁNG 01',
             day: '02',
-            month: 'Tháng 01',
-            year: '2027',
-            lunar: '(Tức ngày 25 tháng 11 năm Bính Ngọ)',
-            note: 'Tổ chức tại Tư gia Nhà Trai — Thị trấn Kim Bài, Thanh Oai, Hà Nội',
-            steps: [
-              { t: '16:30', label: 'Đón khách' },
-              { t: '17:30', label: 'Khai tiệc thân mật' },
-              { t: '19:30', label: 'Giao lưu & chụp ảnh' }
-            ]
+            year: 'NĂM 2027',
+            lunar: '(Tức ngày 25 – 26 tháng 11 năm Bính Ngọ)',
+            venueName: 'Tư Gia Nhà Trai',
+            venueAddr: 'Thị trấn Kim Bài, Huyện Thanh Oai, TP. Hà Nội',
+            mapUrl: 'https://www.google.com/maps/search/?api=1&query=Thi+tran+Kim+Bai+Thanh+Oai+Ha+Noi',
+            mapLabel: 'Chỉ đường Nhà Trai'
           },
           {
-            title: 'Tiệc Cưới Nhà Gái',
-            weekday: 'Thứ Bảy',
-            time: '16H30',
+            tag: 'Nhà Gái · Lễ Vu Quy',
+            timeVal: '16:30, THỨ BẢY (TIỆC CƯỚI) · 09:30, CHỦ NHẬT (LỄ CHÍNH)',
+            month: 'THÁNG 01',
             day: '02',
-            month: 'Tháng 01',
-            year: '2027',
-            lunar: '(Tức ngày 25 tháng 11 năm Bính Ngọ)',
-            note: 'Tổ chức tại Tư gia Nhà Gái — Thôn Cầu Cả, Cổ Loa, Đông Anh, Hà Nội',
-            steps: [
-              { t: '16:30', label: 'Đón khách' },
-              { t: '17:30', label: 'Khai tiệc thân mật' },
-              { t: '19:30', label: 'Giao lưu & chụp ảnh' }
-            ]
-          },
-          {
-            title: 'Lễ Vu Quy',
-            weekday: 'Chủ Nhật',
-            time: '09H30',
-            day: '03',
-            month: 'Tháng 01',
-            year: '2027',
-            lunar: '(Tức ngày 26 tháng 11 năm Bính Ngọ)',
-            note: 'Tại Tư gia Nhà Gái — Cổ Loa, Đông Anh',
-            steps: [
-              { t: '09:30', label: 'Đón khách & họ hàng' },
-              { t: '11:15', label: 'Lễ Xin Dâu' },
-              { t: '11:45', label: 'Lễ Đưa Dâu' }
-            ]
-          },
-          {
-            title: 'Lễ Thành Hôn',
-            weekday: 'Chủ Nhật',
-            time: '08H00',
-            day: '03',
-            month: 'Tháng 01',
-            year: '2027',
-            lunar: '(Tức ngày 26 tháng 11 năm Bính Ngọ)',
-            note: 'Tại Tư gia Nhà Trai — Kim Bài, Thanh Oai',
-            steps: [
-              { t: '08:00', label: 'Cỗ sáng đón khách' },
-              { t: '10:00', label: 'Đoàn rước dâu khởi hành' },
-              { t: '13:15', label: 'Đón dâu nhập gia' }
-            ]
+            year: 'NĂM 2027',
+            lunar: '(Tức ngày 25 – 26 tháng 11 năm Bính Ngọ)',
+            venueName: 'Tư Gia Nhà Gái',
+            venueAddr: 'Thôn Cầu Cả, Xã Cổ Loa, Huyện Đông Anh, TP. Hà Nội',
+            mapUrl: 'https://www.google.com/maps/search/?api=1&query=Thon+Cau+Ca+Co+Loa+Dong+Anh+Ha+Noi',
+            mapLabel: 'Chỉ đường Nhà Gái'
           }
+        ],
+        timeline: [
+          { time: '16:30 · 02/01', label: 'Đón Khách & Tiệc Cưới', sub: 'Khai tiệc thân mật tại Tư gia Nhà Trai & Nhà Gái', icon: 'feast' },
+          { time: '08:00 · 03/01', label: 'Cỗ Sáng & Đón Khách', sub: 'Đón họ hàng, khách quý hai gia đình', icon: 'camera' },
+          { time: '11:15 · 03/01', label: 'Lễ Vu Quy & Xin Dâu', sub: 'Nghi lễ gia tiên tại Cổ Loa, Đông Anh', icon: 'rings' },
+          { time: '13:15 · 03/01', label: 'Lễ Thành Hôn', sub: 'Đón tân nương nhập gia tại Kim Bài, Thanh Oai', icon: 'car' }
         ]
       },
 
       'nha-trai': {
         isBrideFirst: false,
-        envTitle: 'Thiệp Mời Tiệc Cưới Nhà Trai',
-        envDate: '16H30 · 02 . 01 . 2027',
-        heroMeta: '16H30 · Thứ Bảy &nbsp;<strong>02.01.2027</strong>',
-        announceHeading: 'Trân Trọng Thông Báo Lễ Thành Hôn',
-        inviteSub: 'Đến dự bữa tiệc thân mật mừng hạnh phúc cùng gia đình Nhà Trai chúng tôi',
-        countdownLabel: 'Tiệc cưới Nhà Trai diễn ra sau:',
+        heroDateSub: '16:30 · 02 . 01 . 2027',
         countdownTarget: '2027-01-02T16:30:00+07:00',
-        primaryMap: 'groom',
-        venueKeys: ['groom'],
+        showSideSelect: false,
         events: [
           {
-            title: 'Tiệc Cưới Nhà Trai',
-            weekday: 'Thứ Bảy',
-            time: '16H30',
+            tag: 'Tiệc Cưới Nhà Trai',
+            timeVal: '16:30, THỨ BẢY',
+            month: 'THÁNG 01',
             day: '02',
-            month: 'Tháng 01',
-            year: '2027',
+            year: 'NĂM 2027',
             lunar: '(Tức ngày 25 tháng 11 năm Bính Ngọ)',
-            note: 'Đón tiếp Quý khách, bạn bè & đồng nghiệp tại Tư gia Nhà Trai',
-            steps: [
-              { t: '16:30', label: 'Đón khách & Check-in' },
-              { t: '17:30', label: 'Khai tiệc thân mật' },
-              { t: '19:30', label: 'Giao lưu & chụp ảnh' }
-            ]
+            venueName: 'Tư Gia Nhà Trai',
+            venueAddr: 'Thị trấn Kim Bài, Huyện Thanh Oai, TP. Hà Nội',
+            mapUrl: 'https://www.google.com/maps/search/?api=1&query=Thi+tran+Kim+Bai+Thanh+Oai+Ha+Noi',
+            mapLabel: 'Chỉ đường / Directions'
           },
           {
-            title: 'Lễ Thành Hôn',
-            weekday: 'Chủ Nhật',
-            time: '08H00',
+            tag: 'Lễ Thành Hôn',
+            timeVal: '08:00, CHỦ NHẬT',
+            month: 'THÁNG 01',
             day: '03',
-            month: 'Tháng 01',
-            year: '2027',
+            year: 'NĂM 2027',
             lunar: '(Tức ngày 26 tháng 11 năm Bính Ngọ)',
-            note: 'Nghi lễ gia tiên & đón tân nương về Tư gia Nhà Trai',
-            steps: [
-              { t: '08:00', label: 'Cỗ sáng đón khách' },
-              { t: '10:00', label: 'Khởi hành rước dâu' },
-              { t: '11:15', label: 'Lễ Xin Dâu' },
-              { t: '13:15', label: 'Đón dâu nhập gia' }
-            ]
+            venueName: 'Tư Gia Nhà Trai',
+            venueAddr: 'Cỗ sáng từ 08:00 · 10:00 Rước dâu · 13:15 Đón dâu nhập gia',
+            mapUrl: 'https://www.google.com/maps/search/?api=1&query=Thi+tran+Kim+Bai+Thanh+Oai+Ha+Noi',
+            mapLabel: 'Bản đồ Nhà Trai'
           }
+        ],
+        timeline: [
+          { time: '16:30 · 02/01', label: 'Đón Khách & Check-in', sub: 'Đón tiếp bạn bè, đồng nghiệp tại Tư gia Nhà Trai', icon: 'camera' },
+          { time: '17:30 · 02/01', label: 'Khai Tiệc Thân Mật', sub: 'Nâng ly chúc mừng cùng gia đình Nhà Trai', icon: 'feast' },
+          { time: '19:30 · 02/01', label: 'Giao Lưu & Âm Nhạc', sub: 'Lưu giữ khoảnh khắc ấm áp bên người thương', icon: 'music' },
+          { time: '13:15 · 03/01', label: 'Lễ Thành Hôn', sub: 'Đón tân nương nhập gia đúng giờ hoàng đạo', icon: 'rings' }
         ]
       },
 
       'nha-gai': {
         isBrideFirst: true,
-        envTitle: 'Thiệp Mời Tiệc Cưới Nhà Gái',
-        envDate: '16H30 · 02 . 01 . 2027',
-        heroMeta: '16H30 · Thứ Bảy &nbsp;<strong>02.01.2027</strong>',
-        announceHeading: 'Trân Trọng Thông Báo Lễ Vu Quy',
-        inviteSub: 'Đến dự bữa tiệc thân mật mừng hạnh phúc cùng gia đình Nhà Gái chúng tôi',
-        countdownLabel: 'Tiệc cưới Nhà Gái diễn ra sau:',
+        heroDateSub: '16:30 · 02 . 01 . 2027',
         countdownTarget: '2027-01-02T16:30:00+07:00',
-        primaryMap: 'bride',
-        venueKeys: ['bride'],
+        showSideSelect: false,
         events: [
           {
-            title: 'Tiệc Cưới Nhà Gái',
-            weekday: 'Thứ Bảy',
-            time: '16H30',
+            tag: 'Tiệc Cưới Nhà Gái',
+            timeVal: '16:30, THỨ BẢY',
+            month: 'THÁNG 01',
             day: '02',
-            month: 'Tháng 01',
-            year: '2027',
+            year: 'NĂM 2027',
             lunar: '(Tức ngày 25 tháng 11 năm Bính Ngọ)',
-            note: 'Đón tiếp Quý khách, bạn bè & người thân tại Tư gia Nhà Gái',
-            steps: [
-              { t: '16:30', label: 'Đón khách & Check-in' },
-              { t: '17:30', label: 'Khai tiệc thân mật' },
-              { t: '19:30', label: 'Giao lưu & chụp ảnh' }
-            ]
+            venueName: 'Tư Gia Nhà Gái',
+            venueAddr: 'Thôn Cầu Cả, Xã Cổ Loa, Huyện Đông Anh, TP. Hà Nội',
+            mapUrl: 'https://www.google.com/maps/search/?api=1&query=Thon+Cau+Ca+Co+Loa+Dong+Anh+Ha+Noi',
+            mapLabel: 'Chỉ đường / Directions'
           },
           {
-            title: 'Lễ Vu Quy',
-            weekday: 'Chủ Nhật',
-            time: '09H30',
+            tag: 'Lễ Vu Quy',
+            timeVal: '09:30, CHỦ NHẬT',
+            month: 'THÁNG 01',
             day: '03',
-            month: 'Tháng 01',
-            year: '2027',
+            year: 'NĂM 2027',
             lunar: '(Tức ngày 26 tháng 11 năm Bính Ngọ)',
-            note: 'Nghi lễ gia tiên & đưa tân nương tại Tư gia Nhà Gái',
-            steps: [
-              { t: '09:30', label: 'Đón khách & họ hàng' },
-              { t: '11:15', label: 'Đón đoàn & Lễ Xin Dâu' },
-              { t: '11:45', label: 'Lễ Đưa Dâu về Nhà Trai' }
-            ]
+            venueName: 'Tư Gia Nhà Gái',
+            venueAddr: '09:30 Đón khách · 11:15 Lễ Xin Dâu · 11:45 Lễ Đưa Dâu',
+            mapUrl: 'https://www.google.com/maps/search/?api=1&query=Thon+Cau+Ca+Co+Loa+Dong+Anh+Ha+Noi',
+            mapLabel: 'Bản đồ Nhà Gái'
           }
+        ],
+        timeline: [
+          { time: '16:30 · 02/01', label: 'Đón Khách & Check-in', sub: 'Đón tiếp bạn bè & khách quý tại Tư gia Nhà Gái', icon: 'camera' },
+          { time: '17:30 · 02/01', label: 'Khai Tiệc Thân Mật', sub: 'Chung vui cùng gia đình Nhà Gái tại Cổ Loa', icon: 'feast' },
+          { time: '11:15 · 03/01', label: 'Lễ Vu Quy & Xin Dâu', sub: 'Nghi lễ gia tiên trang trọng giờ Ngọ cát lợi', icon: 'rings' },
+          { time: '11:45 · 03/01', label: 'Lễ Đưa Dâu', sub: 'Đoàn xe hoa đưa tân nương về Nhà Trai', icon: 'car' }
         ]
       }
     }
@@ -256,13 +195,7 @@
   const customGuest = (params.get('khach') || '').trim();
   const guestDisplay = customGuest || 'Quý Khách & Gia Đình';
 
-  let rsvpStatus = 'Sẽ tham dự';
   let lbIndex = 0;
-
-  function lastInitial(name) {
-    const parts = name.trim().split(/\s+/).filter(Boolean);
-    return parts.length ? parts[parts.length - 1][0].toUpperCase() : 'H';
-  }
 
   function showToast(msg) {
     const t = $('toast');
@@ -270,181 +203,136 @@
     t.textContent = msg;
     t.classList.remove('hidden');
     clearTimeout(window._toastTimer);
-    window._toastTimer = setTimeout(() => t.classList.add('hidden'), 2500);
+    window._toastTimer = setTimeout(() => t.classList.add('hidden'), 2400);
   }
 
-  function spawnBurstHearts(originX, originY, count = 14) {
-    const icons = ['♥', '❤', '♡', '✦'];
-    const colors = ['#A81D24', '#D94B57', '#C29663', '#E88B95'];
-    for (let i = 0; i < count; i++) {
-      const el = document.createElement('span');
-      el.className = 'burst-heart';
-      el.textContent = icons[i % icons.length];
-      el.style.left = `${originX}px`;
-      el.style.top = `${originY}px`;
-      el.style.color = colors[i % colors.length];
-      el.style.fontSize = `${13 + (i % 4) * 4}px`;
-      const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.4;
-      const dist = 55 + Math.random() * 95;
-      el.style.setProperty('--bx', `${Math.cos(angle) * dist}px`);
-      el.style.setProperty('--by', `${Math.sin(angle) * dist - 65}px`);
-      el.style.setProperty('--br', `${(Math.random() - 0.5) * 70}deg`);
-      document.body.appendChild(el);
-      setTimeout(() => el.remove(), 1300);
-    }
-  }
-
-  /* ===== 1. CONTINUOUS FALLING MINI HEARTS (TIKTOK STYLE) ===== */
-  function initFallingHearts() {
-    const layer = $('heartsLayer');
-    if (!layer) return;
-    const glyphs = ['♥', '♥', '♡', '♥', '❤'];
-    const palette = [
-      'rgba(184, 34, 44, 0.52)',
-      'rgba(217, 79, 92, 0.45)',
-      'rgba(232, 138, 149, 0.5)',
-      'rgba(194, 150, 99, 0.44)'
-    ];
-    const total = 18;
-    for (let i = 0; i < total; i++) {
-      const s = document.createElement('span');
-      s.className = 'fall-heart';
-      s.textContent = glyphs[i % glyphs.length];
-      s.style.left = `${4 + ((i * 5.4 + (i % 3) * 3.1) % 92)}%`;
-      s.style.fontSize = `${9 + (i % 4) * 3}px`;
-      s.style.color = palette[i % palette.length];
-      s.style.setProperty('--dur', `${9.5 + (i % 6) * 2.1}s`);
-      s.style.setProperty('--delay', `${-((i * 1.45) % 14)}s`);
-      s.style.setProperty('--sway', `${(i % 2 === 0 ? 1 : -1) * (14 + (i % 4) * 6)}px`);
-      s.style.setProperty('--op', `${0.34 + (i % 3) * 0.14}`);
-      layer.appendChild(s);
-    }
-  }
-
-  /* ===== 2. POPULATE CONTENT FOR CURRENT MODE ===== */
-  function hydrateInvitation() {
+  /* ===== 1. HYDRATE CONTENT FOR ACTIVE MODE ===== */
+  function hydrate() {
     const first = cfg.isBrideFirst ? CONFIG.brideName : CONFIG.groomName;
     const second = cfg.isBrideFirst ? CONFIG.groomName : CONFIG.brideName;
 
-    // Envelope
-    $('envTitle').textContent = cfg.envTitle;
-    $('envMonogram').textContent = `${lastInitial(first)} ♥ ${lastInitial(second)}`;
-    $('envCoupleNames').textContent = `${first} & ${second}`;
-    $('envDateStr').textContent = cfg.envDate;
-    $('envGuestName').textContent = guestDisplay;
+    // Door overlay
+    $('doorCouple').textContent = `${first} & ${second}`;
+    $('doorGuestLine').textContent = `Kính mời: ${guestDisplay}`;
 
-    // Hero
-    $('heroFirstName').textContent = first;
-    $('heroSecondName').textContent = second;
-    $('heroMetaStrip').innerHTML = cfg.heroMeta;
-    document.querySelectorAll('.trip-img').forEach((img) => { img.src = CONFIG.photos.hero; });
+    // Hero cover
+    $('heroCoverImg').src = CONFIG.photos.hero;
+    $('heroCoupleNames').innerHTML = `${first} <span class="amp">&amp;</span> ${second}`;
+    $('heroDateSub').textContent = cfg.heroDateSub;
 
-    // Quote & Two Families (auto-respect Vietnamese etiquette order)
-    $('announceHeading').innerHTML = cfg.announceHeading;
+    // Self-opening envelope letter
+    $('letterNames').innerHTML = `${first}<span class="amp-small">&amp;</span>${second}`;
+
+    // Interlude photo
+    $('interludeImg').src = CONFIG.photos.interlude;
+
+    // Formal Two Families (Vietnamese etiquette ordering)
     if (!cfg.isBrideFirst) {
-      $('famLeftRole').textContent = 'Nhà Trai';
+      $('famLeftVi').textContent = 'Nhà Trai';
+      $('famLeftEn').textContent = "Groom's Side";
       $('famLeftParent').textContent = CONFIG.groomParent;
-      $('famLeftHome').innerHTML = CONFIG.groomHomeShort;
-      $('famRightRole').textContent = 'Nhà Gái';
+      $('famLeftAddr').innerHTML = CONFIG.groomHomeShort;
+      $('famRightVi').textContent = 'Nhà Gái';
+      $('famRightEn').textContent = "Bride's Side";
       $('famRightParent').textContent = CONFIG.brideParent;
-      $('famRightHome').innerHTML = CONFIG.brideHomeShort;
-      $('duoLeftRole').textContent = 'Chú Rể';
-      $('duoLeftName').textContent = CONFIG.groomName;
-      $('duoRightRole').textContent = 'Cô Dâu';
-      $('duoRightName').textContent = CONFIG.brideName;
-      $('duoLeftImg').src = CONFIG.photos.duoGroom;
-      $('duoRightImg').src = CONFIG.photos.duoBride;
+      $('famRightAddr').innerHTML = CONFIG.brideHomeShort;
+
+      $('polaroid1Img').src = CONFIG.photos.polaroidGroom;
+      $('polaroid1Role').textContent = 'The Groom';
+      $('polaroid1Name').textContent = CONFIG.groomName;
+      $('polaroid2Img').src = CONFIG.photos.polaroidBride;
+      $('polaroid2Role').textContent = 'The Bride';
+      $('polaroid2Name').textContent = CONFIG.brideName;
     } else {
-      $('famLeftRole').textContent = 'Nhà Gái';
+      $('famLeftVi').textContent = 'Nhà Gái';
+      $('famLeftEn').textContent = "Bride's Side";
       $('famLeftParent').textContent = CONFIG.brideParent;
-      $('famLeftHome').innerHTML = CONFIG.brideHomeShort;
-      $('famRightRole').textContent = 'Nhà Trai';
+      $('famLeftAddr').innerHTML = CONFIG.brideHomeShort;
+      $('famRightVi').textContent = 'Nhà Trai';
+      $('famRightEn').textContent = "Groom's Side";
       $('famRightParent').textContent = CONFIG.groomParent;
-      $('famRightHome').innerHTML = CONFIG.groomHomeShort;
-      $('duoLeftRole').textContent = 'Cô Dâu';
-      $('duoLeftName').textContent = CONFIG.brideName;
-      $('duoRightRole').textContent = 'Chú Rể';
-      $('duoRightName').textContent = CONFIG.groomName;
-      $('duoLeftImg').src = CONFIG.photos.duoBride;
-      $('duoRightImg').src = CONFIG.photos.duoGroom;
+      $('famRightAddr').innerHTML = CONFIG.groomHomeShort;
+
+      $('polaroid1Img').src = CONFIG.photos.polaroidBride;
+      $('polaroid1Role').textContent = 'The Bride';
+      $('polaroid1Name').textContent = CONFIG.brideName;
+      $('polaroid2Img').src = CONFIG.photos.polaroidGroom;
+      $('polaroid2Role').textContent = 'The Groom';
+      $('polaroid2Name').textContent = CONFIG.groomName;
     }
 
-    // Personalized Guest Invitation & 3-photo strip
-    $('guestNameHero').textContent = guestDisplay;
-    $('inviteSubtext').textContent = cfg.inviteSub;
-    $('stripImg1').src = CONFIG.photos.strip1;
-    $('stripImg2').src = CONFIG.photos.strip2;
-    $('stripImg3').src = CONFIG.photos.strip3;
+    // Formal Guest & Couple names
+    $('formalGuestName').textContent = guestDisplay;
+    $('formalNameTop').textContent = first;
+    $('formalNameBottom').textContent = second;
 
-    // Event Schedule Triad Blocks
-    const eventsEl = $('eventsList');
-    eventsEl.innerHTML = cfg.events.map((ev, idx) => `
-      <article class="event-block reveal" style="--d:${idx * 90}ms;">
-        <div class="event-heading-row">
-          <h3 class="event-title">${ev.title}</h3>
+    // Formal Event Blocks
+    $('formalEventsList').innerHTML = cfg.events.map((ev, idx) => `
+      <div class="formal-event reveal" style="--d:${idx * 90}ms;">
+        <p class="fe-tag">${ev.tag}</p>
+        <p class="fe-time-lead">Được tổ chức vào lúc</p>
+        <p class="fe-time-val lnum">${ev.timeVal}</p>
+        <div class="fe-date-triad lnum">
+          <span class="fe-side">${ev.month}</span>
+          <span class="fe-day-big">${ev.day}</span>
+          <span class="fe-side">${ev.year}</span>
         </div>
-        <p class="event-weekday">${ev.weekday}</p>
-        <div class="event-triad">
-          <div class="triad-time">${ev.time}</div>
-          <div class="triad-day-box"><div class="triad-day-num">${ev.day}</div></div>
-          <div class="triad-year">${ev.year}</div>
-        </div>
-        <p class="event-month">${ev.month}</p>
-        <p class="event-lunar">${ev.lunar}</p>
-        <p class="event-note">${ev.note}</p>
-        <div class="mini-steps">
-          ${ev.steps.map((st) => `<span class="mini-step-chip"><strong>${st.t}</strong> · ${st.label}</span>`).join('')}
-        </div>
-      </article>
+        <p class="fe-lunar">${ev.lunar}</p>
+        <p class="fe-venue-kicker">Tại / At</p>
+        <p class="fe-venue-name">${ev.venueName}</p>
+        <p class="fe-venue-addr">${ev.venueAddr}</p>
+        <a href="${ev.mapUrl}" target="_blank" rel="noopener noreferrer" class="fe-map-btn">
+          <span>📍</span><span>${ev.mapLabel}</span>
+        </a>
+      </div>
     `).join('');
 
-    // Venues with Embedded Google Maps + Direction Pill Buttons
-    const venueListEl = $('venueList');
-    venueListEl.innerHTML = cfg.venueKeys.map((key, idx) => {
-      const v = CONFIG.venues[key];
+    // Polaroid story bg
+    $('storyBgImg').src = CONFIG.photos.storyBg;
+
+    // Vertical Timeline
+    $('timelineAxis').innerHTML = cfg.timeline.map((item, idx) => {
+      const iconHtml = `<div class="tl-icon-wrap">${CONFIG.icons[item.icon] || CONFIG.icons.rings}</div>`;
+      const textHtml = `
+        <p class="tl-time-str lnum">${item.time}</p>
+        <p class="tl-label-str">${item.label}</p>
+        <p class="tl-sub-str">${item.sub}</p>
+      `;
+      const isEven = idx % 2 === 0;
       return `
-        <div class="venue-block reveal" style="--d:${idx * 110}ms;">
-          <h3 class="venue-heading">${v.title}</h3>
-          <p class="venue-address">${v.addr}</p>
-          <div class="map-embed-frame">
-            <iframe
-              title="Bản đồ ${v.title}"
-              src="${v.embedUrl}"
-              loading="lazy"
-              referrerpolicy="no-referrer-when-downgrade"
-              allowfullscreen></iframe>
-          </div>
-          <p class="venue-park">${v.park}</p>
-          <a href="${v.mapUrl}" target="_blank" rel="noopener noreferrer" class="btn-map-pill">
-            <span>📍</span><span>Xem chỉ đường</span>
-          </a>
+        <div class="tl-row reveal" style="--d:${idx * 90}ms;">
+          <div class="tl-col-left">${isEven ? iconHtml : textHtml}</div>
+          <div class="tl-dot" aria-hidden="true"></div>
+          <div class="tl-col-right">${isEven ? textHtml : iconHtml}</div>
         </div>
       `;
     }).join('');
 
-    // Floating quick bar map link
-    $('floatMapLink').href = CONFIG.venues[cfg.primaryMap].mapUrl;
+    // Vinyl label & Album & Footer
+    $('vinylLabelImg').src = CONFIG.photos.vinylLabel;
+    $('rsvpThanksPhoto').src = CONFIG.photos.rsvpThanks;
+    $('footerBgImg').src = CONFIG.photos.footerBg;
+    $('footerBrand').textContent = `${first.toUpperCase()} ♥ ${second.toUpperCase()}`;
 
-    // Countdown Label & Calendar
-    $('countdownLabel').textContent = cfg.countdownLabel;
-    renderCalendar();
-    updateCountdown();
+    document.querySelectorAll('[data-album-idx]').forEach((el) => {
+      const i = parseInt(el.dataset.albumIdx, 10);
+      const img = el.querySelector('img');
+      if (img && CONFIG.photos.album[i]) img.src = CONFIG.photos.album[i];
+    });
 
-    // Gift Boxes order (put host family first on dedicated link)
-    const giftPair = $('giftPair');
-    if (cfg.isBrideFirst) {
-      $('giftCardBride').style.order = '1';
-      $('giftCardGroom').style.order = '2';
-      $('brideQrCard').style.order = '1';
-      $('groomQrCard').style.order = '2';
-    } else if (giftPair) {
-      $('giftCardGroom').style.order = '1';
-      $('giftCardBride').style.order = '2';
-      $('groomQrCard').style.order = '1';
-      $('brideQrCard').style.order = '2';
+    // RSVP side dropdown only needed on dual-family root link
+    if (!cfg.showSideSelect && $('rsvpSide')) {
+      $('rsvpSide').classList.add('hidden');
     }
 
-    // Bank QR modal data
+    // Gift cards & QR ordering
+    if (cfg.isBrideFirst) {
+      $('giftTileBride').style.order = '1';
+      $('giftTileGroom').style.order = '2';
+      $('brideQrCard').style.order = '1';
+      $('groomQrCard').style.order = '2';
+    }
+
     $('modalGroomName').textContent = CONFIG.groomName;
     $('modalBrideName').textContent = CONFIG.brideName;
     $('modalGroomBank').textContent = CONFIG.groomBank.name;
@@ -465,47 +353,43 @@
       $('brideQrSvg').classList.add('hidden');
     }
 
-    // Editorial Album Grid
-    document.querySelectorAll('[data-album-idx]').forEach((tile) => {
-      const idx = parseInt(tile.dataset.albumIdx, 10);
-      const img = tile.querySelector('img');
-      if (img && CONFIG.photos.album[idx]) img.src = CONFIG.photos.album[idx];
-    });
-
-    // Footer full-bleed photo & monogram
-    $('footerHeroImg').src = CONFIG.photos.footer;
-    $('footerMono').textContent = `${first.toUpperCase()} ♥ ${second.toUpperCase()} · 02–03.01.2027`;
+    renderCalendar();
+    updateCountdown();
   }
 
-  /* ===== 3. CALENDAR (JAN 2027 — DAY 02 PRIMARY HEART + DAY 03 CEREMONY HEART) ===== */
+  /* ===== 2. MINIMALIST CALENDAR (JAN 2027) ===== */
   function renderCalendar() {
-    const el = $('calendarDays');
-    if (!el) return;
-    el.innerHTML = '';
+    const grid = $('calendarDays');
+    if (!grid) return;
+    grid.innerHTML = '';
     // Jan 1, 2027 is Friday -> 4 empty Mon..Thu cells
-    for (let i = 0; i < 4; i++) el.appendChild(document.createElement('div'));
+    for (let i = 0; i < 4; i++) grid.appendChild(document.createElement('div'));
     for (let d = 1; d <= 31; d++) {
       const cell = document.createElement('div');
-      if (d === 2 || d === 3) {
-        const isPrimary = d === 2;
-        cell.className = 'cal-heart-cell';
+      if (d === 2) {
+        cell.className = 'cal-heart-mark solid lnum';
         cell.innerHTML = `
-          <svg class="cal-heart-svg ${isPrimary ? '' : 'secondary'}" viewBox="0 0 36 36" fill="none" aria-hidden="true">
-            <path class="cal-heart-path"
-              d="M18 31 C18 31 5 22.8 5 13.5 C5 8.8 8.6 5.5 12.8 5.5 C15.4 5.5 17.2 7 18 8.6 C18.8 7 20.6 5.5 23.2 5.5 C27.4 5.5 31 8.8 31 13.5 C31 22.8 18 31 18 31 Z"
-              fill="#A81D24" fill-opacity="${isPrimary ? '0.16' : '0.07'}" stroke="currentColor" stroke-width="${isPrimary ? '1.9' : '1.4'}"/>
+          <svg viewBox="0 0 36 36" aria-hidden="true">
+            <path d="M18 31 C18 31 5 22.8 5 13.5 C5 8.8 8.6 5.5 12.8 5.5 C15.4 5.5 17.2 7 18 8.6 C18.8 7 20.6 5.5 23.2 5.5 C27.4 5.5 31 8.8 31 13.5 C31 22.8 18 31 18 31 Z" fill="#6E0C17"/>
           </svg>
-          <span class="cal-heart-num">${d}</span>`;
+          <span>2</span>`;
+      } else if (d === 3) {
+        cell.className = 'cal-heart-mark outline lnum';
+        cell.innerHTML = `
+          <svg viewBox="0 0 36 36" fill="none" aria-hidden="true">
+            <path d="M18 31 C18 31 5 22.8 5 13.5 C5 8.8 8.6 5.5 12.8 5.5 C15.4 5.5 17.2 7 18 8.6 C18.8 7 20.6 5.5 23.2 5.5 C27.4 5.5 31 8.8 31 13.5 C31 22.8 18 31 18 31 Z" fill="rgba(110,12,23,0.08)" stroke="#6E0C17" stroke-width="1.5"/>
+          </svg>
+          <span>3</span>`;
       } else {
         const isSun = (d + 4) % 7 === 0;
-        cell.className = 'cal-day' + (isSun ? ' sun' : '');
+        cell.className = 'cal-cell lnum' + (isSun ? ' sun' : '');
         cell.textContent = d;
       }
-      el.appendChild(cell);
+      grid.appendChild(cell);
     }
   }
 
-  /* ===== 4. COUNTDOWN TO 16:30 ON 02/01/2027 ===== */
+  /* ===== 3. LIVE COUNTDOWN (INSIDE RISING ENVELOPE CARD) ===== */
   function updateCountdown() {
     const target = new Date(cfg.countdownTarget).getTime();
     const diff = Math.max(0, target - Date.now());
@@ -515,119 +399,149 @@
     $('cdSecs').textContent = String(Math.floor((diff / 1000) % 60)).padStart(2, '0');
   }
 
-  /* ===== 5. SCROLL REVEAL OBSERVER ===== */
-  function initScrollReveal() {
-    const targets = document.querySelectorAll('.reveal');
+  /* ===== 4. SCROLL REVEAL & SELF-OPENING ENVELOPE ===== */
+  function initObservers() {
+    const reveals = document.querySelectorAll('.reveal');
+    const envScene = $('envScene');
+
     if (!('IntersectionObserver' in window)) {
-      targets.forEach((el) => el.classList.add('in-view'));
+      reveals.forEach((el) => el.classList.add('in-view'));
+      envScene?.classList.add('is-open');
       return;
     }
-    const io = new IntersectionObserver(
+
+    const revealIo = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             entry.target.classList.add('in-view');
-            io.unobserve(entry.target);
+            revealIo.unobserve(entry.target);
           }
         });
       },
-      { threshold: 0.14, rootMargin: '0px 0px -28px 0px' }
+      { threshold: 0.14, rootMargin: '0px 0px -24px 0px' }
     );
-    targets.forEach((el) => io.observe(el));
+    reveals.forEach((el) => revealIo.observe(el));
+
+    if (envScene) {
+      const envIo = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              setTimeout(() => envScene.classList.add('is-open'), 180);
+              envIo.unobserve(envScene);
+            }
+          });
+        },
+        { threshold: 0.35 }
+      );
+      envIo.observe(envScene);
+      envScene.addEventListener('click', () => envScene.classList.toggle('is-open'));
+    }
   }
 
-  /* ===== 6. BACKGROUND WEDDING MUSIC ("BEAUTIFUL IN WHITE") ===== */
+  /* ===== 5. AUDIO ENGINE ("BEAUTIFUL IN WHITE") SYNCED WITH VINYL & FAB ===== */
   const bgMusic = $('bgMusic');
   const musicBtn = $('musicToggleBtn');
+  const vinylSection = $('vinylSection');
+  const vinylPlayIcon = $('vinylPlayIcon');
   const MUSIC_TARGET_VOL = 0.65;
   let musicUserPaused = false;
   let musicResumeOnVisible = false;
   let musicFadeRaf = null;
 
-  function syncMusicUI(playing) {
-    if (!musicBtn) return;
-    musicBtn.classList.toggle('is-playing', playing);
-    musicBtn.setAttribute('aria-pressed', playing ? 'true' : 'false');
-    musicBtn.setAttribute('aria-label', playing ? 'Tắt nhạc nền Beautiful in White' : 'Bật nhạc nền Beautiful in White');
+  function syncAudioUI(playing) {
+    musicBtn?.classList.toggle('is-playing', playing);
+    musicBtn?.setAttribute('aria-pressed', playing ? 'true' : 'false');
+    vinylSection?.classList.toggle('is-playing', playing);
+    if (vinylPlayIcon) {
+      vinylPlayIcon.innerHTML = playing
+        ? '<rect x="6" y="4" width="4" height="16" rx="1" fill="currentColor"/><rect x="14" y="4" width="4" height="16" rx="1" fill="currentColor"/>'
+        : '<polygon points="7,4 20,12 7,20" fill="currentColor"/>';
+    }
   }
 
-  function cancelMusicFade() {
+  function cancelFade() {
     if (musicFadeRaf) {
       cancelAnimationFrame(musicFadeRaf);
       musicFadeRaf = null;
     }
   }
 
-  function fadeVolumeTo(target, durationMs, onDone) {
-    cancelMusicFade();
+  function fadeTo(target, durationMs, done) {
+    cancelFade();
     const startVol = bgMusic.volume;
-    const startTime = performance.now();
-    const step = (now) => {
-      const p = Math.min(1, (now - startTime) / Math.max(1, durationMs));
+    const t0 = performance.now();
+    const tick = (now) => {
+      const p = Math.min(1, (now - t0) / Math.max(1, durationMs));
       const eased = 1 - Math.pow(1 - p, 2);
       try { bgMusic.volume = Math.max(0, Math.min(1, startVol + (target - startVol) * eased)); } catch (_) {}
       if (p < 1) {
-        musicFadeRaf = requestAnimationFrame(step);
+        musicFadeRaf = requestAnimationFrame(tick);
       } else {
         musicFadeRaf = null;
-        if (onDone) onDone();
+        if (done) done();
       }
     };
-    musicFadeRaf = requestAnimationFrame(step);
+    musicFadeRaf = requestAnimationFrame(tick);
   }
 
-  function startMusicWithFade(durationMs = 2400) {
+  function startMusic(durationMs = 2400) {
     if (!bgMusic) return;
-    cancelMusicFade();
+    cancelFade();
     if (bgMusic.paused) {
       try { bgMusic.volume = 0.02; } catch (_) {}
     }
-    const playPromise = bgMusic.play();
-    if (playPromise && typeof playPromise.then === 'function') {
-      playPromise.then(() => {
-        syncMusicUI(true);
-        fadeVolumeTo(MUSIC_TARGET_VOL, durationMs);
-      }).catch(() => syncMusicUI(false));
+    const pr = bgMusic.play();
+    if (pr && typeof pr.then === 'function') {
+      pr.then(() => {
+        syncAudioUI(true);
+        fadeTo(MUSIC_TARGET_VOL, durationMs);
+      }).catch(() => syncAudioUI(false));
     } else {
-      syncMusicUI(true);
-      fadeVolumeTo(MUSIC_TARGET_VOL, durationMs);
+      syncAudioUI(true);
+      fadeTo(MUSIC_TARGET_VOL, durationMs);
     }
   }
 
   function stopMusic(smooth = true) {
     if (!bgMusic) return;
-    cancelMusicFade();
+    cancelFade();
     if (bgMusic.paused) {
-      syncMusicUI(false);
+      syncAudioUI(false);
       return;
     }
     if (smooth) {
-      fadeVolumeTo(0, 260, () => {
+      fadeTo(0, 260, () => {
         bgMusic.pause();
-        syncMusicUI(false);
+        syncAudioUI(false);
       });
     } else {
       bgMusic.pause();
-      syncMusicUI(false);
+      syncAudioUI(false);
     }
   }
 
-  if (bgMusic && musicBtn) {
-    bgMusic.addEventListener('play', () => syncMusicUI(true));
-    bgMusic.addEventListener('pause', () => syncMusicUI(false));
+  function toggleMusic() {
+    if (!bgMusic) return;
+    if (bgMusic.paused) {
+      musicUserPaused = false;
+      startMusic(1100);
+      showToast('Đang phát: Beautiful in White 🎵');
+    } else {
+      musicUserPaused = true;
+      musicResumeOnVisible = false;
+      stopMusic(true);
+      showToast('Đã tạm dừng nhạc nền');
+    }
+  }
 
-    musicBtn.addEventListener('click', () => {
-      if (bgMusic.paused) {
-        musicUserPaused = false;
-        startMusicWithFade(1100);
-        showToast('Đang phát: Beautiful in White 🎵');
-      } else {
-        musicUserPaused = true;
-        musicResumeOnVisible = false;
-        stopMusic(true);
-        showToast('Đã tạm dừng nhạc nền 🔇');
-      }
-    });
+  if (bgMusic) {
+    bgMusic.addEventListener('play', () => syncAudioUI(true));
+    bgMusic.addEventListener('pause', () => syncAudioUI(false));
+    musicBtn?.addEventListener('click', toggleMusic);
+    $('vinylPlayBtn')?.addEventListener('click', toggleMusic);
+    $('vinylStage')?.addEventListener('click', toggleMusic);
 
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) {
@@ -637,10 +551,9 @@
         }
       } else if (musicResumeOnVisible && !musicUserPaused) {
         musicResumeOnVisible = false;
-        startMusicWithFade(1000);
+        startMusic(1000);
       }
     });
-
     window.addEventListener('pagehide', () => {
       if (!bgMusic.paused) {
         musicResumeOnVisible = true;
@@ -649,26 +562,18 @@
     });
   }
 
-  /* ===== 7. ENVELOPE CURTAIN OPEN + HERO CHOREOGRAPHY ===== */
-  function openEnvelope(e) {
-    const overlay = $('envelopeOverlay');
+  /* ===== 6. IMPERIAL DOUBLE-DOOR OPENING ===== */
+  function openDoors() {
+    const overlay = $('doorOverlay');
     if (!overlay || overlay.classList.contains('opened')) return;
     overlay.classList.add('opened');
-    if (e && e.clientX) {
-      spawnBurstHearts(e.clientX, e.clientY, 16);
-    } else {
-      spawnBurstHearts(window.innerWidth / 2, window.innerHeight / 2, 16);
-    }
-    setTimeout(() => document.body.classList.add('hero-ready'), 240);
-    if (!musicUserPaused) startMusicWithFade(2400);
+    setTimeout(() => document.body.classList.add('hero-ready'), 360);
+    if (!musicUserPaused) startMusic(2400);
   }
+  $('doorStage')?.addEventListener('click', openDoors);
 
-  $('btnOpenEnv')?.addEventListener('click', openEnvelope);
-  $('btnWaxSeal')?.addEventListener('click', openEnvelope);
-
-  /* ===== 8. GIFT QR MODAL ===== */
-  const modal = $('giftQrModal');
-
+  /* ===== 7. GIFT QR MODAL ===== */
+  const qrModal = $('giftQrModal');
   function setQrTab(tab) {
     document.querySelectorAll('.qr-tab').forEach((b) => {
       b.classList.toggle('active', b.dataset.qrTab === tab);
@@ -677,28 +582,23 @@
     $('brideQrCard').classList.toggle('hidden', tab === 'groom');
     $('qrGrid').classList.toggle('two-cols', tab === 'both');
   }
-
-  function openGiftModal(tab = 'both') {
-    setQrTab(tab);
-    modal.classList.remove('hidden');
-  }
-
   document.querySelectorAll('.btn-open-gift').forEach((btn) => {
-    btn.addEventListener('click', () => openGiftModal(btn.dataset.qrOpen || 'both'));
+    btn.addEventListener('click', () => {
+      setQrTab(btn.dataset.qrOpen || 'both');
+      qrModal.classList.remove('hidden');
+    });
   });
-  $('btnCloseGift')?.addEventListener('click', () => modal.classList.add('hidden'));
-  modal?.addEventListener('click', (e) => { if (e.target === modal) modal.classList.add('hidden'); });
-  document.querySelectorAll('.qr-tab').forEach((btn) => {
-    btn.addEventListener('click', () => setQrTab(btn.dataset.qrTab));
+  $('btnCloseGift')?.addEventListener('click', () => qrModal.classList.add('hidden'));
+  qrModal?.addEventListener('click', (e) => { if (e.target === qrModal) qrModal.classList.add('hidden'); });
+  document.querySelectorAll('.qr-tab').forEach((b) => {
+    b.addEventListener('click', () => setQrTab(b.dataset.qrTab));
   });
-
   $('btnCopyGroom')?.addEventListener('click', () => {
     navigator.clipboard?.writeText(CONFIG.groomBank.acc.replace(/\s+/g, '')).then(() => showToast('Đã copy STK Chú Rể!'));
   });
   $('btnCopyBride')?.addEventListener('click', () => {
     navigator.clipboard?.writeText(CONFIG.brideBank.acc.replace(/\s+/g, '')).then(() => showToast('Đã copy STK Cô Dâu!'));
   });
-
   function saveQr(imgId, svgId, filename) {
     const img = $(imgId);
     if (img && !img.classList.contains('hidden') && img.src) {
@@ -722,14 +622,13 @@
   $('btnDlGroom')?.addEventListener('click', () => saveQr('groomQrImg', 'groomQrSvg', 'QR-Chu-Re-Van-Nam'));
   $('btnDlBride')?.addEventListener('click', () => saveQr('brideQrImg', 'brideQrSvg', 'QR-Co-Dau-Kim-Tien'));
 
-  /* ===== 9. LIGHTBOX GALLERY (SWIPE + KEYBOARD) ===== */
+  /* ===== 8. PHOTO LIGHTBOX ===== */
   const lb = $('photoLightbox');
   const lbImg = $('lightboxImg');
-
   function openLb(idx, customSrc) {
     if (customSrc) {
       lbImg.src = customSrc;
-      $('lbCounter').textContent = 'Ảnh cưới Văn Nam & Kim Tiến';
+      $('lbCounter').textContent = 'Văn Nam & Kim Tiến';
       $('btnLbPrev').classList.add('hidden');
       $('btnLbNext').classList.add('hidden');
     } else {
@@ -742,14 +641,9 @@
     }
     lb.classList.remove('hidden');
   }
-
-  $('heroTriptych')?.addEventListener('click', () => openLb(0, CONFIG.photos.hero));
-  $('duoLeftFrame')?.addEventListener('click', () => openLb(0, $('duoLeftImg').src));
-  $('duoRightFrame')?.addEventListener('click', () => openLb(0, $('duoRightImg').src));
-  $('threeStrip')?.addEventListener('click', (e) => {
-    const img = e.target.closest('.strip-tile')?.querySelector('img');
-    if (img) openLb(0, img.src);
-  });
+  $('interludePhoto')?.addEventListener('click', () => openLb(0, $('interludeImg').src));
+  $('polaroidCard1')?.addEventListener('click', () => openLb(0, $('polaroid1Img').src));
+  $('polaroidCard2')?.addEventListener('click', () => openLb(0, $('polaroid2Img').src));
   $('secAlbum')?.addEventListener('click', (e) => {
     const tile = e.target.closest('[data-album-idx]');
     if (tile) openLb(parseInt(tile.dataset.albumIdx, 10));
@@ -758,18 +652,17 @@
   $('btnLbNext')?.addEventListener('click', () => openLb(lbIndex + 1));
   $('btnCloseLb')?.addEventListener('click', () => lb.classList.add('hidden'));
   lb?.addEventListener('click', (e) => { if (e.target === lb) lb.classList.add('hidden'); });
-
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       lb?.classList.add('hidden');
-      modal?.classList.add('hidden');
+      qrModal?.classList.add('hidden');
+      $('rsvpThanksModal')?.classList.add('hidden');
     }
     if (lb && !lb.classList.contains('hidden') && !$('btnLbNext').classList.contains('hidden')) {
       if (e.key === 'ArrowRight') openLb(lbIndex + 1);
       if (e.key === 'ArrowLeft') openLb(lbIndex - 1);
     }
   });
-
   let touchX = 0;
   lb?.addEventListener('touchstart', (e) => { touchX = e.changedTouches[0].screenX; }, { passive: true });
   lb?.addEventListener('touchend', (e) => {
@@ -779,27 +672,18 @@
     }
   }, { passive: true });
 
-  /* ===== 10. RSVP & GUESTBOOK ===== */
-  $('floatRsvpBtn')?.addEventListener('click', () => {
-    $('secRsvp')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  });
+  /* ===== 9. RSVP FORM + JMII-STYLE THANK-YOU CONFIRMATION POPUP ===== */
+  const thanksModal = $('rsvpThanksModal');
+  $('btnCloseThanks')?.addEventListener('click', () => thanksModal.classList.add('hidden'));
+  thanksModal?.addEventListener('click', (e) => { if (e.target === thanksModal) thanksModal.classList.add('hidden'); });
 
-  document.querySelectorAll('.att-btn').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      rsvpStatus = btn.dataset.att;
-      document.querySelectorAll('.att-btn').forEach((b) => {
-        b.classList.toggle('active', b.dataset.att === rsvpStatus);
-      });
-    });
-  });
-
-  function appendWish(name, meta, wish) {
+  function appendWish(name, tag, msg) {
     const div = document.createElement('div');
-    div.className = 'wish-item';
-    div.innerHTML = '<div class="wish-top"><span class="wish-author"></span><span class="wish-badge"></span></div><p class="wish-msg"></p>';
+    div.className = 'wish-card';
+    div.innerHTML = '<div class="wish-top"><span class="wish-author"></span><span class="wish-tag"></span></div><p class="wish-body"></p>';
     div.querySelector('.wish-author').textContent = name;
-    div.querySelector('.wish-badge').textContent = meta;
-    div.querySelector('.wish-msg').textContent = wish;
+    div.querySelector('.wish-tag').textContent = tag;
+    div.querySelector('.wish-body').textContent = msg;
     $('wishesList')?.prepend(div);
   }
 
@@ -807,8 +691,9 @@
     e.preventDefault();
     const name = $('rsvpName').value.trim();
     if (!name) return;
-    const relation = ($('rsvpRelation')?.value || '').trim();
+    const status = $('rsvpStatus').value;
     const count = $('rsvpCount').value;
+    const side = cfg.showSideSelect ? $('rsvpSide').value : (mode === 'nha-gai' ? 'Khách Nhà Gái' : 'Khách Nhà Trai');
     const wish = $('rsvpWish').value.trim() || 'Chúc Văn Nam & Kim Tiến trăm năm hạnh phúc!';
     const submitBtn = $('rsvpSubmitBtn');
 
@@ -824,29 +709,24 @@
             timestamp: new Date().toISOString(),
             mode,
             name,
-            relation,
-            status: rsvpStatus,
+            status,
             count,
+            side,
             wish
           })
         });
       } catch (_) {}
       submitBtn.disabled = false;
-      submitBtn.textContent = 'Gửi Xác Nhận';
+      submitBtn.textContent = 'Send · Xác Nhận';
     }
 
-    const authorLabel = relation ? `${name} (${relation})` : name;
-    appendWish(authorLabel, `${rsvpStatus} • ${count}`, wish);
+    appendWish(name, `${status} · ${count}`, wish);
     $('rsvpForm').reset();
-
-    const rect = submitBtn.getBoundingClientRect();
-    spawnBurstHearts(rect.left + rect.width / 2, rect.top, 14);
-    showToast('Cảm ơn bạn đã xác nhận & gửi lời chúc! ❤️');
+    thanksModal?.classList.remove('hidden');
   });
 
   /* ===== INIT ===== */
-  hydrateInvitation();
-  initFallingHearts();
-  initScrollReveal();
+  hydrate();
+  initObservers();
   setInterval(updateCountdown, 1000);
 })();

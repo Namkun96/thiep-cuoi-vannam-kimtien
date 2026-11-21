@@ -3,392 +3,475 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Thiệp Mời Nhà Gái — Kim Tiến &amp; Văn Nam (16h30 · 02.01.2027)</title>
-  <meta name="description" content="Trân trọng kính mời Quý khách tới dự Tiệc Cưới Nhà Gái lúc 16h30 Thứ Bảy ngày 02/01/2027 & Lễ Vu Quy ngày 03/01/2027 tại Thôn Cầu Cả, Cổ Loa, Đông Anh, TP. Hà Nội." />
-  <meta name="theme-color" content="#A81D24" />
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23A81D24'/%3E%3Ctext x='32' y='44' text-anchor='middle' fill='%23FFF8EE' font-family='serif' font-size='34'%3E%E5%9B%8D%3C/text%3E%3C/svg%3E" />
+  <title>Thiệp Mời Nhà Gái — Kim Tiến &amp; Văn Nam (16:30 · 02.01.2027)</title>
+  <meta name="description" content="Trân trọng kính mời Quý khách tới dự Tiệc Cưới Nhà Gái lúc 16:30 Thứ Bảy ngày 02/01/2027 & Lễ Vu Quy ngày 03/01/2027 tại Thôn Cầu Cả, Cổ Loa, Đông Anh, TP. Hà Nội." />
+  <meta name="theme-color" content="#6E0C17" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%236E0C17'/%3E%3Ctext x='32' y='44' text-anchor='middle' fill='%23E9DEC9' font-family='serif' font-size='34'%3E%E5%9B%8D%3C/text%3E%3C/svg%3E" />
 
   <!-- Open Graph / Zalo / Facebook Preview -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Thiệp Mời Tiệc Cưới Nhà Gái — Kim Tiến & Văn Nam" />
-  <meta property="og:description" content="Trân trọng kính mời Quý khách tới dự Tiệc Cưới Nhà Gái lúc 16h30 Thứ Bảy ngày 02/01/2027 & Lễ Vu Quy ngày 03/01/2027 tại Thôn Cầu Cả, Cổ Loa, Đông Anh, TP. Hà Nội." />
+  <meta property="og:description" content="Trân trọng kính mời Quý khách tới dự Tiệc Cưới Nhà Gái lúc 16:30 Thứ Bảy ngày 02/01/2027 & Lễ Vu Quy ngày 03/01/2027 tại Thôn Cầu Cả, Cổ Loa, Đông Anh, TP. Hà Nội." />
   <meta property="og:image" content="https://namkun96.github.io/thiep-cuoi-vannam-kimtien/og-cover.jpeg" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:locale" content="vi_VN" />
 
-  <!-- Luxury Vietnamese Google Fonts -->
+  <!-- Luxury Editorial Vietnamese Google Fonts (Cormorant Garamond + Great Vibes accents + Be Vietnam Pro) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Great+Vibes&display=swap" rel="stylesheet" />
 
   <link rel="stylesheet" href="../assets/style.css" />
 </head>
 <body data-mode="nha-gai" data-base="..">
 
-  <!-- ===== 0. LUXURY CRIMSON SILK CURTAIN ENVELOPE ===== -->
-  <div id="envelopeOverlay" class="env-overlay">
-    <div class="env-card">
-      <div class="env-door left" aria-hidden="true"></div>
-      <div class="env-door right" aria-hidden="true"></div>
-      <svg class="env-flap" viewBox="0 0 400 155" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M0 0 L200 145 L400 0 Z" fill="#FFF8EE" />
-      </svg>
+  <!-- ===== 0. IMPERIAL BURGUNDY DOUBLE-DOOR OPENING (JMII 00:00 - 00:02) ===== -->
+  <div id="doorOverlay" class="door-overlay">
+    <div id="doorStage" class="door-stage" role="button" tabindex="0" aria-label="Chạm dấu sáp vàng để mở thiệp cưới">
+      <div class="door-panel left"></div>
+      <div class="door-panel right"></div>
 
-      <div class="env-inner">
-        <div>
-          <p class="env-kicker">Save The Date</p>
-          <p id="envTitle" class="env-title">Thiệp Mời Tiệc Cưới Nhà Gái</p>
-        </div>
+      <button type="button" class="door-seal-btn" aria-label="Mở thiệp cưới">
+        <span class="door-seal-hy">囍</span>
+      </button>
 
-        <div>
-          <button id="btnWaxSeal" type="button" class="wax-seal" aria-label="Chạm dấu sáp để mở thiệp">
-            <span class="wax-hy">囍</span>
-            <span id="envMonogram" class="wax-mono">N ♥ T</span>
-          </button>
-          <h2 id="envCoupleNames" class="env-names">Văn Nam &amp; Kim Tiến</h2>
-          <p id="envDateStr" class="env-date">02 – 03 . 01 . 2027</p>
-        </div>
-
-        <div style="width:100%;">
-          <div class="env-guest-box">
-            <p class="env-guest-label">Trân trọng kính mời</p>
-            <p id="envGuestName" class="env-guest-name">Quý Khách &amp; Gia Đình</p>
-          </div>
-          <button id="btnOpenEnv" type="button" class="env-open-btn">✨ Mở Thiệp Mời ✨</button>
-        </div>
+      <div class="door-caption">
+        <p id="doorCouple" class="door-couple">Văn Nam &amp; Kim Tiến</p>
+        <p id="doorGuestLine" class="door-guest-line">Kính mời: Quý Khách &amp; Gia Đình</p>
+        <span class="door-hint">Chạm để mở thiệp</span>
       </div>
     </div>
   </div>
 
-  <!-- ===== CONTINUOUS FALLING HEARTS OVERLAY ===== -->
-  <div id="heartsLayer" class="hearts-layer" aria-hidden="true"></div>
-
-  <!-- ===== MAIN EDITORIAL INVITATION SHELL ===== -->
+  <!-- ===== MAIN LUXURY EDITORIAL INVITATION SHELL ===== -->
   <main class="shell">
-    <div class="content">
 
-      <!-- 1. HERO: STAGGERED CALLIGRAPHY NAMES + 3-PANEL TRIPTYCH PORTRAIT -->
-      <section class="hero">
-        <p class="hero-kicker">Save The Date</p>
+    <!-- 1. FULL-BLEED CINEMATIC HERO COVER -->
+    <section class="hero-cover">
+      <img id="heroCoverImg" class="hero-cover-img" src="../images/hero-arch.webp" alt="Văn Nam &amp; Kim Tiến" />
+      <div class="hero-cover-scrim" aria-hidden="true"></div>
+      <div class="hero-cover-text">
+        <h1 id="heroCoupleNames" class="hero-couple-names">Văn Nam <span class="amp">&amp;</span> Kim Tiến</h1>
+        <p class="hero-save-line">Save Our Date</p>
+        <p id="heroDateSub" class="hero-date-sub lnum">02 – 03 . 01 . 2027</p>
+      </div>
+    </section>
 
-        <div class="hero-stagger-names">
-          <h1 id="heroFirstName" class="hero-name-first">Văn Nam</h1>
-          <span class="hero-amp" aria-hidden="true">&amp;</span>
-          <p id="heroSecondName" class="hero-name-second">Kim Tiến</p>
-        </div>
-
-        <div id="heroTriptych" class="hero-triptych" role="button" tabindex="0" aria-label="Xem phóng to ảnh cưới bìa">
-          <div class="triptych-col col-left">
-            <img class="trip-img" src="../images/hero-arch.webp" alt="Ảnh cưới Văn Nam và Kim Tiến" />
-          </div>
-          <div class="triptych-col col-center">
-            <img class="trip-img" src="../images/hero-arch.webp" alt="Ảnh cưới Văn Nam và Kim Tiến" />
-          </div>
-          <div class="triptych-col col-right">
-            <img class="trip-img" src="../images/hero-arch.webp" alt="Ảnh cưới Văn Nam và Kim Tiến" />
-          </div>
-        </div>
-
-        <div id="heroMetaStrip" class="hero-meta-strip">
-          T7 · <strong>02.01</strong> &nbsp;•&nbsp; CN · <strong>03.01.2027</strong>
-        </div>
-      </section>
-
-      <!-- 2. QUOTE, TWO FAMILIES & GROOM / BRIDE PORTRAIT DUO -->
-      <section class="section-pad">
-        <p class="poem-quote reveal">
-          “Hôn nhân là chuyện cả đời,<br/>Yêu người vừa ý, cưới người mình thương...”
-        </p>
-
-        <div class="heart-divider reveal" aria-hidden="true"><span>♥</span></div>
-
-        <h2 id="announceHeading" class="announce-heading reveal">
-          Trân Trọng Thông Báo Lễ Thành Hôn &amp; Lễ Vu Quy
-        </h2>
-
-        <div class="families-two-col">
-          <div class="fam-side reveal from-left">
-            <p id="famLeftRole" class="fam-role">Nhà Trai</p>
-            <p id="famLeftParent" class="fam-parent-line">Bà: Nguyễn Thị ...</p>
-            <p id="famLeftHome" class="fam-home">Thị trấn Kim Bài, Thanh Oai<br/>TP. Hà Nội</p>
-          </div>
-          <div class="fam-side reveal from-right">
-            <p id="famRightRole" class="fam-role">Nhà Gái</p>
-            <p id="famRightParent" class="fam-parent-line">Bà: Trần Thị ...</p>
-            <p id="famRightHome" class="fam-home">Thôn Cầu Cả, Cổ Loa, Đông Anh<br/>TP. Hà Nội</p>
-          </div>
-        </div>
-
-        <div class="couple-titles-row reveal">
-          <div>
-            <p id="duoLeftRole" class="couple-role-small">Chú Rể</p>
-            <p id="duoLeftName" class="couple-script-name">Văn Nam</p>
-          </div>
-          <div class="couple-mid-heart" aria-hidden="true">❤</div>
-          <div>
-            <p id="duoRightRole" class="couple-role-small">Cô Dâu</p>
-            <p id="duoRightName" class="couple-script-name">Kim Tiến</p>
-          </div>
-        </div>
-
-        <div class="duo-photos">
-          <div id="duoLeftFrame" class="duo-frame reveal from-left">
-            <img id="duoLeftImg" src="../images/arch-closeup.webp" alt="Chú Rể Văn Nam" />
-          </div>
-          <div id="duoRightFrame" class="duo-frame reveal from-right">
-            <img id="duoRightImg" src="../images/aodai-closeup.webp" alt="Cô Dâu Kim Tiến" />
-          </div>
-        </div>
-      </section>
-
-      <!-- 3. TRÂN TRỌNG KÍNH MỜI + 3-PHOTO STAGGERED ROW -->
-      <section class="invite-card-section">
-        <div class="heart-divider reveal" aria-hidden="true"><span>♥</span></div>
-        <p class="invite-kicker reveal">Trân Trọng Kính Mời</p>
-        <p id="guestNameHero" class="guest-name-hero reveal">Quý Khách &amp; Gia Đình</p>
-        <p id="inviteSubtext" class="invite-subtext reveal">
-          Đến dự bữa tiệc thân mật mừng hạnh phúc cùng hai gia đình chúng tôi
-        </p>
-
-        <div id="threeStrip" class="three-strip">
-          <div class="strip-tile side reveal from-left" style="--d:40ms;">
-            <img id="stripImg1" src="../images/aodai-full.webp" alt="Khoảnh khắc cưới 1" />
-          </div>
-          <div class="strip-tile mid reveal zoom-in" style="--d:120ms;">
-            <img id="stripImg2" src="../images/hero-arch.webp" alt="Khoảnh khắc cưới 2" />
-          </div>
-          <div class="strip-tile side reveal from-right" style="--d:200ms;">
-            <img id="stripImg3" src="../images/bouquet.webp" alt="Khoảnh khắc cưới 3" />
-          </div>
-        </div>
-      </section>
-
-      <!-- 4. EVENT SCHEDULE TRIAD BLOCKS (TIỆC CƯỚI & LỄ CHÍNH) -->
-      <section id="secEvents" class="events-section">
-        <div id="eventsList"></div>
-      </section>
-
-      <!-- 5. ĐỊA ĐIỂM TỔ CHỨC + EMBEDDED GOOGLE MAPS -->
-      <section id="secLocation" class="location-section">
-        <div class="crimson-ribbon reveal">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-            <circle cx="12" cy="10" r="3"></circle>
-          </svg>
-          <h2>Địa Điểm Tổ Chức</h2>
-        </div>
-
-        <div id="venueList" class="venue-list"></div>
-      </section>
-
-      <!-- 6. SAVE THE DATE CALENDAR + COUNTDOWN -->
-      <section class="calendar-section">
-        <div class="reveal">
-          <p class="save-script">Save the Date</p>
-          <p class="cal-month-title">THÁNG 01 - 2027</p>
-        </div>
-
-        <div class="cal-board reveal zoom-in">
-          <div class="cal-grid">
-            <div class="cal-dow">T2</div>
-            <div class="cal-dow">T3</div>
-            <div class="cal-dow">T4</div>
-            <div class="cal-dow">T5</div>
-            <div class="cal-dow">T6</div>
-            <div class="cal-dow">T7</div>
-            <div class="cal-dow sun">CN</div>
-          </div>
-          <div id="calendarDays" class="cal-grid"></div>
-          <div class="cal-legend">
-            <span><strong class="crimson">♥ 02/01</strong> Tiệc cưới (16h30)</span>
-            <span><strong style="color:rgba(168,29,36,0.72);">♡ 03/01</strong> Lễ Thành Hôn &amp; Vu Quy</span>
-          </div>
-
-          <div class="countdown-wrap">
-            <p id="countdownLabel" class="countdown-label">Tiệc cưới sẽ diễn ra sau:</p>
-            <div class="countdown-row">
-              <div class="cd-item"><div id="cdDays" class="cd-num">00</div><div class="cd-unit">Ngày</div></div>
-              <span class="cd-sep" aria-hidden="true">:</span>
-              <div class="cd-item"><div id="cdHours" class="cd-num">00</div><div class="cd-unit">Giờ</div></div>
-              <span class="cd-sep" aria-hidden="true">:</span>
-              <div class="cd-item"><div id="cdMins" class="cd-num">00</div><div class="cd-unit">Phút</div></div>
-              <span class="cd-sep" aria-hidden="true">:</span>
-              <div class="cd-item"><div id="cdSecs" class="cd-num">00</div><div class="cd-unit">Giây</div></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- 7. RSVP & GUESTBOOK -->
-      <section id="secRsvp" class="rsvp-section">
-        <!-- Minimalist Romantic Couple Emblem SVG -->
-        <svg class="couple-emblem reveal" viewBox="0 0 96 96" fill="none" aria-hidden="true">
-          <circle cx="48" cy="48" r="44" fill="#FAF1F1" stroke="#E8DCD9" stroke-width="1.5"/>
-          <path d="M48 20 C48 20 55 13 60 17 C64 20 60 27 48 34 C36 27 32 20 36 17 C41 13 48 20 48 20 Z" fill="#A81D24" opacity="0.9"/>
-          <circle cx="35" cy="47" r="7.5" fill="#F6DFD2" stroke="#2E2424" stroke-width="1.4"/>
-          <circle cx="61" cy="47" r="7.5" fill="#F6DFD2" stroke="#2E2424" stroke-width="1.4"/>
-          <path d="M24 72 C24 61 29 57 35 57 C41 57 46 61 46 72" fill="#2E2424"/>
-          <path d="M35 57 L32 63 L35 66 L38 63 Z" fill="#FFF"/>
-          <path d="M50 72 C50 61 55 57 61 57 C67 57 72 61 72 72 Z" fill="#FFFFFF" stroke="#C29663" stroke-width="1.4"/>
-          <path d="M56 39 C58 36 64 36 66 39" stroke="#C29663" stroke-width="1.4" stroke-linecap="round"/>
-        </svg>
-
-        <p class="rsvp-lead reveal">Vui lòng cho biết sự hiện diện của bạn tại sự kiện</p>
-
-        <div class="rsvp-card reveal">
-          <form id="rsvpForm" class="rsvp-form">
-            <input id="rsvpName" type="text" required class="field" placeholder="Tên của bạn là? (VD: Anh Bình / Bạn Tuấn...)" />
-            <input id="rsvpRelation" type="text" class="field" placeholder="Bạn là gì của Dâu Rể? (Bạn chú rể / Đồng nghiệp / Họ hàng...)" />
-            <textarea id="rsvpWish" rows="2" class="field" style="resize:none;" placeholder="Gửi lời chúc ngọt ngào tới Văn Nam &amp; Kim Tiến nhé!"></textarea>
-
-            <div class="att-grid">
-              <button type="button" data-att="Sẽ tham dự" class="att-btn active">💌 Mình sẽ tham dự</button>
-              <button type="button" data-att="Rất tiếc bận" class="att-btn">🌷 Tiếc quá bận rồi</button>
-            </div>
-
-            <select id="rsvpCount" class="field" aria-label="Số người tham dự">
-              <option value="1 người">Đi 1 mình (1 người)</option>
-              <option value="2 người">Đi cùng người thương (2 người)</option>
-              <option value="3-4 người">Đi cùng gia đình (3–4 người)</option>
-            </select>
-
-            <button id="rsvpSubmitBtn" type="submit" class="btn-submit-rsvp">Gửi Xác Nhận</button>
-          </form>
-
-          <div class="wishes-box">
-            <p class="wishes-heading">Lời chúc gần đây</p>
-            <div id="wishesList" class="wishes-list">
-              <div class="wish-item">
-                <div class="wish-top">
-                  <span class="wish-author">Anh Bình &amp; Gia đình</span>
-                  <span class="wish-badge">Sẽ tham dự</span>
-                </div>
-                <p class="wish-msg">Chúc Văn Nam &amp; Kim Tiến trăm năm hạnh phúc, gia đình luôn ngập tràn tiếng cười và bình an!</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- 8. HỘP MỪNG CƯỚI (2 ANIMATED GIFT BOXES) -->
-      <section class="gift-section">
-        <div class="reveal">
-          <h2 class="gift-title">Hộp mừng cưới</h2>
-          <p class="gift-sub">Cảm ơn tình cảm của mọi người đã dành cho chúng mình!</p>
-        </div>
-
-        <div id="giftPair" class="gift-pair">
-          <button id="giftCardGroom" type="button" class="gift-box-card btn-open-gift reveal from-left" data-qr-open="groom">
-            <svg class="gift-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true">
-              <rect x="14" y="34" width="52" height="36" rx="5" fill="#FDF3EC" stroke="#C29663" stroke-width="2"/>
-              <rect x="10" y="24" width="60" height="12" rx="4" fill="#FAF0E6" stroke="#C29663" stroke-width="2"/>
-              <rect x="35" y="24" width="10" height="46" fill="#A81D24"/>
-              <rect x="14" y="47" width="52" height="7" fill="#A81D24" opacity="0.92"/>
-              <path d="M40 24 C32 12 18 14 23 23 C26 27 35 25 40 24 Z" fill="#C4252D"/>
-              <path d="M40 24 C48 12 62 14 57 23 C54 27 45 25 40 24 Z" fill="#A81D24"/>
-              <circle cx="40" cy="24" r="3.5" fill="#E9D6BD"/>
-            </svg>
-            <span class="gift-card-label">Nhà Trai</span>
-            <span class="gift-card-hint">Xem mã QR →</span>
-          </button>
-
-          <button id="giftCardBride" type="button" class="gift-box-card btn-open-gift reveal from-right" data-qr-open="bride">
-            <svg class="gift-svg" viewBox="0 0 80 80" fill="none" aria-hidden="true">
-              <rect x="14" y="34" width="52" height="36" rx="5" fill="#FDF3EC" stroke="#C29663" stroke-width="2"/>
-              <rect x="10" y="24" width="60" height="12" rx="4" fill="#FAF0E6" stroke="#C29663" stroke-width="2"/>
-              <rect x="35" y="24" width="10" height="46" fill="#A81D24"/>
-              <rect x="14" y="47" width="52" height="7" fill="#A81D24" opacity="0.92"/>
-              <path d="M40 24 C32 12 18 14 23 23 C26 27 35 25 40 24 Z" fill="#C4252D"/>
-              <path d="M40 24 C48 12 62 14 57 23 C54 27 45 25 40 24 Z" fill="#A81D24"/>
-              <circle cx="40" cy="24" r="3.5" fill="#E9D6BD"/>
-            </svg>
-            <span class="gift-card-label">Nhà Gái</span>
-            <span class="gift-card-hint">Xem mã QR →</span>
-          </button>
-        </div>
-      </section>
-
-      <!-- 9. ALBUM HÌNH CƯỚI (EDITORIAL COLLAGE) -->
-      <section id="secAlbum" class="album-section">
-        <div class="album-title-row reveal">
-          <h2 class="album-script">Album hình cưới</h2>
-          <span class="album-line" aria-hidden="true"></span>
-        </div>
-
-        <div class="album-editorial">
-          <div class="album-pair">
-            <div class="album-tile tall reveal from-left" data-album-idx="0">
-              <img src="../images/aodai-full.webp" alt="Ảnh cưới 1" loading="lazy" />
-            </div>
-            <div class="album-tile tall reveal from-right" data-album-idx="1">
-              <img src="../images/arch-closeup.webp" alt="Ảnh cưới 2" loading="lazy" />
-            </div>
-          </div>
-
-          <div class="album-tile wide reveal zoom-in" data-album-idx="2">
-            <img src="../images/banner-rings.webp" alt="Ảnh cưới 3" loading="lazy" />
-          </div>
-
-          <div class="album-pair">
-            <div class="album-tile tall reveal from-left" data-album-idx="3">
-              <img src="../images/bouquet.webp" alt="Ảnh cưới 4" loading="lazy" />
-            </div>
-            <div class="album-tile tall reveal from-right" data-album-idx="4">
-              <img src="../images/hands-rings.webp" alt="Ảnh cưới 5" loading="lazy" />
-            </div>
-          </div>
-
-          <div class="album-pair">
-            <div class="album-tile tall reveal from-left" data-album-idx="5">
-              <img src="../images/aodai-closeup.webp" alt="Ảnh cưới 6" loading="lazy" />
-            </div>
-            <div class="album-tile tall reveal from-right" data-album-idx="6">
-              <img src="../images/hero-arch.webp" alt="Ảnh cưới 7" loading="lazy" />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- 10. FULL-BLEED PHOTO FOOTER WITH TRANSLUCENT "Thank you!" BAND -->
-      <footer class="footer-hero reveal zoom-in">
-        <img id="footerHeroImg" class="footer-hero-img" src="../images/aodai-full.webp" alt="Văn Nam &amp; Kim Tiến" loading="lazy" />
-        <div class="footer-veil">
-          <p class="footer-thanks">Thank you!</p>
-          <p class="footer-sub">Rất hân hạnh được đón tiếp!</p>
-          <p id="footerMono" class="footer-mono">VĂN NAM ♥ KIM TIẾN · 02–03.01.2027</p>
-        </div>
-      </footer>
-
+    <!-- INDOCHINE GOLD CLOUDS & CRANE TRANSITION -->
+    <div class="ornament-band" aria-hidden="true">
+      <div class="ornament-cloud-left"><svg viewBox="0 0 200 64" fill="none" stroke="#C6AE8A" stroke-width="1.2" stroke-linecap="round">
+  <path d="M6 42 C24 42 32 30 50 30 C64 30 70 39 84 39 C98 39 108 24 126 24 C142 24 150 34 166 34 C178 34 186 28 194 28"/>
+  <path d="M18 50 C38 50 48 40 66 40 C82 40 90 48 108 48 C126 48 136 37 154 37 C168 37 176 42 188 42" opacity="0.65"/>
+  <path d="M38 22 C44 16 56 16 62 22 C68 18 76 19 80 24" opacity="0.7"/>
+</svg></div>
+      <div class="ornament-crane-right"><svg viewBox="0 0 120 76" fill="none">
+  <path d="M64 38 C52 24 34 15 16 14 C28 24 38 33 50 40 Z" fill="#FBF8F3" stroke="#A2855E" stroke-width="1.1"/>
+  <path d="M58 40 C46 31 32 25 22 25 C31 33 41 39 52 43 Z" fill="#EFE7DA" stroke="#A2855E" stroke-width="0.9"/>
+  <path d="M60 41 C72 34 86 28 100 22 C90 32 82 40 72 45 Z" fill="#FBF8F3" stroke="#A2855E" stroke-width="1.1"/>
+  <path d="M48 42 C58 40 72 41 84 46 C72 49 58 49 46 46 Z" fill="#FFFFFF" stroke="#8F7350" stroke-width="1.1"/>
+  <path d="M84 45 L98 42 L106 43" stroke="#8F7350" stroke-width="1.4" stroke-linecap="round"/>
+  <circle cx="96" cy="41.5" r="2.1" fill="#6E0C17"/>
+  <path d="M46 46 L26 54 M44 48 L30 58" stroke="#342B28" stroke-width="1.1" stroke-linecap="round"/>
+  <path d="M22 16 L16 14 L20 20 M28 21 L22 20" stroke="#342B28" stroke-width="1.2" stroke-linecap="round"/>
+</svg></div>
     </div>
+
+    <!-- 2. SELF-OPENING BURGUNDY ENVELOPE & RISING COUNTDOWN LETTER (JMII 00:05 - 00:09) -->
+    <section class="envelope-stage-section">
+      <div id="envScene" class="env-scene" title="Chạm để đóng / mở phong bì">
+        <div class="orchid-accent-left" aria-hidden="true"><svg viewBox="0 0 130 165" fill="none">
+  <path d="M58 160 C55 128 50 96 42 66 C36 44 28 28 18 14" stroke="#53141B" stroke-width="2" stroke-linecap="round"/>
+  <path d="M46 86 C64 78 82 68 96 54" stroke="#53141B" stroke-width="1.5" stroke-linecap="round"/>
+  <g fill="#7A101C" stroke="#4D0810" stroke-width="0.8">
+    <ellipse cx="44" cy="48" rx="16" ry="11" transform="rotate(-24 44 48)"/>
+    <ellipse cx="26" cy="60" rx="15" ry="10" transform="rotate(20 26 60)"/>
+    <ellipse cx="52" cy="68" rx="14" ry="10" transform="rotate(28 52 68)"/>
+    <circle cx="40" cy="58" r="5" fill="#CBB390"/>
+  </g>
+  <g fill="#6E0C17" stroke="#4D0810" stroke-width="0.8">
+    <ellipse cx="86" cy="60" rx="14" ry="9" transform="rotate(-15 86 60)"/>
+    <ellipse cx="102" cy="70" rx="13" ry="9" transform="rotate(25 102 70)"/>
+    <ellipse cx="82" cy="78" rx="12" ry="8" transform="rotate(-30 82 78)"/>
+    <circle cx="90" cy="69" r="4.2" fill="#E9DEC9"/>
+  </g>
+  <g fill="#851522" stroke="#4D0810" stroke-width="0.8">
+    <ellipse cx="36" cy="106" rx="14" ry="10" transform="rotate(-18 36 106)"/>
+    <ellipse cx="56" cy="112" rx="13" ry="9" transform="rotate(22 56 112)"/>
+    <ellipse cx="42" cy="126" rx="12" ry="9" transform="rotate(-8 42 126)"/>
+    <circle cx="45" cy="114" r="4.2" fill="#CBB390"/>
+  </g>
+</svg></div>
+        <div class="peony-accent-right" aria-hidden="true">
+          <svg viewBox="0 0 110 110" fill="none">
+            <g fill="#7A101C" stroke="#4D0810" stroke-width="0.8">
+              <circle cx="56" cy="54" r="24"/>
+              <circle cx="44" cy="46" r="16" fill="#8C1826"/>
+              <circle cx="68" cy="48" r="15" fill="#6E0C17"/>
+              <circle cx="56" cy="64" r="15" fill="#7D121F"/>
+              <circle cx="56" cy="54" r="7" fill="#CBB390"/>
+            </g>
+          </svg>
+        </div>
+
+        <div class="env-pocket-back">
+          <div class="env-flap-tri"></div>
+
+          <div class="env-letter-card">
+            <p class="letter-kicker">Trân trọng kính mời dự lễ cưới của<br/>You're invited to the wedding of</p>
+            <p id="letterNames" class="letter-names">Văn Nam<span class="amp-small">&amp;</span>Kim Tiến</p>
+            <p class="letter-cd-kicker">Sự kiện diễn ra sau · Is happening in</p>
+            <div class="letter-cd-row lnum">
+              <div class="lcd-unit-col"><span id="cdDays" class="lcd-num">00</span><span class="lcd-lbl">Ngày</span></div>
+              <span class="lcd-sep">:</span>
+              <div class="lcd-unit-col"><span id="cdHours" class="lcd-num">00</span><span class="lcd-lbl">Giờ</span></div>
+              <span class="lcd-sep">:</span>
+              <div class="lcd-unit-col"><span id="cdMins" class="lcd-num">00</span><span class="lcd-lbl">Phút</span></div>
+              <span class="lcd-sep">:</span>
+              <div class="lcd-unit-col"><span id="cdSecs" class="lcd-num">00</span><span class="lcd-lbl">Giây</span></div>
+            </div>
+          </div>
+
+          <div class="env-pocket-front"></div>
+          <div class="env-mini-seal" aria-hidden="true">囍</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. FULL-BLEED "Forever & Always" INTERLUDE PHOTO -->
+    <section id="interludePhoto" class="interlude-photo reveal">
+      <img id="interludeImg" src="../images/banner-rings.webp" alt="Forever and Always" loading="lazy" />
+      <p class="interlude-script">Forever &amp; Always</p>
+    </section>
+
+    <!-- INDOCHINE CLOUDS & CRANE ABOVE FORMAL SUITE -->
+    <div class="ornament-band" aria-hidden="true">
+      <div class="ornament-cloud-left"><svg viewBox="0 0 200 64" fill="none" stroke="#C6AE8A" stroke-width="1.2" stroke-linecap="round">
+  <path d="M6 42 C24 42 32 30 50 30 C64 30 70 39 84 39 C98 39 108 24 126 24 C142 24 150 34 166 34 C178 34 186 28 194 28"/>
+  <path d="M18 50 C38 50 48 40 66 40 C82 40 90 48 108 48 C126 48 136 37 154 37 C168 37 176 42 188 42" opacity="0.65"/>
+  <path d="M38 22 C44 16 56 16 62 22 C68 18 76 19 80 24" opacity="0.7"/>
+</svg></div>
+      <div class="ornament-crane-right"><svg viewBox="0 0 120 76" fill="none">
+  <path d="M64 38 C52 24 34 15 16 14 C28 24 38 33 50 40 Z" fill="#FBF8F3" stroke="#A2855E" stroke-width="1.1"/>
+  <path d="M58 40 C46 31 32 25 22 25 C31 33 41 39 52 43 Z" fill="#EFE7DA" stroke="#A2855E" stroke-width="0.9"/>
+  <path d="M60 41 C72 34 86 28 100 22 C90 32 82 40 72 45 Z" fill="#FBF8F3" stroke="#A2855E" stroke-width="1.1"/>
+  <path d="M48 42 C58 40 72 41 84 46 C72 49 58 49 46 46 Z" fill="#FFFFFF" stroke="#8F7350" stroke-width="1.1"/>
+  <path d="M84 45 L98 42 L106 43" stroke="#8F7350" stroke-width="1.4" stroke-linecap="round"/>
+  <circle cx="96" cy="41.5" r="2.1" fill="#6E0C17"/>
+  <path d="M46 46 L26 54 M44 48 L30 58" stroke="#342B28" stroke-width="1.1" stroke-linecap="round"/>
+  <path d="M22 16 L16 14 L20 20 M28 21 L22 20" stroke="#342B28" stroke-width="1.2" stroke-linecap="round"/>
+</svg></div>
+    </div>
+
+    <!-- 4. FORMAL TWO-FAMILY INVITATION SUITE (JMII 00:11 - 00:18) -->
+    <section class="formal-suite">
+      <div class="families-formal">
+        <div class="reveal from-left">
+          <p id="famLeftVi" class="fam-col-title">Nhà Trai</p>
+          <p id="famLeftEn" class="fam-col-en">Groom's Side</p>
+          <p id="famLeftParent" class="fam-col-parent">Bà: Nguyễn Thị ...</p>
+          <p id="famLeftAddr" class="fam-col-addr">Thị trấn Kim Bài, Thanh Oai<br/>TP. Hà Nội</p>
+        </div>
+        <div class="reveal from-right">
+          <p id="famRightVi" class="fam-col-title">Nhà Gái</p>
+          <p id="famRightEn" class="fam-col-en">Bride's Side</p>
+          <p id="famRightParent" class="fam-col-parent">Bà: Trần Thị ...</p>
+          <p id="famRightAddr" class="fam-col-addr">Thôn Cầu Cả, Cổ Loa, Đông Anh<br/>TP. Hà Nội</p>
+        </div>
+      </div>
+
+      <div class="reveal">
+        <p class="invite-formal-kicker">Trân Trọng Kính Mời</p>
+        <p class="invite-formal-en">We Cordially Invite You</p>
+        <p id="formalGuestName" class="guest-underline">Quý Khách &amp; Gia Đình</p>
+      </div>
+
+      <div class="formal-couple-names reveal">
+        <p id="formalNameTop" class="formal-name-top">Văn Nam</p>
+        <span class="formal-name-amp" aria-hidden="true">&amp;</span>
+        <p id="formalNameBottom" class="formal-name-bottom">Kim Tiến</p>
+      </div>
+
+      <div id="formalEventsList"></div>
+
+      <div class="peony-footer-svg" aria-hidden="true"><svg viewBox="0 0 380 110" fill="none" stroke="#C9B393" stroke-width="1" stroke-linecap="round">
+  <g transform="translate(46,56)">
+    <circle cx="0" cy="0" r="14"/><path d="M-26 2 C-24 -18 -8 -28 10 -22 C24 -16 28 2 18 16 C8 28 -14 26 -24 12"/>
+    <path d="M-18 -14 C-4 -34 22 -30 30 -10 C38 8 24 30 2 32 C-18 34 -34 18 -30 -4"/>
+    <path d="M28 10 C48 16 64 10 80 0 M32 22 C48 30 62 30 78 24"/>
+  </g>
+  <g transform="translate(332,58) scale(-1,1)">
+    <circle cx="0" cy="0" r="14"/><path d="M-26 2 C-24 -18 -8 -28 10 -22 C24 -16 28 2 18 16 C8 28 -14 26 -24 12"/>
+    <path d="M-18 -14 C-4 -34 22 -30 30 -10 C38 8 24 30 2 32 C-18 34 -34 18 -30 -4"/>
+    <path d="M28 10 C48 16 64 10 80 0 M32 22 C48 30 62 30 78 24"/>
+  </g>
+  <path d="M138 76 Q190 54 242 76" opacity="0.55"/>
+</svg></div>
+    </section>
+
+    <!-- 5. DARK EDITORIAL POLAROID COUPLE STORY (JMII 00:19 - 00:22) -->
+    <section class="polaroid-story">
+      <img id="storyBgImg" class="polaroid-story-bg" src="../images/hands-rings.webp" alt="" aria-hidden="true" loading="lazy" />
+
+      <div class="story-grid">
+        <div class="story-row">
+          <div id="polaroidCard1" class="polaroid-card reveal from-left">
+            <img id="polaroid1Img" class="polaroid-img" src="../images/arch-closeup.webp" alt="Chú Rể Văn Nam" loading="lazy" />
+            <p id="polaroid1Role" class="polaroid-role">The Groom</p>
+            <p id="polaroid1Name" class="polaroid-name">Văn Nam</p>
+          </div>
+          <p class="story-copy reveal from-right">
+            “Hôn nhân là chuyện cả đời — yêu người vừa ý, cưới người mình thương.”
+          </p>
+        </div>
+
+        <div class="story-row reverse">
+          <p class="story-copy reveal from-left">
+            “Chúng mình cùng nhau bước sang chặng đường mới, đầy ắp tiếng cười, bình an và yêu thương trọn vẹn.”
+          </p>
+          <div id="polaroidCard2" class="polaroid-card reveal from-right">
+            <img id="polaroid2Img" class="polaroid-img" src="../images/aodai-closeup.webp" alt="Cô Dâu Kim Tiến" loading="lazy" />
+            <p id="polaroid2Role" class="polaroid-role">The Bride</p>
+            <p id="polaroid2Name" class="polaroid-name">Kim Tiến</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. SAVE THE DATE CALENDAR, VERTICAL TIMELINE & DRESS CODE (JMII 00:22 - 00:26) -->
+    <section class="schedule-suite">
+      <div class="reveal">
+        <p class="accent-heading">Save the date</p>
+        <p class="cal-sub-month lnum">Tháng 01 · January 2027</p>
+      </div>
+
+      <div class="reveal">
+        <div class="cal-clean-grid">
+          <div class="cal-hd">T2</div>
+          <div class="cal-hd">T3</div>
+          <div class="cal-hd">T4</div>
+          <div class="cal-hd">T5</div>
+          <div class="cal-hd">T6</div>
+          <div class="cal-hd">T7</div>
+          <div class="cal-hd" style="color:var(--burgundy);">CN</div>
+        </div>
+        <div id="calendarDays" class="cal-clean-grid"></div>
+        <div class="cal-notes">
+          <span><strong style="color:var(--burgundy);">♥ 02/01</strong> · Tiệc cưới (16:30)</span>
+          <span><strong style="color:var(--gold);">♡ 03/01</strong> · Lễ Thành Hôn &amp; Vu Quy</span>
+        </div>
+      </div>
+
+      <div class="reveal">
+        <p class="accent-heading">Timeline</p>
+      </div>
+      <div id="timelineAxis" class="timeline-axis"></div>
+
+      <div class="dresscode-wrap reveal">
+        <p class="dress-title">Dress code</p>
+        <p class="dress-sub">Trang Trọng · Lịch Sự · Formal Attire</p>
+        <div class="dress-swatches" aria-label="Gợi ý bảng màu trang phục">
+          <span class="swatch" style="background:#FAF6F0;" title="Kem ngà"></span>
+          <span class="swatch" style="background:#D8C3A5;" title="Be vàng"></span>
+          <span class="swatch" style="background:#6E0C17;" title="Đỏ rượu vang"></span>
+          <span class="swatch" style="background:#2F2726;" title="Đen thanh lịch"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. SPINNING VINYL RECORD PLAYER FEATURE BLOCK (JMII 00:26 - 00:27) -->
+    <section id="vinylSection" class="vinyl-section">
+      <div id="vinylStage" class="vinyl-stage reveal" title="Chạm đĩa nhạc để bật / tạm dừng Beautiful in White">
+        <div class="vinyl-record">
+          <img id="vinylLabelImg" class="vinyl-label-img" src="../images/arch-closeup.webp" alt="Beautiful in White" loading="lazy" />
+        </div>
+        <svg class="vinyl-arm" viewBox="0 0 68 112" fill="none" aria-hidden="true">
+          <circle cx="48" cy="18" r="12" fill="#D5CCC0" stroke="#7A7066" stroke-width="2"/>
+          <circle cx="48" cy="18" r="5" fill="#5D544C"/>
+          <path d="M46 28 L34 86 L22 98" stroke="#EAE3DA" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="14" y="92" width="13" height="16" rx="2" transform="rotate(24 14 92)" fill="#D5CCC0" stroke="#6E645B" stroke-width="1.2"/>
+        </svg>
+      </div>
+
+      <button id="vinylPlayBtn" type="button" class="vinyl-play-btn" aria-label="Phát hoặc tạm dừng nhạc nền">
+        <svg id="vinylPlayIcon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+          <polygon points="7,4 20,12 7,20" fill="currentColor"/>
+        </svg>
+      </button>
+      <p class="vinyl-song-name">Beautiful in White · Piano &amp; Strings</p>
+    </section>
+
+    <!-- INDOCHINE CRANE & CLOUD TRANSITION INTO ALBUM -->
+    <div class="ornament-band" aria-hidden="true">
+      <div class="ornament-crane-left"><svg viewBox="0 0 120 76" fill="none">
+  <path d="M64 38 C52 24 34 15 16 14 C28 24 38 33 50 40 Z" fill="#FBF8F3" stroke="#A2855E" stroke-width="1.1"/>
+  <path d="M58 40 C46 31 32 25 22 25 C31 33 41 39 52 43 Z" fill="#EFE7DA" stroke="#A2855E" stroke-width="0.9"/>
+  <path d="M60 41 C72 34 86 28 100 22 C90 32 82 40 72 45 Z" fill="#FBF8F3" stroke="#A2855E" stroke-width="1.1"/>
+  <path d="M48 42 C58 40 72 41 84 46 C72 49 58 49 46 46 Z" fill="#FFFFFF" stroke="#8F7350" stroke-width="1.1"/>
+  <path d="M84 45 L98 42 L106 43" stroke="#8F7350" stroke-width="1.4" stroke-linecap="round"/>
+  <circle cx="96" cy="41.5" r="2.1" fill="#6E0C17"/>
+  <path d="M46 46 L26 54 M44 48 L30 58" stroke="#342B28" stroke-width="1.1" stroke-linecap="round"/>
+  <path d="M22 16 L16 14 L20 20 M28 21 L22 20" stroke="#342B28" stroke-width="1.2" stroke-linecap="round"/>
+</svg></div>
+      <div class="ornament-cloud-right"><svg viewBox="0 0 200 64" fill="none" stroke="#C6AE8A" stroke-width="1.2" stroke-linecap="round">
+  <path d="M6 42 C24 42 32 30 50 30 C64 30 70 39 84 39 C98 39 108 24 126 24 C142 24 150 34 166 34 C178 34 186 28 194 28"/>
+  <path d="M18 50 C38 50 48 40 66 40 C82 40 90 48 108 48 C126 48 136 37 154 37 C168 37 176 42 188 42" opacity="0.65"/>
+  <path d="M38 22 C44 16 56 16 62 22 C68 18 76 19 80 24" opacity="0.7"/>
+</svg></div>
+    </div>
+
+    <!-- 8. IMPERIAL BURGUNDY "Our Album" GALLERY (JMII 00:28 - 00:33) -->
+    <section id="secAlbum" class="album-burgundy">
+      <h2 class="album-heading reveal">Our Album</h2>
+
+      <div class="album-grid">
+        <div class="al-frame wide reveal" data-album-idx="0">
+          <img src="../images/banner-rings.webp" alt="Ảnh cưới 1" loading="lazy" />
+        </div>
+
+        <div class="album-row-asym">
+          <div class="album-stack-col">
+            <div class="al-frame square reveal from-left" data-album-idx="1">
+              <img src="../images/aodai-full.webp" alt="Ảnh cưới 2" loading="lazy" />
+            </div>
+            <div class="al-frame square reveal from-left" data-album-idx="3">
+              <img src="../images/hands-rings.webp" alt="Ảnh cưới 4" loading="lazy" />
+            </div>
+          </div>
+          <div class="al-frame fill reveal from-right" data-album-idx="2">
+            <img src="../images/arch-closeup.webp" alt="Ảnh cưới 3" loading="lazy" />
+          </div>
+        </div>
+
+        <div class="al-frame wide reveal" data-album-idx="4">
+          <img src="../images/hero-arch.webp" alt="Ảnh cưới 5" loading="lazy" />
+        </div>
+
+        <div class="album-row-two">
+          <div class="al-frame tall reveal from-left" data-album-idx="5">
+            <img src="../images/aodai-closeup.webp" alt="Ảnh cưới 6" loading="lazy" />
+          </div>
+          <div class="al-frame tall reveal from-right" data-album-idx="6">
+            <img src="../images/bouquet.webp" alt="Ảnh cưới 7" loading="lazy" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. RSVP FORM & MINIMALIST HỘP MỪNG CƯỚI (JMII 00:33 - 00:38) -->
+    <section id="secRsvp" class="rsvp-suite">
+      <p class="rsvp-intro reveal">
+        Hãy xác nhận sự có mặt của bạn để gia đình chúng mình chuẩn bị đón tiếp một cách chu đáo nhất. Trân trọng!
+      </p>
+
+      <form id="rsvpForm" class="rsvp-form reveal">
+        <input id="rsvpName" type="text" required class="rsvp-field" placeholder="Tên của bạn (VD: Anh Bình / Chị Lan...)" />
+        <textarea id="rsvpWish" rows="3" class="rsvp-field" style="resize:none;" placeholder="Gửi lời chúc ngọt ngào tới cô dâu chú rể..."></textarea>
+
+        <select id="rsvpStatus" class="rsvp-field" aria-label="Xác nhận tham dự">
+          <option value="Sẽ tham dự">Mình chắc chắn sẽ đến chung vui</option>
+          <option value="Rất tiếc bận">Rất tiếc mình không thể tham dự</option>
+        </select>
+
+        <select id="rsvpCount" class="rsvp-field" aria-label="Số người tham dự">
+          <option value="1 người">1 người</option>
+          <option value="2 người">2 người</option>
+          <option value="3-4 người">3 – 4 người (Gia đình)</option>
+        </select>
+
+        <select id="rsvpSide" class="rsvp-field" aria-label="Khách mời của gia đình nào">
+          <option value="Khách Nhà Trai">Khách mời Nhà Trai (Chú rể Văn Nam)</option>
+          <option value="Khách Nhà Gái">Khách mời Nhà Gái (Cô dâu Kim Tiến)</option>
+        </select>
+
+        <button id="rsvpSubmitBtn" type="submit" class="rsvp-submit">Send · Xác Nhận</button>
+      </form>
+
+      <div class="wishes-drawer reveal">
+        <p class="wishes-kicker">Lời Chúc Gần Đây</p>
+        <div id="wishesList" class="wishes-list">
+          <div class="wish-card">
+            <div class="wish-top">
+              <span class="wish-author">Anh Bình &amp; Gia đình</span>
+              <span class="wish-tag">Sẽ tham dự · 2 người</span>
+            </div>
+            <p class="wish-body">Chúc Văn Nam &amp; Kim Tiến trăm năm hạnh phúc, gia đình luôn ngập tràn tiếng cười và bình an!</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Minimalist Hộp Mừng Cưới -->
+      <div class="gift-block reveal">
+        <h2 class="gift-heading">Hộp Mừng Cưới</h2>
+        <p class="gift-note">Thay cho lời chúc phúc gửi từ xa nếu Quý vị không tiện tham dự trực tiếp</p>
+        <div class="gift-duo">
+          <button id="giftTileGroom" type="button" class="gift-tile btn-open-gift" data-qr-open="groom">
+            <svg class="gift-tile-icon" viewBox="0 0 48 48" fill="none" stroke="#6E0C17" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="8" y="21" width="32" height="20" rx="2.5" fill="#FFFFFF"/>
+              <rect x="6" y="15" width="36" height="6" rx="2" fill="#FAF2E8"/>
+              <path d="M24 15v26M24 15c-2.5-5-9-5-8-1s5.5 1 8 1Zm0 0c2.5-5 9-5 8-1s-5.5 1-8 1Z"/>
+            </svg>
+            <span class="gift-tile-title">Nhà Trai</span>
+            <span class="gift-tile-sub">Mã QR Chú Rể</span>
+          </button>
+
+          <button id="giftTileBride" type="button" class="gift-tile btn-open-gift" data-qr-open="bride">
+            <svg class="gift-tile-icon" viewBox="0 0 48 48" fill="none" stroke="#6E0C17" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="8" y="21" width="32" height="20" rx="2.5" fill="#FFFFFF"/>
+              <rect x="6" y="15" width="36" height="6" rx="2" fill="#FAF2E8"/>
+              <path d="M24 15v26M24 15c-2.5-5-9-5-8-1s5.5 1 8 1Zm0 0c2.5-5 9-5 8-1s-5.5 1-8 1Z"/>
+            </svg>
+            <span class="gift-tile-title">Nhà Gái</span>
+            <span class="gift-tile-sub">Mã QR Cô Dâu</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10. CINEMATIC DARK-VIGNETTE "Thank you!" FOOTER (JMII 00:36 - 00:37) -->
+    <footer class="footer-cinema">
+      <img id="footerBgImg" class="footer-cinema-bg" src="../images/banner-rings.webp" alt="" aria-hidden="true" loading="lazy" />
+      <div class="footer-cinema-inner reveal">
+        <p class="footer-quote">
+          Cảm ơn bạn đã đến dự và chia sẻ niềm vui cùng chúng mình.<br/>
+          Sự có mặt của bạn là món quà ý nghĩa nhất.
+        </p>
+        <p class="footer-thanks-script">Thank you!</p>
+      </div>
+    </footer>
+    <div class="footer-bar lnum">
+      <span id="footerBrand">VĂN NAM ♥ KIM TIẾN</span>
+      <span>02 – 03 . 01 . 2027</span>
+    </div>
+
   </main>
 
-  <!-- STICKY FLOATING QUICK BAR -->
-  <div class="float-bar">
-    <a id="floatMapLink" href="#" target="_blank" rel="noopener noreferrer" class="float-btn soft">
-      <span>📍</span><span>Bản đồ</span>
-    </a>
-    <button type="button" class="float-btn solid btn-open-gift" data-qr-open="both">
-      <span>🎁</span><span>Quà mừng</span>
-    </button>
-    <button id="floatRsvpBtn" type="button" class="float-btn soft">
-      <span>💌</span><span>Xác nhận</span>
-    </button>
-  </div>
-
-  <!-- BACKGROUND WEDDING MUSIC ("BEAUTIFUL IN WHITE") & SPINNING DISC -->
+  <!-- DISCREET FLOATING AUDIO BUTTON (BOTTOM-RIGHT, JMII STYLE) -->
   <audio id="bgMusic" src="../music/beautiful-in-white.mp3" loop preload="auto" playsinline></audio>
-  <button id="musicToggleBtn" type="button" class="music-fab" aria-label="Bật nhạc nền Beautiful in White" aria-pressed="false" title="Bật / Tắt nhạc nền Beautiful in White">
-    <span class="music-disc" aria-hidden="true"></span>
-    <span class="music-note n1" aria-hidden="true">♪</span>
-    <span class="music-note n2" aria-hidden="true">♫</span>
-    <svg class="music-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M9 18V5l12-2v13"></path>
-      <circle cx="6" cy="18" r="3" fill="currentColor"></circle>
-      <circle cx="18" cy="16" r="3" fill="currentColor"></circle>
+  <button id="musicToggleBtn" type="button" class="audio-fab" aria-label="Bật hoặc tắt nhạc nền Beautiful in White" aria-pressed="false" title="Beautiful in White">
+    <span class="audio-fab-ring" aria-hidden="true"></span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+      <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
     </svg>
-    <span class="music-slash" aria-hidden="true"></span>
+    <span class="audio-fab-slash" aria-hidden="true"></span>
   </button>
+
+  <!-- ===== RSVP THANK-YOU CONFIRMATION POPUP (JMII 00:44) ===== -->
+  <div id="rsvpThanksModal" class="modal-backdrop hidden">
+    <div class="modal-box rsvp-thanks-card">
+      <button id="btnCloseThanks" type="button" class="rsvp-thanks-close" aria-label="Đóng">✕</button>
+      <img id="rsvpThanksPhoto" class="rsvp-thanks-photo" src="../images/aodai-closeup.webp" alt="Văn Nam &amp; Kim Tiến" />
+      <div class="rsvp-thanks-body">
+        <p class="rsvp-thanks-text">
+          Cảm ơn bạn đã dành thời gian phản hồi.<br/>
+          Chúng mình vô cùng trân quý tình cảm &amp; lời chúc phúc của bạn!
+        </p>
+        <p class="rsvp-thanks-script">Thank you!</p>
+      </div>
+    </div>
+  </div>
 
   <!-- ===== GIFT QR CODE MODAL ===== -->
   <div id="giftQrModal" class="modal-backdrop hidden">
@@ -398,13 +481,13 @@
           <p class="modal-kicker">Hộp Mừng Cưới</p>
           <h3 class="modal-title">Mã QR Chú Rể &amp; Cô Dâu</h3>
         </div>
-        <button id="btnCloseGift" type="button" class="close-circle" aria-label="Đóng">✕</button>
+        <button id="btnCloseGift" type="button" class="close-btn" aria-label="Đóng">✕</button>
       </div>
 
       <div class="qr-tabs">
         <button type="button" data-qr-tab="both" class="qr-tab active">Cả hai</button>
-        <button type="button" data-qr-tab="groom" class="qr-tab">🤵 Nhà Trai</button>
-        <button type="button" data-qr-tab="bride" class="qr-tab">👰 Nhà Gái</button>
+        <button type="button" data-qr-tab="groom" class="qr-tab">Nhà Trai</button>
+        <button type="button" data-qr-tab="bride" class="qr-tab">Nhà Gái</button>
       </div>
 
       <div id="qrGrid" class="qr-grid two-cols">
@@ -418,8 +501,8 @@
               <rect x="84" y="8" width="28" height="28" rx="3" stroke="#222" stroke-width="4"/><rect x="92" y="16" width="12" height="12" rx="1" fill="#222"/>
               <rect x="8" y="84" width="28" height="28" rx="3" stroke="#222" stroke-width="4"/><rect x="16" y="92" width="12" height="12" rx="1" fill="#222"/>
               <path fill="#222" d="M44 10h6v6h-6zM56 10h6v12h-6zM68 10h8v6h-8zM44 22h6v6h-6zM68 22h6v6h-6zM50 30h12v6H50zM10 44h12v6H10zM28 44h6v12h-6zM44 44h6v6h-6zM74 44h6v6h-6zM86 44h12v6H86zM104 44h6v12h-6zM16 56h6v6h-6zM44 68h6v6h-6zM74 56h12v6H74zM92 56h6v12h-6zM10 68h18v6H10zM34 68h6v6h-6zM56 74h12v6H56zM74 74h6v12h-6zM86 74h12v6H86zM104 74h6v6h-6zM44 86h6v12h-6zM56 86h6v6h-6zM68 92h12v6H68zM86 86h6v18h-6zM98 86h12v6H98zM56 102h18v8H56zM98 98h12v12H98zM44 104h6v6h-6z"/>
-              <rect x="47" y="47" width="26" height="26" rx="6" fill="#FFF" stroke="#A81D24" stroke-width="1.5"/>
-              <text x="60" y="64" text-anchor="middle" fill="#A81D24" font-family="Georgia, serif" font-size="13" font-weight="700">囍</text>
+              <rect x="47" y="47" width="26" height="26" rx="6" fill="#FFF" stroke="#6E0C17" stroke-width="1.5"/>
+              <text x="60" y="64" text-anchor="middle" fill="#6E0C17" font-family="Georgia, serif" font-size="13" font-weight="700">囍</text>
             </svg>
             <img id="groomQrImg" alt="QR Chú Rể" class="hidden" style="width:100%; height:100%; object-fit:contain;" />
           </div>
@@ -429,8 +512,8 @@
             <p id="modalGroomOwner" class="qr-owner">NGUYEN VAN NAM</p>
           </div>
           <div class="qr-actions">
-            <button id="btnCopyGroom" type="button" class="qr-mini-btn">📋 Copy STK</button>
-            <button id="btnDlGroom" type="button" class="qr-mini-btn">⬇️ Lưu QR</button>
+            <button id="btnCopyGroom" type="button" class="qr-mini-btn">Copy STK</button>
+            <button id="btnDlGroom" type="button" class="qr-mini-btn">Lưu QR</button>
           </div>
         </div>
 
@@ -444,8 +527,8 @@
               <rect x="84" y="8" width="28" height="28" rx="3" stroke="#222" stroke-width="4"/><rect x="92" y="16" width="12" height="12" rx="1" fill="#222"/>
               <rect x="8" y="84" width="28" height="28" rx="3" stroke="#222" stroke-width="4"/><rect x="16" y="92" width="12" height="12" rx="1" fill="#222"/>
               <path fill="#222" d="M44 10h12v6H44zM62 10h6v12h-6zM74 16h6v6h-6zM44 22h6v12h-6zM56 28h12v6H56zM10 44h6v12h-6zM22 44h12v6H22zM74 44h12v6H74zM92 44h6v6h-6zM104 44h6v18h-6zM22 56h12v6H22zM74 56h6v12h-6zM86 62h12v6H86zM10 68h12v6H10zM28 68h12v6H28zM44 74h6v6h-6zM56 74h12v6H56zM80 74h18v6H80zM104 74h6v12h-6zM44 86h12v6H44zM62 86h6v12h-6zM74 86h6v6h-6zM86 86h12v12H86zM44 98h6v12h-6zM56 104h18v6H56zM80 104h6v6h-6zM98 98h12v12H98z"/>
-              <rect x="47" y="47" width="26" height="26" rx="6" fill="#FFF" stroke="#A81D24" stroke-width="1.5"/>
-              <text x="60" y="64" text-anchor="middle" fill="#A81D24" font-family="Georgia, serif" font-size="13" font-weight="700">♥</text>
+              <rect x="47" y="47" width="26" height="26" rx="6" fill="#FFF" stroke="#6E0C17" stroke-width="1.5"/>
+              <text x="60" y="64" text-anchor="middle" fill="#6E0C17" font-family="Georgia, serif" font-size="13" font-weight="700">♥</text>
             </svg>
             <img id="brideQrImg" alt="QR Cô Dâu" class="hidden" style="width:100%; height:100%; object-fit:contain;" />
           </div>
@@ -455,13 +538,13 @@
             <p id="modalBrideOwner" class="qr-owner">KIM TIEN</p>
           </div>
           <div class="qr-actions">
-            <button id="btnCopyBride" type="button" class="qr-mini-btn">📋 Copy STK</button>
-            <button id="btnDlBride" type="button" class="qr-mini-btn">⬇️ Lưu QR</button>
+            <button id="btnCopyBride" type="button" class="qr-mini-btn">Copy STK</button>
+            <button id="btnDlBride" type="button" class="qr-mini-btn">Lưu QR</button>
           </div>
         </div>
       </div>
 
-      <div class="modal-foot">Chân thành cảm ơn tấm lòng &amp; lời chúc phúc của Quý khách! ❤️</div>
+      <div class="modal-foot">Chân thành cảm ơn tấm lòng &amp; lời chúc phúc của Quý khách!</div>
     </div>
   </div>
 
