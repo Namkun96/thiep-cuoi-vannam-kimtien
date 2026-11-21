@@ -126,7 +126,7 @@
       const u = new URL('../', window.location.href);
       return u.href.replace(/index\.html$/i, '');
     } catch (_) {
-      return 'https://namkun96.github.io/thiep-cuoi-vannam-kimtien/';
+      return 'https://thiepcuoi-vannam-kimtien.com/';
     }
   }
 
