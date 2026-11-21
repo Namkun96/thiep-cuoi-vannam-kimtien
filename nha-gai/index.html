@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Thiệp Mời Nhà Gái — Kim Tiến &amp; Văn Nam (16:30 · 02.01.2027)</title>
+  <title>Thiệp Mời Nhà Gái — Nguyễn Thị Kim Tiến &amp; Nguyễn Văn Nam (16:30 · 02.01.2027)</title>
   <meta name="description" content="Trân trọng kính mời Quý khách tới dự Tiệc Cưới Nhà Gái lúc 16:30 Thứ Bảy ngày 02/01/2027 & Lễ Vu Quy ngày 03/01/2027 tại Thôn Cầu Cả, Cổ Loa, Đông Anh, TP. Hà Nội." />
   <meta name="theme-color" content="#6E0C17" />
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%236E0C17'/%3E%3Ctext x='32' y='44' text-anchor='middle' fill='%23E9DEC9' font-family='serif' font-size='34'%3E%E5%9B%8D%3C/text%3E%3C/svg%3E" />
 
   <!-- Open Graph / Zalo / Facebook Preview -->
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="Thiệp Mời Tiệc Cưới Nhà Gái — Kim Tiến & Văn Nam" />
+  <meta property="og:title" content="Thiệp Mời Tiệc Cưới Nhà Gái — Nguyễn Thị Kim Tiến & Nguyễn Văn Nam" />
   <meta property="og:description" content="Trân trọng kính mời Quý khách tới dự Tiệc Cưới Nhà Gái lúc 16:30 Thứ Bảy ngày 02/01/2027 & Lễ Vu Quy ngày 03/01/2027 tại Thôn Cầu Cả, Cổ Loa, Đông Anh, TP. Hà Nội." />
   <meta property="og:image" content="https://namkun96.github.io/thiep-cuoi-vannam-kimtien/og-cover.jpeg" />
   <meta property="og:image:width" content="1200" />
@@ -37,7 +37,7 @@
       </button>
 
       <div class="door-caption">
-        <p id="doorCouple" class="door-couple">Văn Nam &amp; Kim Tiến</p>
+        <p id="doorCouple" class="door-couple">Nguyễn Văn Nam<span class="door-amp">&amp;</span>Nguyễn Thị Kim Tiến</p>
         <p id="doorGuestLine" class="door-guest-line">Kính mời: Quý Khách &amp; Gia Đình</p>
         <span class="door-hint">Chạm để mở thiệp</span>
       </div>
@@ -49,10 +49,14 @@
 
     <!-- 1. FULL-BLEED CINEMATIC HERO COVER -->
     <section class="hero-cover">
-      <img id="heroCoverImg" class="hero-cover-img" src="../images/hero-arch.webp" alt="Văn Nam &amp; Kim Tiến" />
+      <img id="heroCoverImg" class="hero-cover-img" src="../images/hero-arch.webp" alt="Nguyễn Văn Nam &amp; Nguyễn Thị Kim Tiến" />
       <div class="hero-cover-scrim" aria-hidden="true"></div>
       <div class="hero-cover-text">
-        <h1 id="heroCoupleNames" class="hero-couple-names">Văn Nam <span class="amp">&amp;</span> Kim Tiến</h1>
+        <h1 id="heroCoupleNames" class="hero-couple-names">
+          <span class="name-line">Nguyễn Văn Nam</span>
+          <span class="amp">&amp;</span>
+          <span class="name-line">Nguyễn Thị Kim Tiến</span>
+        </h1>
         <p class="hero-save-line">Save Our Date</p>
         <p id="heroDateSub" class="hero-date-sub lnum">02 – 03 . 01 . 2027</p>
       </div>
@@ -119,7 +123,11 @@
 
           <div class="env-letter-card">
             <p class="letter-kicker">Trân trọng kính mời dự lễ cưới của<br/>You're invited to the wedding of</p>
-            <p id="letterNames" class="letter-names">Văn Nam<span class="amp-small">&amp;</span>Kim Tiến</p>
+            <p id="letterNames" class="letter-names">
+              <span class="letter-line">Nguyễn Văn Nam</span>
+              <span class="amp-small">&amp;</span>
+              <span class="letter-line">Nguyễn Thị Kim Tiến</span>
+            </p>
             <p class="letter-cd-kicker">Sự kiện diễn ra sau · Is happening in</p>
             <div class="letter-cd-row lnum">
               <div class="lcd-unit-col"><span id="cdDays" class="lcd-num">00</span><span class="lcd-lbl">Ngày</span></div>
@@ -164,7 +172,7 @@
     </div>
 
     <!-- 4. FORMAL TWO-FAMILY INVITATION SUITE (JMII 00:11 - 00:18) -->
-    <section class="formal-suite">
+    <section id="secInvite" class="formal-suite">
       <div class="families-formal">
         <div class="reveal from-left">
           <p id="famLeftVi" class="fam-col-title">Nhà Trai</p>
@@ -187,9 +195,9 @@
       </div>
 
       <div class="formal-couple-names reveal">
-        <p id="formalNameTop" class="formal-name-top">Văn Nam</p>
+        <p id="formalNameTop" class="formal-name-top">Nguyễn Văn Nam</p>
         <span class="formal-name-amp" aria-hidden="true">&amp;</span>
-        <p id="formalNameBottom" class="formal-name-bottom">Kim Tiến</p>
+        <p id="formalNameBottom" class="formal-name-bottom">Nguyễn Thị Kim Tiến</p>
       </div>
 
       <div id="formalEventsList"></div>
@@ -216,9 +224,9 @@
       <div class="story-grid">
         <div class="story-row">
           <div id="polaroidCard1" class="polaroid-card reveal from-left">
-            <img id="polaroid1Img" class="polaroid-img" src="../images/arch-closeup.webp" alt="Chú Rể Văn Nam" loading="lazy" />
+            <img id="polaroid1Img" class="polaroid-img" src="../images/arch-closeup.webp" alt="Chú Rể Nguyễn Văn Nam" loading="lazy" />
             <p id="polaroid1Role" class="polaroid-role">The Groom</p>
-            <p id="polaroid1Name" class="polaroid-name">Văn Nam</p>
+            <p id="polaroid1Name" class="polaroid-name">Nguyễn Văn Nam</p>
           </div>
           <p class="story-copy reveal from-right">
             “Hôn nhân là chuyện cả đời — yêu người vừa ý, cưới người mình thương.”
@@ -230,16 +238,16 @@
             “Chúng mình cùng nhau bước sang chặng đường mới, đầy ắp tiếng cười, bình an và yêu thương trọn vẹn.”
           </p>
           <div id="polaroidCard2" class="polaroid-card reveal from-right">
-            <img id="polaroid2Img" class="polaroid-img" src="../images/aodai-closeup.webp" alt="Cô Dâu Kim Tiến" loading="lazy" />
+            <img id="polaroid2Img" class="polaroid-img" src="../images/aodai-closeup.webp" alt="Cô Dâu Nguyễn Thị Kim Tiến" loading="lazy" />
             <p id="polaroid2Role" class="polaroid-role">The Bride</p>
-            <p id="polaroid2Name" class="polaroid-name">Kim Tiến</p>
+            <p id="polaroid2Name" class="polaroid-name">Nguyễn Thị Kim Tiến</p>
           </div>
         </div>
       </div>
     </section>
 
     <!-- 6. SAVE THE DATE CALENDAR, VERTICAL TIMELINE & DRESS CODE (JMII 00:22 - 00:26) -->
-    <section class="schedule-suite">
+    <section id="secSchedule" class="schedule-suite">
       <div class="reveal">
         <p class="accent-heading">Save the date</p>
         <p class="cal-sub-month lnum">Tháng 01 · January 2027</p>
@@ -366,7 +374,7 @@
 
       <form id="rsvpForm" class="rsvp-form reveal">
         <input id="rsvpName" type="text" required class="rsvp-field" placeholder="Tên của bạn (VD: Anh Bình / Chị Lan...)" />
-        <textarea id="rsvpWish" rows="3" class="rsvp-field" style="resize:none;" placeholder="Gửi lời chúc ngọt ngào tới cô dâu chú rể..."></textarea>
+        <textarea id="rsvpWish" rows="3" class="rsvp-field" style="resize:none;" placeholder="Gửi lời chúc ngọt ngào tới Nguyễn Văn Nam &amp; Nguyễn Thị Kim Tiến..."></textarea>
 
         <select id="rsvpStatus" class="rsvp-field" aria-label="Xác nhận tham dự">
           <option value="Sẽ tham dự">Mình chắc chắn sẽ đến chung vui</option>
@@ -380,8 +388,8 @@
         </select>
 
         <select id="rsvpSide" class="rsvp-field" aria-label="Khách mời của gia đình nào">
-          <option value="Khách Nhà Trai">Khách mời Nhà Trai (Chú rể Văn Nam)</option>
-          <option value="Khách Nhà Gái">Khách mời Nhà Gái (Cô dâu Kim Tiến)</option>
+          <option value="Khách Nhà Trai">Khách mời Nhà Trai (Chú rể Nguyễn Văn Nam)</option>
+          <option value="Khách Nhà Gái">Khách mời Nhà Gái (Cô dâu Nguyễn Thị Kim Tiến)</option>
         </select>
 
         <button id="rsvpSubmitBtn" type="submit" class="rsvp-submit">Send · Xác Nhận</button>
@@ -395,13 +403,13 @@
               <span class="wish-author">Anh Bình &amp; Gia đình</span>
               <span class="wish-tag">Sẽ tham dự · 2 người</span>
             </div>
-            <p class="wish-body">Chúc Văn Nam &amp; Kim Tiến trăm năm hạnh phúc, gia đình luôn ngập tràn tiếng cười và bình an!</p>
+            <p class="wish-body">Chúc Nguyễn Văn Nam &amp; Nguyễn Thị Kim Tiến trăm năm hạnh phúc, gia đình luôn ngập tràn tiếng cười và bình an!</p>
           </div>
         </div>
       </div>
 
       <!-- Minimalist Hộp Mừng Cưới -->
-      <div class="gift-block reveal">
+      <div id="secGift" class="gift-block reveal">
         <h2 class="gift-heading">Hộp Mừng Cưới</h2>
         <p class="gift-note">Thay cho lời chúc phúc gửi từ xa nếu Quý vị không tiện tham dự trực tiếp</p>
         <div class="gift-duo">
@@ -440,13 +448,53 @@
       </div>
     </footer>
     <div class="footer-bar lnum">
-      <span id="footerBrand">VĂN NAM ♥ KIM TIẾN</span>
+      <span id="footerBrand">NGUYỄN VĂN NAM ♥ NGUYỄN THỊ KIM TIẾN</span>
       <span>02 – 03 . 01 . 2027</span>
     </div>
 
   </main>
 
-  <!-- DISCREET FLOATING AUDIO BUTTON (BOTTOM-RIGHT, JMII STYLE) -->
+  <!-- FIXED BOTTOM QUICK-NAVIGATION MENU -->
+  <nav id="bottomNav" class="bottom-nav" aria-label="Điều hướng nhanh các mục chính">
+    <button type="button" class="bnav-item active" data-target="secInvite">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+        <path d="m3 7 9 6 9-6"></path>
+      </svg>
+      <span>Lời mời</span>
+    </button>
+    <button type="button" class="bnav-item" data-target="secSchedule">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+        <path d="M16 2v4M8 2v4M3 10h18"></path>
+      </svg>
+      <span>Lịch trình</span>
+    </button>
+    <button type="button" class="bnav-item" data-target="secAlbum">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+        <circle cx="8.5" cy="9.5" r="1.5"></circle>
+        <path d="m21 16-5-5L5 20"></path>
+      </svg>
+      <span>Album</span>
+    </button>
+    <button type="button" class="bnav-item" data-target="secRsvp">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
+      </svg>
+      <span>Xác nhận</span>
+    </button>
+    <button type="button" class="bnav-item" data-target="secGift">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="8" width="18" height="4" rx="1"></rect>
+        <path d="M12 8v13M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"></path>
+        <path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"></path>
+      </svg>
+      <span>Mừng cưới</span>
+    </button>
+  </nav>
+
+  <!-- DISCREET FLOATING AUDIO BUTTON (ABOVE FIXED FOOTER MENU) -->
   <audio id="bgMusic" src="../music/beautiful-in-white.mp3" loop preload="auto" playsinline></audio>
   <button id="musicToggleBtn" type="button" class="audio-fab" aria-label="Bật hoặc tắt nhạc nền Beautiful in White" aria-pressed="false" title="Beautiful in White">
     <span class="audio-fab-ring" aria-hidden="true"></span>
@@ -462,7 +510,7 @@
   <div id="rsvpThanksModal" class="modal-backdrop hidden">
     <div class="modal-box rsvp-thanks-card">
       <button id="btnCloseThanks" type="button" class="rsvp-thanks-close" aria-label="Đóng">✕</button>
-      <img id="rsvpThanksPhoto" class="rsvp-thanks-photo" src="../images/aodai-closeup.webp" alt="Văn Nam &amp; Kim Tiến" />
+      <img id="rsvpThanksPhoto" class="rsvp-thanks-photo" src="../images/aodai-closeup.webp" alt="Nguyễn Văn Nam &amp; Nguyễn Thị Kim Tiến" />
       <div class="rsvp-thanks-body">
         <p class="rsvp-thanks-text">
           Cảm ơn bạn đã dành thời gian phản hồi.<br/>
@@ -493,7 +541,7 @@
       <div id="qrGrid" class="qr-grid two-cols">
         <div id="groomQrCard" class="qr-card">
           <span class="qr-role-tag">Mừng Chú Rể</span>
-          <strong id="modalGroomName" class="qr-person">Văn Nam</strong>
+          <strong id="modalGroomName" class="qr-person">Nguyễn Văn Nam</strong>
           <div class="qr-frame">
             <svg id="groomQrSvg" style="width:100%; height:100%;" viewBox="0 0 120 120" fill="none">
               <rect width="120" height="120" fill="#FFF"/>
@@ -519,7 +567,7 @@
 
         <div id="brideQrCard" class="qr-card">
           <span class="qr-role-tag">Mừng Cô Dâu</span>
-          <strong id="modalBrideName" class="qr-person">Kim Tiến</strong>
+          <strong id="modalBrideName" class="qr-person">Nguyễn Thị Kim Tiến</strong>
           <div class="qr-frame">
             <svg id="brideQrSvg" style="width:100%; height:100%;" viewBox="0 0 120 120" fill="none">
               <rect width="120" height="120" fill="#FFF"/>
@@ -535,7 +583,7 @@
           <div>
             <p id="modalBrideBank" class="qr-bank">Techcombank — CN Đông Anh</p>
             <p id="modalBrideAcc" class="qr-acc">1903 8899 12345</p>
-            <p id="modalBrideOwner" class="qr-owner">KIM TIEN</p>
+            <p id="modalBrideOwner" class="qr-owner">NGUYEN THI KIM TIEN</p>
           </div>
           <div class="qr-actions">
             <button id="btnCopyBride" type="button" class="qr-mini-btn">Copy STK</button>

@@ -17,8 +17,8 @@
      CẤU HÌNH TRUNG TÂM — CHỈ CẦN SỬA TẠI ĐÂY KHI CẬP NHẬT THÔNG TIN THẬT
      ========================================================================= */
   const CONFIG = {
-    groomName: 'Văn Nam',
-    brideName: 'Kim Tiến',
+    groomName: 'Nguyễn Văn Nam',
+    brideName: 'Nguyễn Thị Kim Tiến',
     groomParent: 'Bà: Nguyễn Thị ...',
     brideParent: 'Bà: Trần Thị ...',
     groomHomeShort: 'Thị trấn Kim Bài, Thanh Oai<br/>TP. Hà Nội',
@@ -33,7 +33,7 @@
     brideBank: {
       name: 'Techcombank — CN Đông Anh',
       acc: '1903 8899 12345',
-      owner: 'KIM TIEN',
+      owner: 'NGUYEN THI KIM TIEN',
       qrImage: ''
     },
 
@@ -212,16 +212,16 @@
     const second = cfg.isBrideFirst ? CONFIG.groomName : CONFIG.brideName;
 
     // Door overlay
-    $('doorCouple').textContent = `${first} & ${second}`;
+    $('doorCouple').innerHTML = `${first}<span class="door-amp">&amp;</span>${second}`;
     $('doorGuestLine').textContent = `Kính mời: ${guestDisplay}`;
 
     // Hero cover
     $('heroCoverImg').src = CONFIG.photos.hero;
-    $('heroCoupleNames').innerHTML = `${first} <span class="amp">&amp;</span> ${second}`;
+    $('heroCoupleNames').innerHTML = `<span class="name-line">${first}</span><span class="amp">&amp;</span><span class="name-line">${second}</span>`;
     $('heroDateSub').textContent = cfg.heroDateSub;
 
     // Self-opening envelope letter
-    $('letterNames').innerHTML = `${first}<span class="amp-small">&amp;</span>${second}`;
+    $('letterNames').innerHTML = `<span class="letter-line">${first}</span><span class="amp-small">&amp;</span><span class="letter-line">${second}</span>`;
 
     // Interlude photo
     $('interludeImg').src = CONFIG.photos.interlude;
@@ -628,7 +628,7 @@
   function openLb(idx, customSrc) {
     if (customSrc) {
       lbImg.src = customSrc;
-      $('lbCounter').textContent = 'Văn Nam & Kim Tiến';
+      $('lbCounter').textContent = 'Nguyễn Văn Nam & Nguyễn Thị Kim Tiến';
       $('btnLbPrev').classList.add('hidden');
       $('btnLbNext').classList.add('hidden');
     } else {
@@ -694,7 +694,7 @@
     const status = $('rsvpStatus').value;
     const count = $('rsvpCount').value;
     const side = cfg.showSideSelect ? $('rsvpSide').value : (mode === 'nha-gai' ? 'Khách Nhà Gái' : 'Khách Nhà Trai');
-    const wish = $('rsvpWish').value.trim() || 'Chúc Văn Nam & Kim Tiến trăm năm hạnh phúc!';
+    const wish = $('rsvpWish').value.trim() || 'Chúc Nguyễn Văn Nam & Nguyễn Thị Kim Tiến trăm năm hạnh phúc!';
     const submitBtn = $('rsvpSubmitBtn');
 
     if (CONFIG.RSVP_ENDPOINT) {
@@ -725,8 +725,42 @@
     thanksModal?.classList.remove('hidden');
   });
 
+  /* ===== 10. FIXED FOOTER QUICK-NAVIGATION MENU & SCROLL-SPY ===== */
+  function initBottomNav() {
+    const navItems = Array.from(document.querySelectorAll('#bottomNav [data-target]'));
+    if (!navItems.length) return;
+
+    const setActive = (targetId) => {
+      navItems.forEach((btn) => btn.classList.toggle('active', btn.dataset.target === targetId));
+    };
+
+    navItems.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const targetId = btn.dataset.target;
+        const el = $(targetId);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          setActive(targetId);
+        }
+      });
+    });
+
+    if ('IntersectionObserver' in window) {
+      const sections = navItems.map((btn) => $(btn.dataset.target)).filter(Boolean);
+      const navIo = new IntersectionObserver(
+        (entries) => {
+          const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+          if (visible.length) setActive(visible[0].target.id);
+        },
+        { rootMargin: '-18% 0px -48% 0px', threshold: [0.05, 0.25, 0.5] }
+      );
+      sections.forEach((sec) => navIo.observe(sec));
+    }
+  }
+
   /* ===== INIT ===== */
   hydrate();
   initObservers();
+  initBottomNav();
   setInterval(updateCountdown, 1000);
 })();
