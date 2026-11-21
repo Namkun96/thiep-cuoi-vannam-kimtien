@@ -442,13 +442,23 @@
       headers: {
         Accept: 'application/vnd.github+json',
         Authorization: `Bearer ${token}`,
+        'X-GitHub-Api-Version': '2022-11-28',
         'Content-Type': 'application/json',
         ...(opts.headers || {})
       }
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
-      throw new Error(data.message || `GitHub API lỗi HTTP ${res.status}`);
+      const rawMsg = data.message || `GitHub API lỗi HTTP ${res.status}`;
+      if (res.status === 403 && /Resource not accessible/i.test(rawMsg)) {
+        throw new Error(
+          'Token chưa đủ quyền GHI vào repo thiep-cuoi-vannam-kimtien (Resource not accessible). Hãy tạo lại Token bằng link "Tạo nhanh Token (đã tích sẵn quyền)" bên trên hoặc cấp quyền Contents: Read and write.'
+        );
+      }
+      if (res.status === 401) {
+        throw new Error('Token không hợp lệ hoặc đã hết hạn (401). Vui lòng tạo Token mới và bấm Kết nối lại.');
+      }
+      throw new Error(rawMsg);
     }
     return data;
   }
@@ -465,11 +475,34 @@
     const owner = opts.owner || 'Namkun96';
     const repo = opts.repo || 'thiep-cuoi-vannam-kimtien';
     if (!cleanTok) throw new Error('Vui lòng dán GitHub Token');
-    const repoInfo = await ghRequest(`/repos/${owner}/${repo}`, cleanTok);
-    if (!repoInfo.permissions || !repoInfo.permissions.push) {
-      throw new Error('Token chưa được cấp quyền ghi (Contents: Read and write) cho repo này.');
+
+    // Step 1: Verify repo access
+    try {
+      await ghRequest(`/repos/${owner}/${repo}`, cleanTok);
+    } catch (err) {
+      if (/Bad credentials|401/i.test(err.message)) {
+        throw new Error('Token không đúng hoặc đã hết hạn. Vui lòng tạo Token mới.');
+      }
+      throw err;
     }
-    return repoInfo;
+
+    // Step 2: Verify real WRITE permission (Contents: Read and write / repo scope)
+    // Creates a tiny unreferenced blob without touching any branch or triggering deploy
+    try {
+      await ghRequest(`/repos/${owner}/${repo}/git/blobs`, cleanTok, {
+        method: 'POST',
+        body: JSON.stringify({ content: 'ok', encoding: 'utf-8' })
+      });
+    } catch (err) {
+      if (/Resource not accessible|403|Not Found|404/i.test(err.message)) {
+        throw new Error(
+          'Token chưa có quyền GHI vào kho thiệp cưới (thiếu quyền Contents: Read and write hoặc chưa chọn đúng kho thiep-cuoi-vannam-kimtien). Hãy bấm link "Tạo nhanh Token (đã tích sẵn quyền)" bên trên rồi bấm Generate token và dán lại!'
+        );
+      }
+      throw err;
+    }
+
+    return true;
   }
 
   async function fetchLatestGitHubConfig(token, opts = {}) {

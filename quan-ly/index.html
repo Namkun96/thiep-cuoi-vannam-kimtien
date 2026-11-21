@@ -328,13 +328,12 @@
           </p>
 
           <ol class="sync-steps">
-            <li>Chú rể mở <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener" class="inline-link">trang tạo GitHub Token ↗</a> (chỉ làm 1 lần duy nhất).</li>
-            <li>Đặt tên tùy ý (VD: <code>thiep-cuoi</code>), chọn <strong>Only select repositories</strong> → chọn <code>thiep-cuoi-vannam-kimtien</code>.</li>
-            <li>Mục <strong>Repository permissions → Contents</strong> chọn <strong>Read and write</strong> → bấm <strong>Generate token</strong> và copy dán vào ô dưới đây:</li>
+            <li><strong>Cách nhanh nhất (10 giây — khuyến nghị):</strong> Chú rể bấm <a href="https://github.com/settings/tokens/new?scopes=repo&amp;description=thiep-cuoi-vannam-kimtien" target="_blank" rel="noopener" class="inline-link">Tạo nhanh Token (đã tích sẵn quyền repo) ↗</a> → kéo xuống cuối bấm nút xanh <strong>Generate token</strong> → copy mã <code>ghp_...</code> dán vào ô dưới.</li>
+            <li><em>(Hoặc nếu dùng Fine-grained Token)</em>: phải chọn <strong>Only select repositories</strong> → <code>thiep-cuoi-vannam-kimtien</code>, rồi bấm <strong>Add permissions</strong> → chọn <strong>Contents</strong> → đổi sang <strong>Read and write</strong>.</li>
           </ol>
 
           <div class="sync-token-row">
-            <input id="ghTokenInput" type="password" class="input" placeholder="Dán GitHub Token (github_pat_...)" autocomplete="off" />
+            <input id="ghTokenInput" type="password" class="input" placeholder="Dán GitHub Token (ghp_... hoặc github_pat_...)" autocomplete="off" />
             <button id="btnSaveToken" type="button" class="btn btn-outline">Kết nối</button>
           </div>
 

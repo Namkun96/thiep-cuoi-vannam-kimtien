@@ -194,7 +194,7 @@ a { color: inherit; text-decoration: none; }
   border: 1.5px solid #DCCFBE;
   background: #FFFFFF;
   color: var(--ink);
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
   outline: none;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -566,9 +566,9 @@ a { color: inherit; text-decoration: none; }
   gap: 6px;
 }
 .ward-filter-input {
-  min-height: 36px;
-  padding: 7px 11px;
-  font-size: 12.5px;
+  min-height: 40px;
+  padding: 8px 11px;
+  font-size: 16px;
   background: var(--surface-warm);
 }
 
