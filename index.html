@@ -122,7 +122,7 @@
           <div class="env-flap-tri"></div>
 
           <div class="env-letter-card">
-            <p class="letter-kicker">Trân trọng kính mời dự lễ cưới của<br/>You're invited to the wedding of</p>
+            <p id="letterKicker" class="letter-kicker">Trân trọng kính mời dự lễ cưới của<br/>You're invited to the wedding of</p>
             <p id="letterNames" class="letter-names">
               <span class="letter-line">Nguyễn Văn Nam</span>
               <span class="amp-small">&amp;</span>
@@ -178,13 +178,13 @@
           <p id="famLeftVi" class="fam-col-title">Nhà Trai</p>
           <p id="famLeftEn" class="fam-col-en">Groom's Side</p>
           <p id="famLeftParent" class="fam-col-parent">Bà: Nguyễn Thị ...</p>
-          <p id="famLeftAddr" class="fam-col-addr">Thị trấn Kim Bài, Thanh Oai<br/>TP. Hà Nội</p>
+          <p id="famLeftAddr" class="fam-col-addr">Thị trấn Kim Bài, Xã Thanh Oai<br/>TP. Hà Nội</p>
         </div>
         <div class="reveal from-right">
           <p id="famRightVi" class="fam-col-title">Nhà Gái</p>
           <p id="famRightEn" class="fam-col-en">Bride's Side</p>
           <p id="famRightParent" class="fam-col-parent">Bà: Trần Thị ...</p>
-          <p id="famRightAddr" class="fam-col-addr">Thôn Cầu Cả, Cổ Loa, Đông Anh<br/>TP. Hà Nội</p>
+          <p id="famRightAddr" class="fam-col-addr">Thôn Cầu Cả, Cổ Loa, Xã Đông Anh<br/>TP. Hà Nội</p>
         </div>
       </div>
 
@@ -251,7 +251,7 @@
     <section id="secSchedule" class="schedule-suite">
       <div class="reveal">
         <p class="accent-heading">Save the date</p>
-        <p class="cal-sub-month lnum">Tháng 01 · January 2027</p>
+        <p id="calSubMonth" class="cal-sub-month lnum">Tháng 01 · January 2027</p>
       </div>
 
       <div class="reveal">
@@ -265,7 +265,7 @@
           <div class="cal-hd" style="color:var(--burgundy);">CN</div>
         </div>
         <div id="calendarDays" class="cal-clean-grid"></div>
-        <div class="cal-notes">
+        <div id="calNotes" class="cal-notes">
           <span><strong style="color:var(--burgundy);">♥ 02/01</strong> · Tiệc cưới (16:30)</span>
           <span><strong style="color:var(--gold);">♡ 03/01</strong> · Lễ Thành Hôn &amp; Vu Quy</span>
         </div>
@@ -369,7 +369,7 @@
 
     <!-- 9. RSVP FORM & MINIMALIST HỘP MỪNG CƯỚI (JMII 00:33 - 00:38) -->
     <section id="secRsvp" class="rsvp-suite">
-      <p class="rsvp-intro reveal">
+      <p id="rsvpIntro" class="rsvp-intro reveal">
         Hãy xác nhận sự có mặt của bạn để gia đình chúng mình chuẩn bị đón tiếp một cách chu đáo nhất. Trân trọng!
       </p>
 
@@ -441,7 +441,7 @@
     <footer class="footer-cinema">
       <img id="footerBgImg" class="footer-cinema-bg" src="./images/banner-rings.webp" alt="" aria-hidden="true" loading="lazy" />
       <div class="footer-cinema-inner reveal">
-        <p class="footer-quote">
+        <p id="footerQuote" class="footer-quote">
           Cảm ơn bạn đã đến dự và chia sẻ niềm vui cùng chúng mình.<br/>
           Sự có mặt của bạn là món quà ý nghĩa nhất.
         </p>
@@ -450,7 +450,7 @@
     </footer>
     <div class="footer-bar lnum">
       <span id="footerBrand">NGUYỄN VĂN NAM ♥ NGUYỄN THỊ KIM TIẾN</span>
-      <span>02 – 03 . 01 . 2027</span>
+      <span id="footerDate">02 – 03 . 01 . 2027</span>
     </div>
 
   </main>
@@ -611,6 +611,7 @@
   <!-- TOAST -->
   <div id="toast" class="toast hidden"></div>
 
+  <script src="./assets/wedding-store.js"></script>
   <script src="./assets/app.js"></script>
 </body>
 </html>

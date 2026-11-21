@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Quản Lý Thiệp Cưới &amp; Tạo Link Khách Mời — Văn Nam &amp; Kim Tiến</title>
+  <meta name="description" content="Tạo link thiệp cưới cá nhân hóa theo tên khách mời và cấu hình thông tin Nhà Trai, Nhà Gái, thời gian, địa chỉ, mừng cưới và album ảnh." />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#6E0C17" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%236E0C17'/%3E%3Ctext x='32' y='44' text-anchor='middle' fill='%23E9DEC9' font-family='serif' font-size='34'%3E%E5%9B%8D%3C/text%3E%3C/svg%3E" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600;1,700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="../assets/admin.css" />
+</head>
+<body>
+
+  <!-- ===== HEADER ===== -->
+  <header class="studio-header">
+    <div class="studio-header-inner">
+      <p class="studio-kicker">Wedding Invitation Studio</p>
+      <h1 class="studio-title">Quản Lý Thiệp Cưới &amp; Tạo Link Mời</h1>
+      <p class="studio-sub">Nguyễn Văn Nam &amp; Nguyễn Thị Kim Tiến</p>
+
+      <div class="quick-preview-row">
+        <a href="../nha-trai/" target="_blank" rel="noopener" class="quick-preview-link">
+          <span>Xem thiệp Nhà Trai</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </a>
+        <a href="../nha-gai/" target="_blank" rel="noopener" class="quick-preview-link">
+          <span>Xem thiệp Nhà Gái</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </a>
+        <a href="../" target="_blank" rel="noopener" class="quick-preview-link">
+          <span>Xem bản chung (2 họ)</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="studio-main">
+
+    <!-- ===== 1. TẠO LINK THIỆP CÁ NHÂN HÓA THEO TÊN KHÁCH MỜI ===== -->
+    <section class="panel" aria-labelledby="secLinkTitle">
+      <div class="panel-head">
+        <p class="panel-step">Phần 1 · Gửi thiệp mời</p>
+        <h2 id="secLinkTitle" class="panel-title">Tạo Link Thiệp Theo Tên Khách Mời</h2>
+        <p class="panel-desc">Nhập tên khách muốn mời rồi chọn Nhà Trai hoặc Nhà Gái. Tên khách sẽ tự động hiển thị trang trọng trên bìa thiệp, lời mời, phần xác nhận và lời cảm ơn.</p>
+      </div>
+
+      <div class="field-group">
+        <label for="guestNameInput" class="field-label">
+          <span>Tên khách mời</span>
+          <span class="field-hint">VD: Anh Minh &amp; Gia Đình</span>
+        </label>
+        <input id="guestNameInput" type="text" class="input" placeholder="Nhập tên khách muốn mời (VD: Anh Minh &amp; Chị Lan, Bạn Hùng...)" autocomplete="off" />
+      </div>
+
+      <div class="btn-row-2">
+        <button id="btnCreateGroomLink" type="button" class="btn btn-burgundy">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          <span>Tạo link Nhà Trai</span>
+        </button>
+        <button id="btnCreateBrideLink" type="button" class="btn btn-gold">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          <span>Tạo link Nhà Gái</span>
+        </button>
+      </div>
+
+      <button id="btnCreateBothLink" type="button" class="btn-ghost-link">
+        Hoặc tạo link bản đầy đủ (cả Nhà Trai &amp; Nhà Gái)
+      </button>
+
+      <!-- Kết quả đường link vừa tạo -->
+      <div id="linkResultBox" class="link-result hidden" aria-live="polite">
+        <div class="link-result-top">
+          <span id="linkSideTag" class="link-side-tag">Thiệp Nhà Trai</span>
+          <span id="linkGuestPreview" class="link-guest-preview">Kính mời: Quý Khách</span>
+        </div>
+        <div class="link-url-bar">
+          <input id="generatedUrlInput" type="text" readonly class="link-url-input" aria-label="Đường link thiệp cưới vừa tạo" />
+          <button id="btnCopyGeneratedLink" type="button" class="icon-action-btn" title="Sao chép đường link" aria-label="Sao chép đường link">
+            <svg id="copyIconSvg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span id="copyBtnLabel">Copy</span>
+          </button>
+          <a id="btnOpenGeneratedLink" href="#" target="_blank" rel="noopener" class="icon-action-btn secondary" title="Mở xem thử thiệp mời" aria-label="Mở xem thử thiệp mời">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Lịch sử link đã tạo gần đây -->
+      <div id="linkHistoryWrap" class="history-block hidden">
+        <div class="history-head">
+          <p class="history-title">Link khách mời gần đây</p>
+          <button id="btnClearHistory" type="button" class="history-clear">Xóa lịch sử</button>
+        </div>
+        <div id="linkHistoryList" class="history-list"></div>
+      </div>
+    </section>
+
+    <!-- ===== 2. CẤU HÌNH THÔNG TIN THIỆP (2 TAB NHÀ TRAI / NHÀ GÁI) ===== -->
+    <section class="panel" aria-labelledby="secConfigTitle">
+      <div class="panel-head">
+        <p class="panel-step">Phần 2 · Cấu hình nội dung</p>
+        <h2 id="secConfigTitle" class="panel-title">Cấu Hình Thông Tin Thiệp Cưới</h2>
+        <p class="panel-desc">Chọn tab <strong>Nhà Trai</strong> hoặc <strong>Nhà Gái</strong> để chỉnh sửa thông tin tương ứng. Khi bấm <strong>Lưu cấu hình</strong>, cả 3 link (Nhà Trai, Nhà Gái và bản chung) sẽ tự động cập nhật đồng bộ.</p>
+      </div>
+
+      <!-- 2 Tab Nhà Trai / Nhà Gái -->
+      <div class="side-tabs" role="tablist" aria-label="Chọn gia đình cấu hình">
+        <button id="tabBtnGroom" type="button" role="tab" aria-selected="true" class="side-tab active" data-side-tab="groom">
+          Nhà Trai · Chú Rể
+        </button>
+        <button id="tabBtnBride" type="button" role="tab" aria-selected="false" class="side-tab" data-side-tab="bride">
+          Nhà Gái · Cô Dâu
+        </button>
+      </div>
+
+      <!-- 2.1 Họ tên mẹ -->
+      <div class="sub-section">
+        <h3 id="secFamilyHeading" class="sub-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span>Thông tin gia đình Nhà Trai</span>
+        </h3>
+
+        <div class="field-group">
+          <label for="cfgParentName" class="field-label">
+            <span>Họ tên mẹ</span>
+            <span class="field-hint">Hiển thị tại mục Gia đình</span>
+          </label>
+          <input id="cfgParentName" type="text" class="input" placeholder="VD: Bà: Nguyễn Thị ..." />
+        </div>
+      </div>
+
+      <!-- 2.2 Địa chỉ tư gia (2 cấp: Tỉnh/Thành phố, Xã/Phường + Chi tiết) -->
+      <div class="sub-section">
+        <h3 class="sub-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span>Địa chỉ tư gia (2 cấp Tỉnh/TP — Xã/Phường)</span>
+        </h3>
+
+        <div class="grid-2">
+          <div class="field-group">
+            <label for="cfgProvince" class="field-label"><span>Tỉnh / Thành phố</span></label>
+            <select id="cfgProvince" class="select"></select>
+          </div>
+
+          <div class="field-group">
+            <label for="cfgWard" class="field-label"><span>Xã / Phường / Đặc khu</span></label>
+            <div class="ward-picker-stack">
+              <input id="cfgWardSearch" type="search" class="input ward-filter-input" placeholder="Gõ lọc nhanh xã/phường..." autocomplete="off" />
+              <select id="cfgWard" class="select"></select>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="cfgDetailAddress" class="field-label">
+            <span>Địa chỉ chi tiết</span>
+            <span class="field-hint">Thôn, phố, số nhà, khu vực</span>
+          </label>
+          <input id="cfgDetailAddress" type="text" class="input" placeholder="VD: Thị trấn Kim Bài hoặc Thôn Cầu Cả, Cổ Loa..." />
+        </div>
+
+        <div class="field-group">
+          <label for="cfgVenueNote" class="field-label">
+            <span>Ghi chú đỗ xe / chỉ đường</span>
+            <span class="field-hint">Tùy chọn</span>
+          </label>
+          <input id="cfgVenueNote" type="text" class="input" placeholder="VD: Có chỗ đỗ xe thuận tiện ngay gần rạp tiệc" />
+        </div>
+
+        <div id="addrPreviewPill" class="live-preview-pill"></div>
+      </div>
+
+      <!-- 2.3 Thời gian tổ chức (Ngày chọn hộp lịch + Giờ / Phút) -->
+      <div class="sub-section">
+        <h3 class="sub-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span>Thời gian tổ chức</span>
+        </h3>
+
+        <div class="event-time-box">
+          <p id="lblPartyTime" class="event-time-label">Tiệc Cưới Nhà Trai</p>
+          <div class="time-row">
+            <div class="field-group time-date-wrap" style="margin-bottom:0;">
+              <label for="cfgPartyDate" class="field-label"><span>Chọn ngày</span></label>
+              <input id="cfgPartyDate" type="date" class="input" />
+            </div>
+            <div class="field-group" style="margin-bottom:0;">
+              <label for="cfgPartyHour" class="field-label"><span>Giờ</span></label>
+              <select id="cfgPartyHour" class="select"></select>
+            </div>
+            <div class="field-group" style="margin-bottom:0;">
+              <label for="cfgPartyMin" class="field-label"><span>Phút</span></label>
+              <select id="cfgPartyMin" class="select"></select>
+            </div>
+          </div>
+          <p id="partyLunarPreview" class="lunar-readout"></p>
+        </div>
+
+        <div class="event-time-box">
+          <p id="lblCeremonyTime" class="event-time-label">Lễ Thành Hôn</p>
+          <div class="time-row">
+            <div class="field-group time-date-wrap" style="margin-bottom:0;">
+              <label for="cfgCeremonyDate" class="field-label"><span>Chọn ngày</span></label>
+              <input id="cfgCeremonyDate" type="date" class="input" />
+            </div>
+            <div class="field-group" style="margin-bottom:0;">
+              <label for="cfgCeremonyHour" class="field-label"><span>Giờ</span></label>
+              <select id="cfgCeremonyHour" class="select"></select>
+            </div>
+            <div class="field-group" style="margin-bottom:0;">
+              <label for="cfgCeremonyMin" class="field-label"><span>Phút</span></label>
+              <select id="cfgCeremonyMin" class="select"></select>
+            </div>
+          </div>
+          <p id="ceremonyLunarPreview" class="lunar-readout"></p>
+        </div>
+      </div>
+
+      <!-- 2.4 Thông tin mừng cưới + Tải ảnh QR -->
+      <div class="sub-section">
+        <h3 id="secBankHeading" class="sub-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/></svg>
+          <span>Thông tin mừng cưới Nhà Trai</span>
+        </h3>
+
+        <div class="grid-2">
+          <div class="field-group">
+            <label for="cfgBankName" class="field-label"><span>Tên ngân hàng</span></label>
+            <input id="cfgBankName" type="text" class="input" placeholder="VD: Vietcombank — CN Hà Nội" />
+          </div>
+          <div class="field-group">
+            <label for="cfgBankAcc" class="field-label"><span>Số tài khoản (STK)</span></label>
+            <input id="cfgBankAcc" type="text" class="input" placeholder="VD: 0011 0045 67890" />
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="cfgBankOwner" class="field-label"><span>Chủ tài khoản</span></label>
+          <input id="cfgBankOwner" type="text" class="input" placeholder="VD: NGUYEN VAN NAM" />
+        </div>
+
+        <div class="field-group">
+          <span class="field-label">
+            <span>Hình ảnh mã QR chuyển khoản</span>
+            <span class="field-hint">Tải ảnh từ thư viện điện thoại</span>
+          </span>
+          <div class="qr-upload-row">
+            <div class="qr-preview-box">
+              <img id="qrPreviewImg" class="hidden" alt="Ảnh mã QR xem trước" />
+              <span id="qrPlaceholderTxt" class="qr-placeholder-txt">Chưa tải ảnh<br/>(Đang dùng QR mẫu)</span>
+            </div>
+            <div class="qr-upload-actions">
+              <label for="cfgQrFileInput" class="file-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <span>Chọn ảnh QR từ máy</span>
+              </label>
+              <input id="cfgQrFileInput" type="file" accept="image/*" class="hidden" />
+              <button id="btnRemoveQr" type="button" class="btn-remove-img hidden">Xóa ảnh QR đã tải (về mẫu mặc định)</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 3. TẢI ẢNH THIỆP & ALBUM ẢNH THEO ĐÚNG VỊ TRÍ THIẾT KẾ ===== -->
+    <section class="panel" aria-labelledby="secPhotosTitle">
+      <div class="panel-head">
+        <p class="panel-step">Phần 3 · Hình ảnh &amp; Album cưới</p>
+        <h2 id="secPhotosTitle" class="panel-title">Tải Ảnh Thiệp &amp; Album Theo Từng Vị Trí</h2>
+        <p class="panel-desc">Chạm trực tiếp vào từng khung ảnh bên dưới để chọn ảnh từ điện thoại thay thế đúng vị trí trên thiệp (áp dụng đồng bộ cho cả Nhà Trai, Nhà Gái và bản chung).</p>
+      </div>
+
+      <h3 class="sub-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        <span>Ảnh bìa &amp; Ảnh chân dung nổi bật</span>
+      </h3>
+
+      <div id="featuredPhotosGrid" class="featured-photos-grid"></div>
+
+      <h3 class="sub-title" style="margin-top: 8px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m21 16-5-5L5 20"/></svg>
+        <span>Bố cục Album “Our Album” (7 vị trí như trên thiệp)</span>
+      </h3>
+
+      <div class="album-editor-stage">
+        <p class="album-editor-heading">Our Album — Chạm vào từng khung để đổi ảnh</p>
+
+        <div class="photo-slot wide" data-photo-slot="album:0"></div>
+
+        <div class="ae-row-asym">
+          <div class="ae-stack-col">
+            <div class="photo-slot square" data-photo-slot="album:1"></div>
+            <div class="photo-slot square" data-photo-slot="album:3"></div>
+          </div>
+          <div class="photo-slot fill" data-photo-slot="album:2"></div>
+        </div>
+
+        <div class="photo-slot wide" data-photo-slot="album:4"></div>
+
+        <div class="ae-row-two">
+          <div class="photo-slot tall" data-photo-slot="album:5"></div>
+          <div class="photo-slot tall" data-photo-slot="album:6"></div>
+        </div>
+      </div>
+
+      <input id="sharedPhotoInput" type="file" accept="image/*" class="hidden" />
+    </section>
+
+    <!-- ===== 4. ĐỒNG BỘ LÊN WEB (GITHUB PAGES) CHO MỌI KHÁCH MỜI ===== -->
+    <section class="panel" aria-labelledby="secSyncTitle">
+      <details id="githubSyncDetails" class="sync-details">
+        <summary id="secSyncTitle">
+          <span>Đồng bộ lên Web cho mọi khách mời (GitHub Pages)</span>
+          <span id="syncStatusBadge" class="sync-badge">Lưu trên máy này</span>
+        </summary>
+        <div class="sync-body">
+          <p>
+            Khi bấm <strong>Lưu cấu hình</strong>, mọi thay đổi được lưu ngay lập tức để bạn kiểm tra trên máy này.
+            Để <strong>tất cả khách mời trên mọi điện thoại</strong> mở link đều thấy địa chỉ, ngày giờ, QR và ảnh album mới nhất, hãy dán <em>GitHub Fine-grained Token</em> (chỉ cấp quyền <code>Contents: Read &amp; Write</code> cho repo <code>thiep-cuoi-vannam-kimtien</code>) một lần duy nhất bên dưới:
+          </p>
+          <div class="sync-token-row">
+            <input id="ghTokenInput" type="password" class="input" placeholder="Dán GitHub Token (ghp_... hoặc github_pat_...)" autocomplete="off" />
+            <button id="btnSaveToken" type="button" class="btn btn-outline" style="min-height:44px;">Kết nối</button>
+          </div>
+          <div class="sync-actions-row">
+            <button id="btnClearToken" type="button" class="btn-remove-img hidden">Ngắt kết nối Token trên máy này</button>
+            <button id="btnDownloadConfigJson" type="button" class="btn-ghost-link" style="margin-top:0;">Tải file config.json dự phòng</button>
+          </div>
+        </div>
+      </details>
+
+      <div id="saveStatusBanner" class="status-banner hidden" role="status"></div>
+    </section>
+
+  </main>
+
+  <!-- ===== STICKY SAVE ACTION BAR ===== -->
+  <div class="sticky-save-bar">
+    <div class="sticky-save-inner">
+      <button id="btnResetDefaults" type="button" class="btn btn-outline" title="Khôi phục giá trị mặc định ban đầu">Mặc định</button>
+      <button id="btnSaveAllConfig" type="button" class="btn btn-burgundy">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        <span id="btnSaveLabel">Lưu cấu hình thiệp</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="../assets/wedding-store.js"></script>
+  <script src="../assets/admin.js"></script>
+</body>
+</html>

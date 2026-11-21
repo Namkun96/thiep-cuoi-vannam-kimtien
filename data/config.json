@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "updatedAt": 0,
+  "groomName": "Nguyễn Văn Nam",
+  "brideName": "Nguyễn Thị Kim Tiến",
+  "groom": {
+    "parent": "Bà: Nguyễn Thị ...",
+    "province": "Thành phố Hà Nội",
+    "ward": "Xã Thanh Oai",
+    "detailAddress": "Thị trấn Kim Bài",
+    "venueNote": "Có chỗ đỗ xe thuận tiện ngay gần rạp tiệc",
+    "partyDate": "2027-01-02",
+    "partyTime": "16:30",
+    "ceremonyDate": "2027-01-03",
+    "ceremonyTime": "08:00",
+    "bankName": "Vietcombank — CN Hà Nội",
+    "bankAcc": "0011 0045 67890",
+    "bankOwner": "NGUYEN VAN NAM",
+    "qrImage": ""
+  },
+  "bride": {
+    "parent": "Bà: Trần Thị ...",
+    "province": "Thành phố Hà Nội",
+    "ward": "Xã Đông Anh",
+    "detailAddress": "Thôn Cầu Cả, Cổ Loa",
+    "venueNote": "Bãi đỗ ô tô đầu đường cách tư gia khoảng 10 phút đi bộ nhẹ",
+    "partyDate": "2027-01-02",
+    "partyTime": "16:30",
+    "ceremonyDate": "2027-01-03",
+    "ceremonyTime": "09:30",
+    "bankName": "Techcombank — CN Đông Anh",
+    "bankAcc": "1903 8899 12345",
+    "bankOwner": "NGUYEN THI KIM TIEN",
+    "qrImage": ""
+  },
+  "photos": {
+    "hero": "images/hero-arch.webp",
+    "interlude": "images/banner-rings.webp",
+    "storyBg": "images/hands-rings.webp",
+    "polaroidGroom": "images/arch-closeup.webp",
+    "polaroidBride": "images/aodai-closeup.webp",
+    "vinylLabel": "images/arch-closeup.webp",
+    "rsvpThanks": "images/aodai-closeup.webp",
+    "footerBg": "images/banner-rings.webp",
+    "album": [
+      "images/banner-rings.webp",
+      "images/aodai-full.webp",
+      "images/arch-closeup.webp",
+      "images/hands-rings.webp",
+      "images/hero-arch.webp",
+      "images/aodai-closeup.webp",
+      "images/bouquet.webp"
+    ]
+  }
+}
