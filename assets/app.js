@@ -31,13 +31,35 @@
 
   const params = new URLSearchParams(window.location.search);
   const customGuest = (params.get('khach') || params.get('guest') || params.get('to') || '').trim();
+  const gidParam = (params.get('gid') || '').trim();
+  const isNamedGuest = Boolean(customGuest || gidParam);
   const guestDisplay = customGuest || 'Quý Khách & Gia Đình';
+
+  function getOrCreateVisitorId() {
+    const key = `thiep_cuoi_vid_${mode}_v1`;
+    try {
+      let v = localStorage.getItem(key);
+      if (!v) {
+        v = `V-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+        localStorage.setItem(key, v);
+      }
+      return v;
+    } catch (_) {
+      return `V-${Date.now().toString(36)}`;
+    }
+  }
+
+  const guestRecordId = isNamedGuest
+    ? (gidParam || `K-${mode}-${customGuest.toLowerCase().replace(/[^a-z0-9\u00C0-\u1EF9]+/gi, '-').slice(0, 32)}`)
+    : getOrCreateVisitorId();
+  const modeSideLabel = mode === 'nha-trai' ? 'Nhà Trai' : (mode === 'nha-gai' ? 'Nhà Gái' : 'Bản chung');
 
   let activeData = WS.clone(WS.DEFAULT_CONFIG);
   let activeAlbumResolved = [];
   let countdownTargetIso = '2027-01-02T16:30:00+07:00';
   let lbIndex = 0;
   let revealIo = null;
+  let visitTracked = false;
 
   function showToast(msg) {
     const t = $('toast');
@@ -824,38 +846,61 @@
     const status = $('rsvpStatus').value;
     const count = $('rsvpCount').value;
     const showSide = mode === 'both';
-    const side = showSide ? $('rsvpSide').value : (mode === 'nha-gai' ? 'Khách Nhà Gái' : 'Khách Nhà Trai');
+    const rawSide = showSide ? $('rsvpSide').value : modeSideLabel;
+    const side = rawSide.includes('Gái') ? 'Nhà Gái' : (rawSide.includes('Trai') ? 'Nhà Trai' : modeSideLabel);
     const wish = $('rsvpWish').value.trim() || `Chúc ${activeData.groomName} & ${activeData.brideName} trăm năm hạnh phúc!`;
     const submitBtn = $('rsvpSubmitBtn');
 
-    if (RSVP_ENDPOINT) {
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Đang gửi...';
-      try {
-        await fetch(RSVP_ENDPOINT, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            timestamp: new Date().toISOString(),
-            mode,
-            name,
-            status,
-            count,
-            side,
-            wish
-          })
-        });
-      } catch (_) {}
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Send · Xác Nhận';
-    }
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Đang gửi...';
+    try {
+      await WS.sheetPost(activeData.sheetApiUrl || RSVP_ENDPOINT, {
+        action: 'submit_rsvp',
+        id: guestRecordId,
+        isNamed: isNamedGuest,
+        name,
+        side,
+        status,
+        count,
+        wish,
+        sourceMode: mode,
+        link: window.location.href
+      });
+    } catch (_) {}
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Send · Xác Nhận';
 
     appendWish(name, `${status} · ${count}`, wish);
     $('rsvpForm').reset();
     if (customGuest && $('rsvpName')) $('rsvpName').value = customGuest;
     thanksModal?.classList.remove('hidden');
   });
+
+  function trackVisitAndSyncWishes(config) {
+    if (visitTracked) return;
+    visitTracked = true;
+
+    WS.sheetPost(config.sheetApiUrl, {
+      action: 'track_open',
+      id: guestRecordId,
+      isNamed: isNamedGuest,
+      name: customGuest,
+      side: modeSideLabel,
+      sourceMode: mode,
+      link: window.location.href
+    });
+
+    if (config.sheetApiUrl) {
+      WS.listSheetWishes(config.sheetApiUrl).then((res) => {
+        if (res && res.ok && Array.isArray(res.wishes) && res.wishes.length) {
+          const listEl = $('wishesList');
+          if (!listEl) return;
+          listEl.innerHTML = '';
+          res.wishes.slice().reverse().forEach((w) => appendWish(w.name, w.tag, w.wish));
+        }
+      }).catch(() => {});
+    }
+  }
 
   /* ===== 10. FIXED FOOTER QUICK-NAVIGATION MENU & SCROLL-SPY ===== */
   function initBottomNav() {
@@ -898,5 +943,8 @@
 
   WS.loadConfig(base).then(({ config }) => {
     hydrate(config);
-  }).catch(() => {});
+    trackVisitAndSyncWishes(config);
+  }).catch(() => {
+    trackVisitAndSyncWishes(activeData);
+  });
 })();

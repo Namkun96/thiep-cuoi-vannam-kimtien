@@ -44,13 +44,26 @@
   let dirty = {
     groom: false,
     bride: false,
+    sheet: false,
     photoKeys: new Set(),
     albumIndices: new Set(),
     forceFullReplace: false
   };
 
+  const DB_PAGE_SIZE = 10;
+  let dbState = {
+    side: 'all',
+    type: 'all',
+    viewed: 'all',
+    rsvp: 'all',
+    q: '',
+    page: 1,
+    lastResult: null
+  };
+  let dbSearchTimer = null;
+
   function resetDirty() {
-    dirty = { groom: false, bride: false, photoKeys: new Set(), albumIndices: new Set(), forceFullReplace: false };
+    dirty = { groom: false, bride: false, sheet: false, photoKeys: new Set(), albumIndices: new Set(), forceFullReplace: false };
   }
 
   function encodeTokenHash(tok) {
@@ -130,11 +143,18 @@
     }
   }
 
-  function buildGuestUrl(sidePath, guestName) {
+  function genGuestId() {
+    return `K-${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).slice(2, 5).toUpperCase()}`;
+  }
+
+  function buildGuestUrl(sidePath, guestName, gid) {
     const root = getSiteRootUrl();
     const path = sidePath === 'both' ? '' : `${sidePath}/`;
-    const q = guestName ? `?khach=${encodeURIComponent(guestName)}` : '';
-    return `${root}${path}${q}`;
+    const qs = new URLSearchParams();
+    if (guestName) qs.set('khach', guestName);
+    if (gid) qs.set('gid', gid);
+    const q = qs.toString();
+    return `${root}${path}${q ? `?${q}` : ''}`;
   }
 
   function loadHistory() {
@@ -187,7 +207,12 @@
       return;
     }
     lastSideCreated = side;
-    const url = buildGuestUrl(side, name);
+
+    const existingHist = loadHistory();
+    const matched = existingHist.find((x) => normVi(x.guest) === normVi(name) && x.side === side && x.gid);
+    const gid = matched ? matched.gid : genGuestId();
+    const url = buildGuestUrl(side, name, gid);
+    const sideLabel = side === 'nha-trai' ? 'Nhà Trai' : (side === 'nha-gai' ? 'Nhà Gái' : 'Bản chung');
 
     const tagEl = $('linkSideTag');
     tagEl.className = 'link-side-tag' + (side === 'nha-gai' ? ' bride' : (side === 'both' ? ' both' : ''));
@@ -204,13 +229,26 @@
     $('copyIconSvg').outerHTML = COPY_SVG.replace('<svg ', '<svg id="copyIconSvg" ');
     $('copyBtnLabel').textContent = 'Copy';
 
-    // Save to history (dedupe exact URL)
-    const hist = loadHistory().filter((x) => x.url !== url);
-    hist.unshift({ guest: name, side, url, ts: Date.now() });
+    // Save to history (dedupe exact URL or same guest+side)
+    const hist = existingHist.filter((x) => x.url !== url && !(normVi(x.guest) === normVi(name) && x.side === side));
+    hist.unshift({ guest: name, side, gid, url, ts: Date.now() });
     saveHistory(hist);
     renderHistory();
 
-    showToast(`Đã tạo link thiệp mời cho ${name}!`);
+    // Register named guest in Google Sheet DB (and local mirror immediately)
+    WS.sheetPost(draft.sheetApiUrl, {
+      action: 'register_guest',
+      id: gid,
+      name,
+      side: sideLabel,
+      isNamed: true,
+      link: url,
+      sourceMode: side
+    }).finally(() => {
+      loadGuestDb(1);
+    });
+
+    showToast(`Đã tạo link & ghi nhận khách mời: ${name}!`);
   }
 
   function initLinkGenerator() {
@@ -720,6 +758,8 @@
       await WS.clearLocalConfig();
       loadSideToForm(activeSide);
       renderAllPhotoSlots();
+      syncSheetConnectionUI();
+      loadGuestDb(1);
       setStatusBanner('warn', 'Đã khôi phục toàn bộ thông tin về giá trị mặc định ban đầu. Bấm <strong>Lưu &amp; Cập nhật lên Web</strong> nếu bạn muốn xuất bản bản mặc định cho mọi khách mời.');
       showToast('Đã khôi phục về mặc định!');
     });
@@ -737,11 +777,12 @@
         await WS.saveLocalConfig(draft);
 
         if (token) {
-          const hasAnyDirty = dirty.groom || dirty.bride || dirty.photoKeys.size > 0 || dirty.albumIndices.size > 0;
+          const hasAnyDirty = dirty.groom || dirty.bride || dirty.sheet || dirty.photoKeys.size > 0 || dirty.albumIndices.size > 0;
           const dirtyPayload = hasAnyDirty
             ? {
                 groom: dirty.groom,
                 bride: dirty.bride,
+                sheet: dirty.sheet,
                 photoKeys: Array.from(dirty.photoKeys),
                 albumIndices: Array.from(dirty.albumIndices)
               }
@@ -757,6 +798,7 @@
           resetDirty();
           loadSideToForm(activeSide);
           renderAllPhotoSlots();
+          syncSheetConnectionUI();
           setStatusBanner(
             'ok',
             '✅ Đã lưu và đồng bộ trực tiếp lên <strong>GitHub</strong>! Cả 3 đường dẫn (<a href="../nha-trai/" target="_blank" style="text-decoration:underline;">Nhà Trai</a>, <a href="../nha-gai/" target="_blank" style="text-decoration:underline;">Nhà Gái</a>, <a href="../" target="_blank" style="text-decoration:underline;">Bản chung</a>) đã cập nhật ngay trên máy này và mọi khách mời sẽ xem được bản mới nhất sau ~30 giây.'
@@ -783,6 +825,399 @@
   }
 
   /* =========================================================================
+     5. GUEST DATABASE LOOKUP (GOOGLE SHEET + 10 RECORDS/PAGE PAGINATION)
+     ========================================================================= */
+  let dbRequestSeq = 0;
+
+  function setSheetConnectMsg(type, html) {
+    const el = $('sheetConnectMsg');
+    if (!el) return;
+    if (!html) {
+      el.classList.add('hidden');
+      el.innerHTML = '';
+      return;
+    }
+    el.className = `status-banner ${type}`;
+    el.innerHTML = html;
+    el.classList.remove('hidden');
+  }
+
+  function syncSheetConnectionUI() {
+    const viewUrl = draft.sheetViewUrl || WS.DEFAULT_CONFIG.sheetViewUrl;
+    const apiUrl = String(draft.sheetApiUrl || '').trim();
+
+    if ($('sheetOpenLink')) $('sheetOpenLink').href = viewUrl;
+    if ($('btnOpenSheetQuick')) $('btnOpenSheetQuick').href = viewUrl;
+    if ($('cfgSheetApiUrl')) $('cfgSheetApiUrl').value = apiUrl;
+
+    const badge = $('sheetStatusBadge');
+    if (badge) {
+      if (apiUrl) {
+        badge.textContent = 'Đã kết nối Google Sheet';
+        badge.classList.add('connected');
+      } else {
+        badge.textContent = 'Chưa gắn Apps Script';
+        badge.classList.remove('connected');
+      }
+    }
+  }
+
+  function renderGuestStats(stats) {
+    const s = stats || {};
+    if ($('statTotal')) $('statTotal').textContent = String(s.total || 0);
+    if ($('statTypeSplit')) $('statTypeSplit').textContent = `${s.named || 0} riêng · ${s.walkin || 0} vãng lai`;
+    if ($('statViewed')) $('statViewed').textContent = String(s.viewed || 0);
+    if ($('statUnviewed')) $('statUnviewed').textContent = `${s.unviewed || 0} chưa mở`;
+    if ($('statAttending')) $('statAttending').textContent = String(s.attending || 0);
+    if ($('statEstPeople')) $('statEstPeople').textContent = `~${s.estPeople || 0} khách dự kiến`;
+    if ($('statSideSplit')) $('statSideSplit').textContent = `${s.groom || 0} / ${s.bride || 0}`;
+    if ($('statDeclined')) $('statDeclined').textContent = `${s.declined || 0} báo bận`;
+  }
+
+  function buildPageNumbers(current, total) {
+    if (total <= 7) {
+      return Array.from({ length: total }, (_, i) => i + 1);
+    }
+    const pages = [1];
+    const start = Math.max(2, current - 1);
+    const end = Math.min(total - 1, current + 1);
+    if (start > 2) pages.push('...');
+    for (let p = start; p <= end; p++) pages.push(p);
+    if (end < total - 1) pages.push('...');
+    pages.push(total);
+    return pages;
+  }
+
+  function formatSourcePathLabel(sourceMode) {
+    if (sourceMode === 'nha-trai') return '/nha-trai/';
+    if (sourceMode === 'nha-gai') return '/nha-gai/';
+    return '/ (Bản chung)';
+  }
+
+  function renderGuestDbResult(res, fallbackErrorMsg = '') {
+    renderGuestStats(res.stats);
+
+    const noteEl = $('dbSourceNote');
+    if (noteEl) {
+      if (res.source === 'google_sheet') {
+        noteEl.innerHTML = `🟢 Đang tra cứu trực tiếp từ <strong>Google Sheet</strong> (${res.stats?.total || 0} bản ghi · tự động ghi nhận từ cả 3 link thiệp).`;
+      } else if (fallbackErrorMsg) {
+        noteEl.innerHTML = `⚠️ Không kết nối được Google Sheet (${escHtml(fallbackErrorMsg)}). Đang hiển thị tạm dữ liệu lưu trên máy này.`;
+      } else {
+        noteEl.innerHTML = '🟡 Đang tra cứu dữ liệu lưu tạm trên máy này. Hãy mở mục <strong>Kết nối Google Sheet</strong> phía trên và dán link Apps Script để đồng bộ realtime mọi khách mời vào Google Sheet.';
+      }
+    }
+
+    const listEl = $('guestDbList');
+    const pagerEl = $('guestDbPager');
+    const numsEl = $('dbPageNumbers');
+    const rangeEl = $('dbRangeSummary');
+
+    const items = Array.isArray(res.items) ? res.items : [];
+    const page = res.page || 1;
+    const pageSize = res.pageSize || DB_PAGE_SIZE;
+    const totalFiltered = res.totalFiltered || 0;
+    const totalPages = res.totalPages || 1;
+
+    if (!items.length) {
+      const hasFilters = dbState.side !== 'all' || dbState.type !== 'all' || dbState.viewed !== 'all' || dbState.rsvp !== 'all' || Boolean(dbState.q);
+      listEl.innerHTML = hasFilters
+        ? '<div class="guest-db-empty">Không tìm thấy khách mời nào khớp bộ lọc hiện tại.<br/>Hãy thử xóa từ khóa hoặc chuyển bộ lọc về <strong>Tất cả</strong>.</div>'
+        : '<div class="guest-db-empty">Chưa có bản ghi khách mời nào.<br/>Hãy tạo link khách mời ở <strong>Phần 1</strong> hoặc mở thử 1 trong 3 link thiệp (<code>/nha-trai/</code>, <code>/nha-gai/</code>, <code>/</code>) để xem hệ thống tự động ghi nhận!</div>';
+      pagerEl.classList.add('hidden');
+      rangeEl.textContent = '';
+      return;
+    }
+
+    const startOffset = (page - 1) * pageSize;
+    listEl.innerHTML = items.map((item, idx) => {
+      const stt = startOffset + idx + 1;
+      const isNamed = item.type === 'Link riêng';
+      const sideCls = item.side === 'Nhà Trai' ? 'side-groom' : (item.side === 'Nhà Gái' ? 'side-bride' : 'side-both');
+      const isViewed = item.viewed === 'Đã xem';
+      const openCount = Number(item.openCount) || 0;
+      const viewLabel = isViewed ? `Đã mở (${Math.max(1, openCount)} lần)` : 'Chưa mở thiệp';
+
+      let rsvpCls = 'pending';
+      let rsvpLabel = 'Chưa phản hồi';
+      if (item.rsvpStatus === 'Sẽ tham dự') {
+        rsvpCls = 'attending';
+        rsvpLabel = `Sẽ tham dự${item.guestCount ? ` · ${item.guestCount}` : ''}`;
+      } else if (item.rsvpStatus === 'Rất tiếc bận') {
+        rsvpCls = 'declined';
+        rsvpLabel = 'Rất tiếc bận';
+      }
+
+      const actionsHtml = item.link
+        ? `<div class="grc-actions">
+             <button type="button" class="mini-icon-btn" data-db-copy="${escHtml(item.link)}" title="Copy link thiệp" aria-label="Copy link thiệp">${COPY_SVG}</button>
+             <a href="${escHtml(item.link)}" target="_blank" rel="noopener" class="mini-icon-btn" title="Mở link thiệp" aria-label="Mở link thiệp">${EXT_SVG}</a>
+           </div>`
+        : '';
+
+      const metaParts = [
+        `<span>Nguồn: <strong>${escHtml(formatSourcePathLabel(item.sourceMode))}</strong></span>`
+      ];
+      if (item.lastOpen) {
+        metaParts.push(`<span>Mở gần nhất: ${escHtml(item.lastOpen)}</span>`);
+      } else if (item.updatedAt) {
+        metaParts.push(`<span>Tạo lúc: ${escHtml(item.updatedAt)}</span>`);
+      }
+      if (item.id) {
+        metaParts.push(`<span>Mã: ${escHtml(item.id)}</span>`);
+      }
+
+      const wishHtml = item.wish
+        ? `<p class="grc-wish">“${escHtml(item.wish)}”</p>`
+        : '';
+
+      return `
+        <article class="guest-row-card" data-guest-id="${escHtml(item.id)}">
+          <div class="grc-top">
+            <div class="grc-title-wrap">
+              <div class="grc-name"><span class="grc-stt">#${stt}</span>${escHtml(item.name || 'Khách vãng lai')}</div>
+              <div class="grc-badges">
+                <span class="g-badge ${isNamed ? 'named' : 'walkin'}">${isNamed ? 'Link riêng' : 'Vãng lai'}</span>
+                <span class="g-badge ${sideCls}">${escHtml(item.side || 'Bản chung')}</span>
+                <span class="g-badge ${isViewed ? 'viewed' : 'unviewed'}">${escHtml(viewLabel)}</span>
+                <span class="g-badge ${rsvpCls}">${escHtml(rsvpLabel)}</span>
+              </div>
+            </div>
+            ${actionsHtml}
+          </div>
+          <div class="grc-meta">${metaParts.join('')}</div>
+          ${wishHtml}
+        </article>
+      `;
+    }).join('');
+
+    const fromIdx = startOffset + 1;
+    const toIdx = startOffset + items.length;
+    rangeEl.textContent = `Hiển thị ${fromIdx}–${toIdx} trên tổng ${totalFiltered} bản ghi (Trang ${page}/${totalPages} · ${pageSize} bản ghi/trang)`;
+
+    if (totalPages > 1) {
+      pagerEl.classList.remove('hidden');
+      $('btnDbPrev').disabled = page <= 1;
+      $('btnDbNext').disabled = page >= totalPages;
+
+      const model = buildPageNumbers(page, totalPages);
+      numsEl.innerHTML = model.map((p) => {
+        if (p === '...') {
+          return '<span style="padding:0 4px; color:var(--muted); font-weight:700;">…</span>';
+        }
+        return `<button type="button" class="pager-btn ${p === page ? 'active' : ''}" data-db-page="${p}" aria-label="Trang ${p}">${p}</button>`;
+      }).join('');
+    } else {
+      pagerEl.classList.add('hidden');
+      numsEl.innerHTML = '';
+    }
+  }
+
+  async function loadGuestDb(targetPage) {
+    const reqId = ++dbRequestSeq;
+    if (typeof targetPage === 'number' && !Number.isNaN(targetPage)) {
+      dbState.page = Math.max(1, targetPage);
+    }
+
+    const queryParams = {
+      side: dbState.side,
+      type: dbState.type,
+      viewed: dbState.viewed,
+      rsvp: dbState.rsvp,
+      q: dbState.q,
+      page: dbState.page,
+      pageSize: DB_PAGE_SIZE
+    };
+
+    const apiUrl = String(draft.sheetApiUrl || '').trim();
+    if (apiUrl && $('guestDbList') && !$('guestDbList').children.length) {
+      $('guestDbList').innerHTML = '<div class="guest-db-empty">Đang tải danh sách khách mời từ Google Sheet...</div>';
+    }
+
+    try {
+      const res = await WS.listSheetGuests(apiUrl, queryParams);
+      if (reqId !== dbRequestSeq) return;
+      dbState.page = res.page || 1;
+      dbState.lastResult = res;
+      renderGuestDbResult(res);
+    } catch (err) {
+      if (reqId !== dbRequestSeq) return;
+      const localRes = WS.queryLocalGuests(queryParams);
+      dbState.page = localRes.page || 1;
+      dbState.lastResult = localRes;
+      renderGuestDbResult(localRes, err.message);
+    }
+  }
+
+  function initGuestDatabase() {
+    // 1. Side filter tabs (Tất cả / Nhà Trai / Nhà Gái / Bản chung)
+    document.querySelectorAll('[data-db-side]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-db-side]').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        dbState.side = btn.dataset.dbSide || 'all';
+        loadGuestDb(1);
+      });
+    });
+
+    // 2. Dropdown filters
+    $('dbFilterType')?.addEventListener('change', (e) => {
+      dbState.type = e.target.value;
+      loadGuestDb(1);
+    });
+    $('dbFilterViewed')?.addEventListener('change', (e) => {
+      dbState.viewed = e.target.value;
+      loadGuestDb(1);
+    });
+    $('dbFilterRsvp')?.addEventListener('change', (e) => {
+      dbState.rsvp = e.target.value;
+      loadGuestDb(1);
+    });
+
+    // 3. Debounced search
+    $('dbSearchInput')?.addEventListener('input', (e) => {
+      dbState.q = e.target.value.trim();
+      clearTimeout(dbSearchTimer);
+      dbSearchTimer = setTimeout(() => loadGuestDb(1), 220);
+    });
+
+    // 4. Refresh button
+    $('btnRefreshGuestDb')?.addEventListener('click', () => {
+      loadGuestDb(dbState.page);
+      showToast('Đã làm mới danh sách khách mời!');
+    });
+
+    // 5. Pagination buttons
+    $('btnDbPrev')?.addEventListener('click', () => {
+      if (dbState.page > 1) {
+        loadGuestDb(dbState.page - 1);
+        $('secGuestDbTitle')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+    $('btnDbNext')?.addEventListener('click', () => {
+      if (dbState.lastResult && dbState.page < dbState.lastResult.totalPages) {
+        loadGuestDb(dbState.page + 1);
+        $('secGuestDbTitle')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+    $('dbPageNumbers')?.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-db-page]');
+      if (!btn) return;
+      const p = parseInt(btn.dataset.dbPage, 10);
+      if (p && p !== dbState.page) {
+        loadGuestDb(p);
+        $('secGuestDbTitle')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+
+    // 6. Copy guest link from any card
+    $('guestDbList')?.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-db-copy]');
+      if (!btn) return;
+      const link = btn.dataset.dbCopy;
+      if (!link) return;
+      copyText(link).then(() => {
+        btn.innerHTML = CHECK_SVG;
+        showToast('Đã copy link thiệp mời!');
+        setTimeout(() => { btn.innerHTML = COPY_SVG; }, 1400);
+      });
+    });
+
+    // 7. Copy Google Apps Script source code (1-click)
+    $('btnCopyGasCode')?.addEventListener('click', async () => {
+      const btn = $('btnCopyGasCode');
+      btn.disabled = true;
+      try {
+        const res = await fetch(`${BASE}/scripts/google-apps-script.gs?v=${Date.now()}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const code = await res.text();
+        await copyText(code);
+        setSheetConnectMsg('ok', '✅ Đã copy toàn bộ mã <strong>Google Apps Script</strong> vào bộ nhớ tạm! Hãy mở Google Sheet → <strong>Tiện ích mở rộng → Apps Script</strong> → dán đè toàn bộ và bấm Lưu → Triển khai.');
+        showToast('Đã copy mã Google Apps Script!');
+      } catch (err) {
+        setSheetConnectMsg('err', `⚠️ Không thể tải mã Apps Script (${escHtml(err.message)}). Bạn có thể lấy trực tiếp từ file <code>scripts/google-apps-script.gs</code> trên GitHub.`);
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    // 8. Connect Google Apps Script Web App URL
+    $('btnConnectSheet')?.addEventListener('click', async () => {
+      const input = $('cfgSheetApiUrl');
+      const btn = $('btnConnectSheet');
+      const url = (input?.value || '').trim();
+
+      if (!url) {
+        if (draft.sheetApiUrl) {
+          draft.sheetApiUrl = '';
+          dirty.sheet = true;
+          draft.updatedAt = Date.now();
+          await WS.saveLocalConfig(draft);
+          syncSheetConnectionUI();
+          loadGuestDb(1);
+          setSheetConnectMsg('warn', 'Đã ngắt link Google Apps Script trên máy này. Bấm <strong>Lưu &amp; Cập nhật lên Web</strong> nếu muốn gỡ khỏi bản công khai.');
+          showToast('Đã ngắt kết nối Apps Script');
+        } else {
+          showToast('Vui lòng dán đường link Google Apps Script (.../exec) trước!');
+          input?.focus();
+        }
+        return;
+      }
+
+      if (!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec/i.test(url)) {
+        setSheetConnectMsg('err', '⚠️ Đường link chưa đúng định dạng Apps Script Web App (phải bắt đầu bằng <code>https://script.google.com/macros/s/...</code> và kết thúc bằng <code>/exec</code>).');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Đang kiểm tra...';
+      setSheetConnectMsg('warn', 'Đang kiểm tra kết nối tới Google Sheet...');
+
+      try {
+        await WS.pingSheet(url);
+        draft.sheetApiUrl = url;
+        dirty.sheet = true;
+        draft.updatedAt = Date.now();
+        await WS.saveLocalConfig(draft);
+        syncSheetConnectionUI();
+
+        const tok = getSavedToken();
+        if (tok) {
+          btn.textContent = 'Đang đồng bộ Web...';
+          const { config: published } = await WS.publishConfigToGitHub(draft, {
+            token: tok,
+            dirty: { groom: false, bride: false, sheet: true, photoKeys: [], albumIndices: [] }
+          });
+          draft = published;
+          dirty.sheet = false;
+          syncSheetConnectionUI();
+          $('sheetConnectDetails')?.removeAttribute('open');
+          setSheetConnectMsg('ok', '✅ <strong>Đã kết nối Google Sheet &amp; tự động đồng bộ lên cả 3 link thiệp!</strong> Từ giờ mọi khách mời mở thiệp hoặc xác nhận RSVP sẽ tự động lưu vào Google Sheet.');
+          showToast('Kết nối Google Sheet & đồng bộ Web thành công!');
+        } else {
+          setSheetConnectMsg('ok', '✅ <strong>Kết nối Google Sheet thành công trên máy này!</strong> Hãy kết nối <strong>GitHub Token</strong> bên dưới và bấm <strong>Lưu &amp; Cập nhật lên Web</strong> để cả 3 link thiệp công khai cùng tự động ghi dữ liệu vào Google Sheet.');
+          showToast('Kết nối Google Sheet thành công!');
+        }
+
+        await loadGuestDb(1);
+      } catch (err) {
+        setSheetConnectMsg('err', `⚠️ Chưa kết nối được Google Sheet: <strong>${escHtml(err.message)}</strong>.<br/>Hãy đảm bảo khi Triển khai (Deploy) đã chọn loại <strong>Ứng dụng web (Web app)</strong> và quyền truy cập là <strong>Bất kỳ ai (Anyone)</strong>.`);
+        showToast('Lỗi kết nối Google Sheet!');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Kết nối Sheet';
+      }
+    });
+
+    // 9. Auto-refresh if another tab on the same browser writes guest data
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'thiep_cuoi_guest_db_local_v1') {
+        loadGuestDb(dbState.page);
+      }
+    });
+  }
+
+  /* =========================================================================
      INIT
      ========================================================================= */
   async function init() {
@@ -790,6 +1225,7 @@
 
     populateTimeSelects();
     initLinkGenerator();
+    initGuestDatabase();
     bindConfigFormEvents();
     initPhotoUploader();
     initSaveAndSync();
@@ -822,6 +1258,8 @@
 
     loadSideToForm(setupInfo.tab || 'groom');
     renderAllPhotoSlots();
+    syncSheetConnectionUI();
+    loadGuestDb(1);
 
     if (setupInfo.tab === 'bride' && setupInfo.autoConnected) {
       setTimeout(() => {

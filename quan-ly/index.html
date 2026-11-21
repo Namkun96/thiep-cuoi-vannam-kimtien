@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600;1,700&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="../assets/admin.css" />
+  <link rel="stylesheet" href="../assets/admin.css?v=20261121" />
 </head>
 <body>
 
@@ -104,10 +104,126 @@
       </div>
     </section>
 
-    <!-- ===== 2. CẤU HÌNH THÔNG TIN THIỆP (2 TAB NHÀ TRAI / NHÀ GÁI) ===== -->
+    <!-- ===== 2. TRA CỨU & THỐNG KÊ KHÁCH MỜI (DATABASE GOOGLE SHEET · 10 BẢN GHI/TRANG) ===== -->
+    <section id="secGuestDb" class="panel" aria-labelledby="secGuestDbTitle">
+      <div class="panel-head">
+        <p class="panel-step">Phần 2 · Database Google Sheet</p>
+        <h2 id="secGuestDbTitle" class="panel-title">Tra Cứu Danh Sách Khách Mời &amp; Phản Hồi</h2>
+        <p class="panel-desc">Ghi nhận tự động khi khách bấm mở 1 trong 3 link thiệp hoặc gửi xác nhận RSVP — tách rõ <strong>khách link riêng</strong> và <strong>khách vãng lai</strong>, phân trang 10 bản ghi/trang.</p>
+      </div>
+
+      <!-- Khung kết nối Google Sheet -->
+      <details id="sheetConnectDetails" class="sync-details" style="margin-bottom:16px;">
+        <summary>
+          <span>Kết nối Google Sheet (Lưu trữ khách mời)</span>
+          <span id="sheetStatusBadge" class="sync-badge">Chưa gắn Apps Script</span>
+        </summary>
+        <div class="sync-body">
+          <p>
+            Bảng Google Sheet của bạn đã được tạo sẵn:
+            <a id="sheetOpenLink" href="https://docs.google.com/spreadsheets/d/1TAM_jS1z_ugR0zEztDiA2hwzTsZK034Fkw1nUW6jzvY/edit" target="_blank" rel="noopener" class="inline-link">Mở Google Sheet Quản Lý Khách Mời ↗</a>
+          </p>
+          <ol class="sync-steps">
+            <li>Bấm nút bên dưới để copy sẵn mã kết nối, rồi mở Google Sheet ở trên → chọn <strong>Tiện ích mở rộng (Extensions) → Apps Script</strong> → dán đè toàn bộ và bấm Lưu.</li>
+            <li>Bấm <strong>Triển khai (Deploy) → Tùy chọn triển khai mới (New deployment)</strong> → chọn loại <strong>Ứng dụng web (Web app)</strong>, quyền truy cập: <strong>Bất kỳ ai (Anyone)</strong> → bấm <strong>Triển khai</strong>.</li>
+            <li>Copy đường link <code>https://script.google.com/macros/s/.../exec</code> dán vào ô dưới đây rồi bấm <strong>Kết nối Sheet</strong>:</li>
+          </ol>
+
+          <div style="margin-bottom:10px;">
+            <button id="btnCopyGasCode" type="button" class="btn btn-outline" style="width:100%; min-height:42px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <span>Copy mã Apps Script (1 chạm)</span>
+            </button>
+          </div>
+
+          <div class="sync-token-row">
+            <input id="cfgSheetApiUrl" type="url" class="input" placeholder="Dán link Apps Script (https://script.google.com/macros/s/.../exec)" autocomplete="off" />
+            <button id="btnConnectSheet" type="button" class="btn btn-burgundy">Kết nối Sheet</button>
+          </div>
+          <div id="sheetConnectMsg" class="status-banner hidden" style="margin-top:8px;"></div>
+        </div>
+      </details>
+
+      <!-- 4 thẻ thống kê nhanh -->
+      <div class="db-stats-grid" aria-label="Thống kê nhanh khách mời">
+        <div class="db-stat-card">
+          <span class="db-stat-lbl">Tổng ghi nhận</span>
+          <strong id="statTotal" class="db-stat-val">0</strong>
+          <span id="statTypeSplit" class="db-stat-sub">0 riêng · 0 vãng lai</span>
+        </div>
+        <div class="db-stat-card">
+          <span class="db-stat-lbl">Đã mở thiệp</span>
+          <strong id="statViewed" class="db-stat-val">0</strong>
+          <span id="statUnviewed" class="db-stat-sub">0 chưa mở</span>
+        </div>
+        <div class="db-stat-card">
+          <span class="db-stat-lbl">Sẽ tham dự</span>
+          <strong id="statAttending" class="db-stat-val" style="color:var(--ok);">0</strong>
+          <span id="statEstPeople" class="db-stat-sub">~0 khách dự kiến</span>
+        </div>
+        <div class="db-stat-card">
+          <span class="db-stat-lbl">Nhà Trai / Gái</span>
+          <strong id="statSideSplit" class="db-stat-val">0 / 0</strong>
+          <span id="statDeclined" class="db-stat-sub">0 báo bận</span>
+        </div>
+      </div>
+
+      <!-- Bộ lọc theo Nhà -->
+      <div class="db-side-tabs" role="tablist" aria-label="Lọc khách mời theo nhà">
+        <button type="button" class="db-side-tab active" data-db-side="all">Tất cả</button>
+        <button type="button" class="db-side-tab" data-db-side="groom">Nhà Trai</button>
+        <button type="button" class="db-side-tab" data-db-side="bride">Nhà Gái</button>
+        <button type="button" class="db-side-tab" data-db-side="both">Bản chung</button>
+      </div>
+
+      <!-- Bộ lọc chi tiết + Tìm kiếm -->
+      <div class="db-filters-row">
+        <select id="dbFilterType" class="select db-filter-sel" aria-label="Lọc theo phân loại khách">
+          <option value="all">Tất cả loại khách</option>
+          <option value="named">Link thiệp riêng (đặt tên)</option>
+          <option value="walkin">Khách vãng lai</option>
+        </select>
+        <select id="dbFilterViewed" class="select db-filter-sel" aria-label="Lọc theo trạng thái xem">
+          <option value="all">Tất cả lượt xem</option>
+          <option value="yes">Đã bấm mở thiệp</option>
+          <option value="no">Chưa mở thiệp</option>
+        </select>
+        <select id="dbFilterRsvp" class="select db-filter-sel" aria-label="Lọc theo xác nhận tham dự">
+          <option value="all">Tất cả RSVP</option>
+          <option value="attending">Sẽ tham dự</option>
+          <option value="declined">Rất tiếc bận</option>
+          <option value="pending">Chưa phản hồi</option>
+        </select>
+      </div>
+
+      <div class="db-search-bar">
+        <input id="dbSearchInput" type="search" class="input" placeholder="Tìm theo tên khách mời, lời chúc..." autocomplete="off" />
+        <button id="btnRefreshGuestDb" type="button" class="icon-action-btn secondary" title="Tải lại dữ liệu từ Google Sheet" aria-label="Tải lại dữ liệu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        </button>
+        <a id="btnOpenSheetQuick" href="https://docs.google.com/spreadsheets/d/1TAM_jS1z_ugR0zEztDiA2hwzTsZK034Fkw1nUW6jzvY/edit" target="_blank" rel="noopener" class="icon-action-btn secondary" title="Mở bảng Google Sheet" aria-label="Mở bảng Google Sheet">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+        </a>
+      </div>
+
+      <p id="dbSourceNote" class="db-source-note"></p>
+
+      <!-- Danh sách khách mời (10 bản ghi / trang) -->
+      <div id="guestDbList" class="guest-db-list"></div>
+
+      <!-- Thanh phân trang 10 bản ghi / trang -->
+      <div id="guestDbPager" class="db-pager hidden">
+        <button id="btnDbPrev" type="button" class="pager-btn">‹ Trước</button>
+        <div id="dbPageNumbers" class="pager-nums"></div>
+        <button id="btnDbNext" type="button" class="pager-btn">Sau ›</button>
+      </div>
+      <p id="dbRangeSummary" class="db-range-summary"></p>
+    </section>
+
+    <!-- ===== 3. CẤU HÌNH THÔNG TIN THIỆP (2 TAB NHÀ TRAI / NHÀ GÁI) ===== -->
     <section class="panel" aria-labelledby="secConfigTitle">
       <div class="panel-head">
-        <p class="panel-step">Phần 2 · Cấu hình nội dung</p>
+        <p class="panel-step">Phần 3 · Cấu hình nội dung</p>
         <h2 id="secConfigTitle" class="panel-title">Cấu Hình Thông Tin Thiệp Cưới</h2>
         <p class="panel-desc">Chọn tab <strong>Nhà Trai</strong> hoặc <strong>Nhà Gái</strong> để chỉnh sửa thông tin tương ứng. Khi bấm <strong>Lưu cấu hình</strong>, cả 3 link (Nhà Trai, Nhà Gái và bản chung) sẽ tự động cập nhật đồng bộ.</p>
       </div>
@@ -271,10 +387,10 @@
       </div>
     </section>
 
-    <!-- ===== 3. TẢI ẢNH THIỆP & ALBUM ẢNH THEO ĐÚNG VỊ TRÍ THIẾT KẾ ===== -->
+    <!-- ===== 4. TẢI ẢNH THIỆP & ALBUM ẢNH THEO ĐÚNG VỊ TRÍ THIẾT KẾ ===== -->
     <section class="panel" aria-labelledby="secPhotosTitle">
       <div class="panel-head">
-        <p class="panel-step">Phần 3 · Hình ảnh &amp; Album cưới</p>
+        <p class="panel-step">Phần 4 · Hình ảnh &amp; Album cưới</p>
         <h2 id="secPhotosTitle" class="panel-title">Tải Ảnh Thiệp &amp; Album Theo Từng Vị Trí</h2>
         <p class="panel-desc">Chạm trực tiếp vào từng khung ảnh bên dưới để chọn ảnh từ điện thoại thay thế đúng vị trí trên thiệp (áp dụng đồng bộ cho cả Nhà Trai, Nhà Gái và bản chung).</p>
       </div>
@@ -376,7 +492,7 @@
   <!-- TOAST -->
   <div id="toast" class="toast hidden"></div>
 
-  <script src="../assets/wedding-store.js"></script>
-  <script src="../assets/admin.js"></script>
+  <script src="../assets/wedding-store.js?v=20261121"></script>
+  <script src="../assets/admin.js?v=20261121"></script>
 </body>
 </html>

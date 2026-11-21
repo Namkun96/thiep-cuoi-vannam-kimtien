@@ -17,6 +17,8 @@
     updatedAt: 0,
     groomName: 'Nguyễn Văn Nam',
     brideName: 'Nguyễn Thị Kim Tiến',
+    sheetViewUrl: 'https://docs.google.com/spreadsheets/d/1TAM_jS1z_ugR0zEztDiA2hwzTsZK034Fkw1nUW6jzvY/edit',
+    sheetApiUrl: '',
     groom: {
       parent: 'Bà: Nguyễn Thị ...',
       province: 'Thành phố Hà Nội',
@@ -78,6 +80,12 @@
     if (typeof incoming.updatedAt === 'number') base.updatedAt = incoming.updatedAt;
     if (incoming.groomName) base.groomName = String(incoming.groomName);
     if (incoming.brideName) base.brideName = String(incoming.brideName);
+    if (typeof incoming.sheetViewUrl === 'string' && incoming.sheetViewUrl.trim()) {
+      base.sheetViewUrl = incoming.sheetViewUrl.trim();
+    }
+    if (typeof incoming.sheetApiUrl === 'string') {
+      base.sheetApiUrl = incoming.sheetApiUrl.trim();
+    }
     if (incoming.groom && typeof incoming.groom === 'object') {
       Object.assign(base.groom, incoming.groom);
     }
@@ -542,6 +550,10 @@
         published = mergeConfig(latestRemote);
         if (dirty.groom) published.groom = clone(localCandidate.groom);
         if (dirty.bride) published.bride = clone(localCandidate.bride);
+        if (dirty.sheet) {
+          published.sheetApiUrl = localCandidate.sheetApiUrl;
+          published.sheetViewUrl = localCandidate.sheetViewUrl;
+        }
         if (dirty.photoKeys && dirty.photoKeys.length) {
           dirty.photoKeys.forEach((k) => {
             if (k in published.photos) published.photos[k] = localCandidate.photos[k];
@@ -630,6 +642,280 @@
     return { config: published, commitSha: newCommit.sha };
   }
 
+  /* =========================================================================
+     GOOGLE SHEET WEB APP DATABASE CLIENT + LOCAL MIRROR FALLBACK
+     ========================================================================= */
+  const LOCAL_GUESTS_KEY = 'thiep_cuoi_guest_db_local_v1';
+
+  function normVi(str) {
+    return String(str || '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/đ/g, 'd')
+      .trim();
+  }
+
+  function nowVnStr() {
+    const d = new Date();
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+
+  function normalizeSideLabel(raw, mode) {
+    const s = normVi(raw);
+    if (s.includes('trai') || s === 'groom' || s === 'nha-trai') return 'Nhà Trai';
+    if (s.includes('gai') || s === 'bride' || s === 'nha-gai') return 'Nhà Gái';
+    if (s.includes('chung') || s === 'both') return 'Bản chung';
+    if (mode === 'nha-trai') return 'Nhà Trai';
+    if (mode === 'nha-gai') return 'Nhà Gái';
+    return 'Bản chung';
+  }
+
+  function parseHeadcount(str) {
+    const s = String(str || '');
+    if (s.includes('3') || s.includes('4')) return 4;
+    const m = /(\d+)/.exec(s);
+    return m ? Math.max(1, parseInt(m[1], 10)) : 1;
+  }
+
+  function readLocalGuests() {
+    try {
+      const raw = localStorage.getItem(LOCAL_GUESTS_KEY);
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch (_) {
+      return [];
+    }
+  }
+
+  function writeLocalGuests(arr) {
+    try {
+      localStorage.setItem(LOCAL_GUESTS_KEY, JSON.stringify(arr.slice(0, 500)));
+    } catch (_) {}
+  }
+
+  function upsertLocalGuest(payload) {
+    const list = readLocalGuests();
+    const action = String(payload.action || '');
+    const ts = nowVnStr();
+    const side = normalizeSideLabel(payload.side, payload.sourceMode);
+    const isNamed = action === 'register_guest' ? true : Boolean(payload.isNamed);
+    const type = isNamed ? 'Link riêng' : 'Vãng lai';
+    const id = String(payload.id || '').trim();
+    const name = String(payload.name || '').trim();
+    const nName = normVi(name);
+
+    let idx = -1;
+    if (id) idx = list.findIndex((x) => x.id === id);
+    if (idx === -1 && nName && type === 'Link riêng') {
+      idx = list.findIndex((x) => x.type === 'Link riêng' && normVi(x.name) === nName && x.side === side);
+    }
+
+    if (idx !== -1) {
+      const cur = list[idx];
+      if (action === 'register_guest') {
+        cur.link = payload.link || cur.link;
+        cur.sourceMode = payload.sourceMode || cur.sourceMode;
+        cur.updatedAt = ts;
+      } else if (action === 'track_open') {
+        cur.viewed = 'Đã xem';
+        cur.openCount = (Number(cur.openCount) || 0) + 1;
+        cur.lastOpen = ts;
+        cur.updatedAt = ts;
+        if (payload.link && !cur.link) cur.link = payload.link;
+        if (payload.sourceMode) cur.sourceMode = payload.sourceMode;
+      } else if (action === 'submit_rsvp') {
+        if (cur.type === 'Vãng lai' || !cur.name || cur.name.startsWith('Khách vãng lai')) {
+          cur.name = name || cur.name;
+        }
+        if (side !== 'Bản chung' || cur.side === 'Bản chung') cur.side = side;
+        cur.viewed = 'Đã xem';
+        cur.openCount = Math.max(1, Number(cur.openCount) || 0);
+        if (!cur.lastOpen) cur.lastOpen = ts;
+        cur.rsvpStatus = payload.status || 'Sẽ tham dự';
+        cur.guestCount = payload.count || '1 người';
+        cur.wish = payload.wish || '';
+        cur.updatedAt = ts;
+      }
+      list.splice(idx, 1);
+      list.unshift(cur);
+      writeLocalGuests(list);
+      return cur;
+    }
+
+    const row = {
+      id: id || `${isNamed ? 'K' : 'V'}-${Date.now()}`,
+      type,
+      side,
+      name: name || 'Khách vãng lai (chưa nhập tên)',
+      link: String(payload.link || ''),
+      viewed: action === 'register_guest' ? 'Chưa xem' : 'Đã xem',
+      openCount: action === 'register_guest' ? 0 : 1,
+      lastOpen: action === 'register_guest' ? '' : ts,
+      rsvpStatus: action === 'submit_rsvp' ? (payload.status || 'Sẽ tham dự') : 'Chưa phản hồi',
+      guestCount: action === 'submit_rsvp' ? (payload.count || '1 người') : '',
+      wish: action === 'submit_rsvp' ? String(payload.wish || '') : '',
+      sourceMode: String(payload.sourceMode || 'both'),
+      updatedAt: ts
+    };
+    list.unshift(row);
+    writeLocalGuests(list);
+    return row;
+  }
+
+  function queryLocalGuests(filters = {}) {
+    const allRows = readLocalGuests();
+    const stats = {
+      total: allRows.length,
+      groom: 0,
+      bride: 0,
+      both: 0,
+      named: 0,
+      walkin: 0,
+      viewed: 0,
+      unviewed: 0,
+      attending: 0,
+      declined: 0,
+      pending: 0,
+      estPeople: 0
+    };
+    allRows.forEach((r) => {
+      if (r.side === 'Nhà Trai') stats.groom++;
+      else if (r.side === 'Nhà Gái') stats.bride++;
+      else stats.both++;
+
+      if (r.type === 'Link riêng') stats.named++;
+      else stats.walkin++;
+
+      if (r.viewed === 'Đã xem') stats.viewed++;
+      else stats.unviewed++;
+
+      if (r.rsvpStatus === 'Sẽ tham dự') {
+        stats.attending++;
+        stats.estPeople += parseHeadcount(r.guestCount);
+      } else if (r.rsvpStatus === 'Rất tiếc bận') {
+        stats.declined++;
+      } else {
+        stats.pending++;
+      }
+    });
+
+    const sideFilter = String(filters.side || 'all');
+    const typeFilter = String(filters.type || 'all');
+    const rsvpFilter = String(filters.rsvp || 'all');
+    const viewedFilter = String(filters.viewed || 'all');
+    const q = normVi(filters.q || '');
+
+    const filtered = allRows.filter((item) => {
+      if (sideFilter === 'groom' && item.side !== 'Nhà Trai') return false;
+      if (sideFilter === 'bride' && item.side !== 'Nhà Gái') return false;
+      if (sideFilter === 'both' && item.side !== 'Bản chung') return false;
+      if (typeFilter === 'named' && item.type !== 'Link riêng') return false;
+      if (typeFilter === 'walkin' && item.type !== 'Vãng lai') return false;
+      if (viewedFilter === 'yes' && item.viewed !== 'Đã xem') return false;
+      if (viewedFilter === 'no' && item.viewed !== 'Chưa xem') return false;
+      if (rsvpFilter === 'attending' && item.rsvpStatus !== 'Sẽ tham dự') return false;
+      if (rsvpFilter === 'declined' && item.rsvpStatus !== 'Rất tiếc bận') return false;
+      if (rsvpFilter === 'pending' && item.rsvpStatus !== 'Chưa phản hồi') return false;
+      if (q) {
+        const hay = normVi(`${item.name} ${item.wish} ${item.side} ${item.id}`);
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+
+    const pageSize = Math.max(1, Math.min(50, parseInt(filters.pageSize, 10) || 10));
+    const totalFiltered = filtered.length;
+    const totalPages = Math.max(1, Math.ceil(totalFiltered / pageSize));
+    const page = Math.max(1, Math.min(totalPages, parseInt(filters.page, 10) || 1));
+    const start = (page - 1) * pageSize;
+
+    return {
+      ok: true,
+      source: 'local',
+      stats,
+      page,
+      pageSize,
+      totalFiltered,
+      totalPages,
+      items: filtered.slice(start, start + pageSize)
+    };
+  }
+
+  async function sheetGet(apiUrl, paramsObj = {}) {
+    const clean = String(apiUrl || '').trim();
+    if (!clean) throw new Error('Chưa cấu hình link Google Apps Script');
+    const qs = new URLSearchParams(paramsObj);
+    const sep = clean.includes('?') ? '&' : '?';
+    const res = await fetch(`${clean}${sep}${qs.toString()}`, { method: 'GET', redirect: 'follow' });
+    const data = await res.json();
+    if (!res.ok || data.ok === false) {
+      throw new Error(data.error || `Google Sheet API lỗi HTTP ${res.status}`);
+    }
+    return data;
+  }
+
+  async function sheetPost(apiUrl, payload) {
+    // Always mirror locally for instant preview & resilience
+    upsertLocalGuest(payload);
+    const clean = String(apiUrl || '').trim();
+    if (!clean) return { ok: true, localOnly: true };
+    try {
+      // text/plain avoids CORS preflight OPTIONS so Google Apps Script handles POST cleanly
+      const res = await fetch(clean, {
+        method: 'POST',
+        redirect: 'follow',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json().catch(() => ({ ok: true }));
+      return data;
+    } catch (_) {
+      // Fallback fire-and-forget no-cors POST if browser restricts cross-origin response
+      try {
+        await fetch(clean, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+      } catch (__) {}
+      return { ok: true, opaque: true };
+    }
+  }
+
+  async function pingSheet(apiUrl) {
+    return sheetGet(apiUrl, { action: 'ping', t: String(Date.now()) });
+  }
+
+  async function listSheetGuests(apiUrl, filters = {}) {
+    const clean = String(apiUrl || '').trim();
+    if (!clean) return queryLocalGuests(filters);
+    const data = await sheetGet(clean, {
+      action: 'list_guests',
+      side: filters.side || 'all',
+      type: filters.type || 'all',
+      rsvp: filters.rsvp || 'all',
+      viewed: filters.viewed || 'all',
+      q: filters.q || '',
+      page: String(filters.page || 1),
+      pageSize: String(filters.pageSize || 10),
+      t: String(Date.now())
+    });
+    return { ...data, source: 'google_sheet' };
+  }
+
+  async function listSheetWishes(apiUrl) {
+    const clean = String(apiUrl || '').trim();
+    if (!clean) return { ok: true, wishes: [] };
+    try {
+      return await sheetGet(clean, { action: 'list_wishes', t: String(Date.now()) });
+    } catch (_) {
+      return { ok: false, wishes: [] };
+    }
+  }
+
   window.WeddingStore = {
     DEFAULT_CONFIG,
     clone,
@@ -648,6 +934,13 @@
     compressImageFile,
     verifyGitHubToken,
     fetchLatestGitHubConfig,
-    publishConfigToGitHub
+    publishConfigToGitHub,
+    upsertLocalGuest,
+    queryLocalGuests,
+    sheetGet,
+    sheetPost,
+    pingSheet,
+    listSheetGuests,
+    listSheetWishes
   };
 })();
