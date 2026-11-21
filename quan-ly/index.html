@@ -43,6 +43,8 @@
 
   <main class="studio-main">
 
+    <div id="autoConnectBanner" class="status-banner ok hidden" style="margin-top:0;" role="status"></div>
+
     <!-- ===== 1. TẠO LINK THIỆP CÁ NHÂN HÓA THEO TÊN KHÁCH MỜI ===== -->
     <section class="panel" aria-labelledby="secLinkTitle">
       <div class="panel-head">
@@ -313,22 +315,42 @@
       <input id="sharedPhotoInput" type="file" accept="image/*" class="hidden" />
     </section>
 
-    <!-- ===== 4. ĐỒNG BỘ LÊN WEB (GITHUB PAGES) CHO MỌI KHÁCH MỜI ===== -->
+    <!-- ===== 4. ĐỒNG BỘ LÊN WEB (GITHUB PAGES) & GỬI QUYỀN CHO CÔ DÂU ===== -->
     <section class="panel" aria-labelledby="secSyncTitle">
-      <details id="githubSyncDetails" class="sync-details">
+      <details id="githubSyncDetails" class="sync-details" open>
         <summary id="secSyncTitle">
-          <span>Đồng bộ lên Web cho mọi khách mời (GitHub Pages)</span>
+          <span>Đồng bộ lên Web &amp; Gửi Cô Dâu tự sửa</span>
           <span id="syncStatusBadge" class="sync-badge">Lưu trên máy này</span>
         </summary>
         <div class="sync-body">
           <p>
-            Khi bấm <strong>Lưu cấu hình</strong>, mọi thay đổi được lưu ngay lập tức để bạn kiểm tra trên máy này.
-            Để <strong>tất cả khách mời trên mọi điện thoại</strong> mở link đều thấy địa chỉ, ngày giờ, QR và ảnh album mới nhất, hãy dán <em>GitHub Fine-grained Token</em> (chỉ cấp quyền <code>Contents: Read &amp; Write</code> cho repo <code>thiep-cuoi-vannam-kimtien</code>) một lần duy nhất bên dưới:
+            Để khi bạn hoặc <strong>Cô Dâu</strong> bấm <strong>Lưu</strong>, mọi thay đổi (địa chỉ, giờ, QR, ảnh album) sẽ <strong>tự đẩy lên GitHub</strong> và cập nhật cho <strong>tất cả khách mời trên mọi điện thoại</strong>:
           </p>
+
+          <ol class="sync-steps">
+            <li>Chú rể mở <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener" class="inline-link">trang tạo GitHub Token ↗</a> (chỉ làm 1 lần duy nhất).</li>
+            <li>Đặt tên tùy ý (VD: <code>thiep-cuoi</code>), chọn <strong>Only select repositories</strong> → chọn <code>thiep-cuoi-vannam-kimtien</code>.</li>
+            <li>Mục <strong>Repository permissions → Contents</strong> chọn <strong>Read and write</strong> → bấm <strong>Generate token</strong> và copy dán vào ô dưới đây:</li>
+          </ol>
+
           <div class="sync-token-row">
-            <input id="ghTokenInput" type="password" class="input" placeholder="Dán GitHub Token (ghp_... hoặc github_pat_...)" autocomplete="off" />
-            <button id="btnSaveToken" type="button" class="btn btn-outline" style="min-height:44px;">Kết nối</button>
+            <input id="ghTokenInput" type="password" class="input" placeholder="Dán GitHub Token (github_pat_...)" autocomplete="off" />
+            <button id="btnSaveToken" type="button" class="btn btn-outline">Kết nối</button>
           </div>
+
+          <!-- Hiện ra ngay khi đã kết nối: 1 chạm gửi Cô Dâu không cần biết GitHub! -->
+          <div id="shareBrideSetupBox" class="share-bride-box hidden">
+            <p class="share-bride-title">Gửi link cấu hình riêng cho Cô Dâu</p>
+            <p class="share-bride-desc">
+              Cô dâu chỉ cần bấm link này trên Zalo → máy tự kết nối sẵn &amp; mở thẳng tab <strong>Nhà Gái</strong>. Cô dâu sửa địa chỉ, giờ, QR, ảnh rồi bấm <strong>Lưu</strong> là tự đồng bộ lên GitHub cho mọi khách mời (tự gộp thông minh, không làm mất phần Nhà Trai).
+            </p>
+            <button id="btnCopyBrideSetupLink" type="button" class="btn btn-gold" style="width:100%;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <span>Copy link gửi Cô Dâu (tự đồng bộ Nhà Gái)</span>
+            </button>
+            <p class="share-bride-warn">⚠️ Link này có quyền sửa thiệp nên chỉ gửi riêng cho Cô Dâu / người nhà, không gửi cho khách mời.</p>
+          </div>
+
           <div class="sync-actions-row">
             <button id="btnClearToken" type="button" class="btn-remove-img hidden">Ngắt kết nối Token trên máy này</button>
             <button id="btnDownloadConfigJson" type="button" class="btn-ghost-link" style="margin-top:0;">Tải file config.json dự phòng</button>

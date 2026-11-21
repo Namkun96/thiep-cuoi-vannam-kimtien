@@ -453,16 +453,77 @@
     return data;
   }
 
+  function decodeBase64Utf8(b64) {
+    const binStr = atob(String(b64 || '').replace(/\s+/g, ''));
+    const bytes = new Uint8Array(binStr.length);
+    for (let i = 0; i < binStr.length; i++) bytes[i] = binStr.charCodeAt(i);
+    return new TextDecoder('utf-8').decode(bytes);
+  }
+
+  async function verifyGitHubToken(token, opts = {}) {
+    const cleanTok = String(token || '').trim();
+    const owner = opts.owner || 'Namkun96';
+    const repo = opts.repo || 'thiep-cuoi-vannam-kimtien';
+    if (!cleanTok) throw new Error('Vui lòng dán GitHub Token');
+    const repoInfo = await ghRequest(`/repos/${owner}/${repo}`, cleanTok);
+    if (!repoInfo.permissions || !repoInfo.permissions.push) {
+      throw new Error('Token chưa được cấp quyền ghi (Contents: Read and write) cho repo này.');
+    }
+    return repoInfo;
+  }
+
+  async function fetchLatestGitHubConfig(token, opts = {}) {
+    const cleanTok = String(token || '').trim();
+    const owner = opts.owner || 'Namkun96';
+    const repo = opts.repo || 'thiep-cuoi-vannam-kimtien';
+    const branch = opts.branch || 'main';
+    if (!cleanTok) return null;
+    try {
+      const file = await ghRequest(`/repos/${owner}/${repo}/contents/data/config.json?ref=${encodeURIComponent(branch)}`, cleanTok);
+      if (file && file.content) {
+        return mergeConfig(JSON.parse(decodeBase64Utf8(file.content)));
+      }
+    } catch (_) {}
+    return null;
+  }
+
   async function publishConfigToGitHub(config, opts = {}) {
     const token = String(opts.token || '').trim();
     const owner = opts.owner || 'Namkun96';
     const repo = opts.repo || 'thiep-cuoi-vannam-kimtien';
     const branch = opts.branch || 'main';
+    const dirty = opts.dirty || null;
+    const forceFullReplace = Boolean(opts.forceFullReplace);
     const onProgress = typeof opts.onProgress === 'function' ? opts.onProgress : () => {};
 
     if (!token) throw new Error('Chưa nhập GitHub Token');
 
-    const published = mergeConfig(config);
+    const localCandidate = mergeConfig(config);
+    let published = localCandidate;
+
+    // Smart merge onto freshest GitHub config so Groom & Bride never overwrite each other
+    if (dirty && !forceFullReplace) {
+      onProgress('Đang đồng bộ dữ liệu mới nhất từ GitHub...');
+      const latestRemote = await fetchLatestGitHubConfig(token, { owner, repo, branch });
+      if (latestRemote) {
+        published = mergeConfig(latestRemote);
+        if (dirty.groom) published.groom = clone(localCandidate.groom);
+        if (dirty.bride) published.bride = clone(localCandidate.bride);
+        if (dirty.photoKeys && dirty.photoKeys.length) {
+          dirty.photoKeys.forEach((k) => {
+            if (k in published.photos) published.photos[k] = localCandidate.photos[k];
+          });
+        }
+        if (dirty.albumIndices && dirty.albumIndices.length) {
+          dirty.albumIndices.forEach((idx) => {
+            if (idx >= 0 && idx < published.photos.album.length) {
+              published.photos.album[idx] = localCandidate.photos.album[idx];
+            }
+          });
+        }
+      }
+    }
+
     published.updatedAt = Date.now();
     const versionTag = published.updatedAt;
     const treeEntries = [];
@@ -552,6 +613,8 @@
     buildMapEmbedUrl,
     resolveAsset,
     compressImageFile,
+    verifyGitHubToken,
+    fetchLatestGitHubConfig,
     publishConfigToGitHub
   };
 })();

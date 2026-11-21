@@ -41,6 +41,30 @@
   let activeSide = 'groom';
   let pendingPhotoSlot = null;
   let lastSideCreated = 'nha-trai';
+  let dirty = {
+    groom: false,
+    bride: false,
+    photoKeys: new Set(),
+    albumIndices: new Set(),
+    forceFullReplace: false
+  };
+
+  function resetDirty() {
+    dirty = { groom: false, bride: false, photoKeys: new Set(), albumIndices: new Set(), forceFullReplace: false };
+  }
+
+  function encodeTokenHash(tok) {
+    return btoa(tok).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+  function decodeTokenHash(encoded) {
+    try {
+      const norm = encoded.replace(/-/g, '+').replace(/_/g, '/');
+      const pad = norm.length % 4 ? '='.repeat(4 - (norm.length % 4)) : '';
+      return atob(norm + pad);
+    } catch (_) {
+      return '';
+    }
+  }
 
   const COPY_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
   const CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
@@ -381,13 +405,17 @@
     $('tabBtnGroom').addEventListener('click', () => loadSideToForm('groom'));
     $('tabBtnBride').addEventListener('click', () => loadSideToForm('bride'));
 
-    $('cfgParentName').addEventListener('input', (e) => { draft[activeSide].parent = e.target.value; });
+    $('cfgParentName').addEventListener('input', (e) => {
+      draft[activeSide].parent = e.target.value;
+      dirty[activeSide] = true;
+    });
 
     $('cfgProvince').addEventListener('change', (e) => {
       draft[activeSide].province = e.target.value;
       $('cfgWardSearch').value = '';
       populateWards(e.target.value, '');
       draft[activeSide].ward = $('cfgWard').value;
+      dirty[activeSide] = true;
       updateAddressPreview();
     });
 
@@ -395,27 +423,32 @@
       populateWards($('cfgProvince').value, draft[activeSide].ward, e.target.value);
       if ($('cfgWard').value) {
         draft[activeSide].ward = $('cfgWard').value;
+        dirty[activeSide] = true;
         updateAddressPreview();
       }
     });
 
     $('cfgWard').addEventListener('change', (e) => {
       draft[activeSide].ward = e.target.value;
+      dirty[activeSide] = true;
       updateAddressPreview();
     });
 
     $('cfgDetailAddress').addEventListener('input', (e) => {
       draft[activeSide].detailAddress = e.target.value;
+      dirty[activeSide] = true;
       updateAddressPreview();
     });
 
     $('cfgVenueNote').addEventListener('input', (e) => {
       draft[activeSide].venueNote = e.target.value;
+      dirty[activeSide] = true;
     });
 
     const syncPartyTime = () => {
       draft[activeSide].partyDate = $('cfgPartyDate').value || '2027-01-02';
       draft[activeSide].partyTime = `${$('cfgPartyHour').value}:${$('cfgPartyMin').value}`;
+      dirty[activeSide] = true;
       updateLunarPreviews();
     };
     $('cfgPartyDate').addEventListener('change', syncPartyTime);
@@ -425,15 +458,16 @@
     const syncCeremonyTime = () => {
       draft[activeSide].ceremonyDate = $('cfgCeremonyDate').value || '2027-01-03';
       draft[activeSide].ceremonyTime = `${$('cfgCeremonyHour').value}:${$('cfgCeremonyMin').value}`;
+      dirty[activeSide] = true;
       updateLunarPreviews();
     };
     $('cfgCeremonyDate').addEventListener('change', syncCeremonyTime);
     $('cfgCeremonyHour').addEventListener('change', syncCeremonyTime);
     $('cfgCeremonyMin').addEventListener('change', syncCeremonyTime);
 
-    $('cfgBankName').addEventListener('input', (e) => { draft[activeSide].bankName = e.target.value; });
-    $('cfgBankAcc').addEventListener('input', (e) => { draft[activeSide].bankAcc = e.target.value; });
-    $('cfgBankOwner').addEventListener('input', (e) => { draft[activeSide].bankOwner = e.target.value; });
+    $('cfgBankName').addEventListener('input', (e) => { draft[activeSide].bankName = e.target.value; dirty[activeSide] = true; });
+    $('cfgBankAcc').addEventListener('input', (e) => { draft[activeSide].bankAcc = e.target.value; dirty[activeSide] = true; });
+    $('cfgBankOwner').addEventListener('input', (e) => { draft[activeSide].bankOwner = e.target.value; dirty[activeSide] = true; });
 
     // QR File upload
     $('cfgQrFileInput').addEventListener('change', async (e) => {
@@ -444,6 +478,7 @@
         showToast('Đang tối ưu ảnh mã QR...');
         const dataUrl = await WS.compressImageFile(file, { maxEdge: 640, quality: 0.92 });
         draft[activeSide].qrImage = dataUrl;
+        dirty[activeSide] = true;
         renderQrPreview();
         showToast('Đã tải ảnh QR thành công — hãy bấm Lưu cấu hình!');
       } catch (err) {
@@ -453,6 +488,7 @@
 
     $('btnRemoveQr').addEventListener('click', () => {
       draft[activeSide].qrImage = '';
+      dirty[activeSide] = true;
       renderQrPreview();
       showToast('Đã xóa ảnh QR (chuyển về mẫu mặc định)');
     });
@@ -481,10 +517,18 @@
     if (slotSpec.startsWith('album:')) {
       const idx = parseInt(slotSpec.split(':')[1], 10);
       draft.photos.album[idx] = value;
-      if (idx === 3) draft.photos.storyBg = value;
+      dirty.albumIndices.add(idx);
+      if (idx === 3) {
+        draft.photos.storyBg = value;
+        dirty.photoKeys.add('storyBg');
+      }
     } else {
       draft.photos[slotSpec] = value;
-      if (slotSpec === 'polaroidBride') draft.photos.rsvpThanks = value;
+      dirty.photoKeys.add(slotSpec);
+      if (slotSpec === 'polaroidBride') {
+        draft.photos.rsvpThanks = value;
+        dirty.photoKeys.add('rsvpThanks');
+      }
     }
   }
 
@@ -558,7 +602,7 @@
   }
 
   /* =========================================================================
-     4. GITHUB TOKEN SYNC & SAVE / RESET CONTROLS
+     4. GITHUB TOKEN SYNC, BRIDE MAGIC SETUP LINK & SAVE / RESET CONTROLS
      ========================================================================= */
   function getSavedToken() {
     try { return (localStorage.getItem(GH_TOKEN_KEY) || '').trim(); } catch (_) { return ''; }
@@ -567,9 +611,10 @@
   function updateSyncBadge() {
     const hasToken = Boolean(getSavedToken());
     const badge = $('syncStatusBadge');
-    badge.textContent = hasToken ? 'Đã kết nối GitHub Pages' : 'Lưu trên máy này';
+    badge.textContent = hasToken ? 'Đã kết nối GitHub' : 'Lưu trên máy này';
     badge.classList.toggle('connected', hasToken);
     $('btnClearToken').classList.toggle('hidden', !hasToken);
+    $('shareBrideSetupBox').classList.toggle('hidden', !hasToken);
     $('btnSaveLabel').textContent = hasToken ? 'Lưu & Cập nhật lên Web' : 'Lưu cấu hình thiệp';
   }
 
@@ -580,20 +625,71 @@
     el.classList.remove('hidden');
   }
 
+  function consumeSetupHash() {
+    const rawHash = (window.location.hash || '').replace(/^#/, '');
+    if (!rawHash) return { tab: null, autoConnected: false };
+    const hp = new URLSearchParams(rawHash);
+    const tab = hp.get('tab');
+    const encodedKey = hp.get('k');
+    let autoConnected = false;
+
+    if (encodedKey) {
+      const decoded = decodeTokenHash(encodedKey).trim();
+      if (decoded) {
+        try { localStorage.setItem(GH_TOKEN_KEY, decoded); } catch (_) {}
+        autoConnected = true;
+      }
+      // Remove token from URL bar immediately for cleanliness & privacy
+      try {
+        window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      } catch (_) {}
+    }
+    return { tab: tab === 'bride' || tab === 'groom' ? tab : null, autoConnected };
+  }
+
   function initSaveAndSync() {
     const savedTok = getSavedToken();
     if (savedTok) $('ghTokenInput').value = savedTok;
     updateSyncBadge();
 
-    $('btnSaveToken').addEventListener('click', () => {
+    $('btnSaveToken').addEventListener('click', async () => {
       const tok = $('ghTokenInput').value.trim();
       if (!tok) {
         showToast('Vui lòng dán GitHub Token trước khi kết nối!');
         return;
       }
-      try { localStorage.setItem(GH_TOKEN_KEY, tok); } catch (_) {}
-      updateSyncBadge();
-      showToast('Đã kết nối GitHub Pages! Bấm Lưu để xuất bản trực tiếp.');
+      const btn = $('btnSaveToken');
+      btn.disabled = true;
+      btn.textContent = 'Đang kiểm tra...';
+      try {
+        await WS.verifyGitHubToken(tok);
+        try { localStorage.setItem(GH_TOKEN_KEY, tok); } catch (_) {}
+        updateSyncBadge();
+        setStatusBanner(
+          'ok',
+          '✅ Kết nối GitHub thành công! Từ giờ mỗi lần bấm <strong>Lưu &amp; Cập nhật lên Web</strong>, thiệp sẽ tự đồng bộ cho tất cả khách mời. Bạn có thể bấm nút <strong>Copy link gửi Cô Dâu</strong> ngay ở trên để gửi qua Zalo cho cô dâu tự sửa tab Nhà Gái!'
+        );
+        showToast('Kết nối GitHub thành công!');
+      } catch (err) {
+        setStatusBanner('err', `⚠️ Không thể kết nối Token: <strong>${escHtml(err.message)}</strong>`);
+        showToast('Token chưa hợp lệ hoặc thiếu quyền ghi!');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Kết nối';
+      }
+    });
+
+    $('btnCopyBrideSetupLink').addEventListener('click', () => {
+      const tok = getSavedToken();
+      if (!tok) {
+        showToast('Vui lòng kết nối GitHub Token trước!');
+        return;
+      }
+      const cleanBase = `${window.location.origin}${window.location.pathname}`;
+      const magicUrl = `${cleanBase}#tab=bride&k=${encodeTokenHash(tok)}`;
+      copyText(magicUrl).then(() => {
+        showToast('Đã copy link cấu hình gửi Cô Dâu — hãy dán gửi qua Zalo!');
+      });
     });
 
     $('btnClearToken').addEventListener('click', () => {
@@ -620,10 +716,11 @@
       const ok = window.confirm('Khôi phục toàn bộ thông tin & hình ảnh về giá trị mặc định ban đầu của thiệp?');
       if (!ok) return;
       draft = WS.clone(WS.DEFAULT_CONFIG);
+      dirty.forceFullReplace = true;
       await WS.clearLocalConfig();
       loadSideToForm(activeSide);
       renderAllPhotoSlots();
-      setStatusBanner('warn', 'Đã khôi phục toàn bộ thông tin về giá trị mặc định ban đầu. Bấm <strong>Lưu cấu hình thiệp</strong> nếu bạn muốn xuất bản bản mặc định lên Web.');
+      setStatusBanner('warn', 'Đã khôi phục toàn bộ thông tin về giá trị mặc định ban đầu. Bấm <strong>Lưu &amp; Cập nhật lên Web</strong> nếu bạn muốn xuất bản bản mặc định cho mọi khách mời.');
       showToast('Đã khôi phục về mặc định!');
     });
 
@@ -640,31 +737,44 @@
         await WS.saveLocalConfig(draft);
 
         if (token) {
+          const hasAnyDirty = dirty.groom || dirty.bride || dirty.photoKeys.size > 0 || dirty.albumIndices.size > 0;
+          const dirtyPayload = hasAnyDirty
+            ? {
+                groom: dirty.groom,
+                bride: dirty.bride,
+                photoKeys: Array.from(dirty.photoKeys),
+                albumIndices: Array.from(dirty.albumIndices)
+              }
+            : null;
+
           const { config: published } = await WS.publishConfigToGitHub(draft, {
             token,
+            dirty: dirtyPayload,
+            forceFullReplace: dirty.forceFullReplace,
             onProgress: (step) => { labelEl.textContent = step; }
           });
           draft = published;
-          renderQrPreview();
+          resetDirty();
+          loadSideToForm(activeSide);
           renderAllPhotoSlots();
           setStatusBanner(
             'ok',
-            '✅ Đã lưu và đẩy trực tiếp lên <strong>GitHub Pages</strong>! Cả 3 đường dẫn (<a href="../nha-trai/" target="_blank" style="text-decoration:underline;">Nhà Trai</a>, <a href="../nha-gai/" target="_blank" style="text-decoration:underline;">Nhà Gái</a>, <a href="../" target="_blank" style="text-decoration:underline;">Bản chung</a>) đã cập nhật ngay trên máy này và sẽ hiển thị cho mọi khách mời sau ~30 giây.'
+            '✅ Đã lưu và đồng bộ trực tiếp lên <strong>GitHub</strong>! Cả 3 đường dẫn (<a href="../nha-trai/" target="_blank" style="text-decoration:underline;">Nhà Trai</a>, <a href="../nha-gai/" target="_blank" style="text-decoration:underline;">Nhà Gái</a>, <a href="../" target="_blank" style="text-decoration:underline;">Bản chung</a>) đã cập nhật ngay trên máy này và mọi khách mời sẽ xem được bản mới nhất sau ~30 giây.'
           );
-          showToast('Đã lưu & xuất bản thành công lên GitHub Pages!');
+          showToast('Đã lưu & đồng bộ lên GitHub thành công!');
         } else {
           setStatusBanner(
             'ok',
-            '✅ Đã lưu cấu hình thành công! Bạn có thể bấm mở ngay: <a href="../nha-trai/" target="_blank" style="text-decoration:underline;">Thiệp Nhà Trai</a> · <a href="../nha-gai/" target="_blank" style="text-decoration:underline;">Thiệp Nhà Gái</a> · <a href="../" target="_blank" style="text-decoration:underline;">Bản chung (2 họ)</a>.<br/><span style="font-weight:500; color:var(--muted);">Lưu ý: Để khách mời trên điện thoại khác cũng thấy nội dung mới sửa, hãy mở mục <strong>Đồng bộ lên Web (GitHub Pages)</strong> ở trên và nhập GitHub Token 1 lần duy nhất.</span>'
+            '✅ Đã lưu cấu hình thành công trên máy này! Mở xem ngay: <a href="../nha-trai/" target="_blank" style="text-decoration:underline;">Thiệp Nhà Trai</a> · <a href="../nha-gai/" target="_blank" style="text-decoration:underline;">Thiệp Nhà Gái</a> · <a href="../" target="_blank" style="text-decoration:underline;">Bản chung (2 họ)</a>.<br/><span style="font-weight:500; color:var(--muted);">Để mọi khách mời trên điện thoại khác đều thấy thay đổi mới, hãy kết nối GitHub Token ở mục <strong>Đồng bộ lên Web</strong> bên trên (1 lần duy nhất).</span>'
           );
           showToast('Đã lưu cấu hình cho cả 3 link thiệp!');
         }
       } catch (err) {
         setStatusBanner(
           'err',
-          `⚠️ Đã lưu xem trước trên máy này, nhưng xuất bản lên GitHub gặp lỗi: <strong>${escHtml(err.message)}</strong>. Vui lòng kiểm tra lại GitHub Token (quyền Contents: Read &amp; Write).`
+          `⚠️ Đã lưu xem trước trên máy này, nhưng đồng bộ lên GitHub gặp lỗi: <strong>${escHtml(err.message)}</strong>. Vui lòng kiểm tra lại GitHub Token.`
         );
-        showToast('Lưu máy thành công, lỗi kết nối GitHub!');
+        showToast('Lưu máy thành công, lỗi đồng bộ GitHub!');
       } finally {
         saveBtn.disabled = false;
         updateSyncBadge();
@@ -676,25 +786,62 @@
      INIT
      ========================================================================= */
   async function init() {
+    const setupInfo = consumeSetupHash();
+
     populateTimeSelects();
     initLinkGenerator();
     bindConfigFormEvents();
     initPhotoUploader();
     initSaveAndSync();
 
-    // Load 2-level Vietnam administrative units & active wedding config in parallel
-    const [unitsRes, loaded] = await Promise.all([
+    const savedTok = getSavedToken();
+    if (setupInfo.autoConnected) {
+      $('githubSyncDetails').removeAttribute('open');
+      const banner = $('autoConnectBanner');
+      banner.innerHTML = '🎉 <strong>Đã tự động kết nối đồng bộ lên Web!</strong> Bạn chỉ cần chỉnh sửa thông tin ở tab <strong>Nhà Gái · Cô Dâu</strong> (và tải ảnh QR/album nếu muốn) rồi bấm <strong>Lưu &amp; Cập nhật lên Web</strong> bên dưới — toàn bộ khách mời sẽ tự động xem được bản mới nhất mà không làm mất thông tin Nhà Trai.';
+      banner.classList.remove('hidden');
+      showToast('Đã kết nối sẵn quyền đồng bộ cho Cô Dâu!');
+    }
+
+    // Load 2-level Vietnam units + freshest wedding config (prefer direct GitHub API when connected!)
+    const [unitsRes, loaded, freshGh] = await Promise.all([
       fetch(`${BASE}/data/vn-units-2cap.json`).then((r) => (r.ok ? r.json() : [])).catch(() => []),
-      WS.loadConfig(BASE)
+      WS.loadConfig(BASE),
+      savedTok ? WS.fetchLatestGitHubConfig(savedTok) : Promise.resolve(null)
     ]);
 
     if (Array.isArray(unitsRes) && unitsRes.length) {
       vnUnits = unitsRes;
     }
-    draft = loaded.config;
 
-    loadSideToForm('groom');
+    if (freshGh && (freshGh.updatedAt || 0) >= (loaded.config.updatedAt || 0)) {
+      draft = freshGh;
+    } else {
+      draft = loaded.config;
+    }
+
+    loadSideToForm(setupInfo.tab || 'groom');
     renderAllPhotoSlots();
+
+    if (setupInfo.tab === 'bride' && setupInfo.autoConnected) {
+      setTimeout(() => {
+        $('secConfigTitle')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 450);
+    }
+
+    window.addEventListener('hashchange', () => {
+      const next = consumeSetupHash();
+      if (next.autoConnected) {
+        $('ghTokenInput').value = getSavedToken();
+        updateSyncBadge();
+        $('githubSyncDetails').removeAttribute('open');
+        const banner = $('autoConnectBanner');
+        banner.innerHTML = '🎉 <strong>Đã tự động kết nối đồng bộ lên Web!</strong> Bạn chỉ cần chỉnh sửa thông tin ở tab <strong>Nhà Gái · Cô Dâu</strong> (và tải ảnh QR/album nếu muốn) rồi bấm <strong>Lưu &amp; Cập nhật lên Web</strong> bên dưới — toàn bộ khách mời sẽ tự động xem được bản mới nhất mà không làm mất thông tin Nhà Trai.';
+        banner.classList.remove('hidden');
+        showToast('Đã kết nối sẵn quyền đồng bộ cho Cô Dâu!');
+      }
+      if (next.tab) loadSideToForm(next.tab);
+    });
   }
 
   init();
