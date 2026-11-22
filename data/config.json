@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": 1795342211890,
+  "updatedAt": 1795342642236,
   "groomName": "Nguyễn Văn Nam",
   "brideName": "Nguyễn Thị Kim Tiến",
   "sheetViewUrl": "https://docs.google.com/spreadsheets/d/1TAM_jS1z_ugR0zEztDiA2hwzTsZK034Fkw1nUW6jzvY/edit",
@@ -12,7 +12,7 @@
     "province": "Thành phố Hà Nội",
     "ward": "Xã Thanh Oai",
     "detailAddress": "Đội 2, Cát Động, Kim Bài",
-    "venueNote": "",
+    "venueNote": "Có chỗ gửi xe ngay bên cạnh khoảng 200m",
     "partyDate": "2027-01-02",
     "partyTime": "16:30",
     "ceremonyDate": "2027-01-03",
@@ -38,7 +38,7 @@
     "qrImage": ""
   },
   "photos": {
-    "hero": "images/hero-arch.webp",
+    "hero": "images/custom/photo-hero.webp?v=1795342642236",
     "interlude": "images/banner-rings.webp",
     "storyBg": "images/hands-rings.webp",
     "polaroidGroom": "images/arch-closeup.webp",
@@ -47,7 +47,7 @@
     "rsvpThanks": "images/aodai-closeup.webp",
     "footerBg": "images/banner-rings.webp",
     "album": [
-      "images/banner-rings.webp",
+      "images/custom/album-1.webp?v=1795342642236",
       "images/aodai-full.webp",
       "images/arch-closeup.webp",
       "images/hands-rings.webp",
