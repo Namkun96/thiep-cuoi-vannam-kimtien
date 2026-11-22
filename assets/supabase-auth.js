@@ -12,7 +12,15 @@
   const SESSION_KEY = 'thiep_cuoi_sb_session_v1';
 
   function cleanUrl(url) {
-    return String(url || '').trim().replace(/\/+$/, '');
+    return String(url || '')
+      .trim()
+      .replace(/\/(rest|auth|storage|functions)\/v\d+.*$/i, '')
+      .replace(/\/+$/, '');
+  }
+
+  function isJwtLike(token) {
+    const parts = String(token || '').trim().split('.');
+    return parts.length === 3 && parts.every(Boolean);
   }
 
   function isConfigured(cfg) {
@@ -67,15 +75,17 @@
 
   async function sbFetch(baseUrl, anonKey, path, opts = {}) {
     const url = `${cleanUrl(baseUrl)}${path}`;
+    const key = String(anonKey || '').trim();
     const headers = {
-      apikey: String(anonKey || '').trim(),
+      apikey: key,
       'Content-Type': 'application/json',
       ...(opts.headers || {})
     };
     if (opts.accessToken) {
       headers.Authorization = `Bearer ${opts.accessToken}`;
-    } else if (!headers.Authorization) {
-      headers.Authorization = `Bearer ${String(anonKey || '').trim()}`;
+    } else if (!headers.Authorization && isJwtLike(key)) {
+      // Only legacy anon JWT keys go in Authorization Bearer; new sb_publishable_* keys use apikey header only
+      headers.Authorization = `Bearer ${key}`;
     }
 
     const res = await fetch(url, {
