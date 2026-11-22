@@ -19,6 +19,8 @@
     brideName: 'Nguyễn Thị Kim Tiến',
     sheetViewUrl: 'https://docs.google.com/spreadsheets/d/1TAM_jS1z_ugR0zEztDiA2hwzTsZK034Fkw1nUW6jzvY/edit',
     sheetApiUrl: '',
+    supabaseUrl: '',
+    supabaseAnonKey: '',
     groom: {
       parent: 'Bà: Nguyễn Thị ...',
       province: 'Thành phố Hà Nội',
@@ -85,6 +87,12 @@
     }
     if (typeof incoming.sheetApiUrl === 'string') {
       base.sheetApiUrl = incoming.sheetApiUrl.trim();
+    }
+    if (typeof incoming.supabaseUrl === 'string') {
+      base.supabaseUrl = incoming.supabaseUrl.trim().replace(/\/+$/, '');
+    }
+    if (typeof incoming.supabaseAnonKey === 'string') {
+      base.supabaseAnonKey = incoming.supabaseAnonKey.trim();
     }
     if (incoming.groom && typeof incoming.groom === 'object') {
       Object.assign(base.groom, incoming.groom);
@@ -554,6 +562,10 @@
           published.sheetApiUrl = localCandidate.sheetApiUrl;
           published.sheetViewUrl = localCandidate.sheetViewUrl;
         }
+        if (dirty.supabase) {
+          published.supabaseUrl = localCandidate.supabaseUrl;
+          published.supabaseAnonKey = localCandidate.supabaseAnonKey;
+        }
         if (dirty.photoKeys && dirty.photoKeys.length) {
           dirty.photoKeys.forEach((k) => {
             if (k in published.photos) published.photos[k] = localCandidate.photos[k];
@@ -764,10 +776,15 @@
     return row;
   }
 
-  function queryLocalGuests(filters = {}) {
-    const allRows = readLocalGuests();
+  function isRowAllowedForScope(item, scope) {
+    if (scope === 'groom') return item.side === 'Nhà Trai' || item.side === 'Bản chung';
+    if (scope === 'bride') return item.side === 'Nhà Gái' || item.side === 'Bản chung';
+    return true;
+  }
+
+  function computeGuestStats(rows) {
     const stats = {
-      total: allRows.length,
+      total: rows.length,
       groom: 0,
       bride: 0,
       both: 0,
@@ -780,7 +797,7 @@
       pending: 0,
       estPeople: 0
     };
-    allRows.forEach((r) => {
+    rows.forEach((r) => {
       if (r.side === 'Nhà Trai') stats.groom++;
       else if (r.side === 'Nhà Gái') stats.bride++;
       else stats.both++;
@@ -800,6 +817,13 @@
         stats.pending++;
       }
     });
+    return stats;
+  }
+
+  function queryLocalGuests(filters = {}) {
+    const scope = String(filters.scope || 'all');
+    const allRows = readLocalGuests().filter((item) => isRowAllowedForScope(item, scope));
+    const stats = computeGuestStats(allRows);
 
     const sideFilter = String(filters.side || 'all');
     const typeFilter = String(filters.type || 'all');
@@ -811,6 +835,8 @@
       if (sideFilter === 'groom' && item.side !== 'Nhà Trai') return false;
       if (sideFilter === 'bride' && item.side !== 'Nhà Gái') return false;
       if (sideFilter === 'both' && item.side !== 'Bản chung') return false;
+      if (sideFilter === 'groom_both' && item.side !== 'Nhà Trai' && item.side !== 'Bản chung') return false;
+      if (sideFilter === 'bride_both' && item.side !== 'Nhà Gái' && item.side !== 'Bản chung') return false;
       if (typeFilter === 'named' && item.type !== 'Link riêng') return false;
       if (typeFilter === 'walkin' && item.type !== 'Vãng lai') return false;
       if (viewedFilter === 'yes' && item.viewed !== 'Đã xem') return false;
@@ -834,6 +860,7 @@
     return {
       ok: true,
       source: 'local',
+      scopeApplied: true,
       stats,
       page,
       pageSize,
@@ -892,18 +919,60 @@
   async function listSheetGuests(apiUrl, filters = {}) {
     const clean = String(apiUrl || '').trim();
     if (!clean) return queryLocalGuests(filters);
-    const data = await sheetGet(clean, {
+
+    const scope = String(filters.scope || 'all');
+    const side = String(filters.side || 'all');
+    const pageSize = Math.max(1, Math.min(50, parseInt(filters.pageSize, 10) || 10));
+    const page = Math.max(1, parseInt(filters.page, 10) || 1);
+
+    const baseParams = {
       action: 'list_guests',
-      side: filters.side || 'all',
+      scope,
+      side,
       type: filters.type || 'all',
       rsvp: filters.rsvp || 'all',
       viewed: filters.viewed || 'all',
       q: filters.q || '',
-      page: String(filters.page || 1),
-      pageSize: String(filters.pageSize || 10),
+      page: String(page),
+      pageSize: String(pageSize),
       t: String(Date.now())
-    });
-    return { ...data, source: 'google_sheet' };
+    };
+
+    const data = await sheetGet(clean, baseParams);
+
+    // If GAS already applied role scoping natively, return directly
+    if (scope === 'all' || data.scopeApplied) {
+      return { ...data, source: 'google_sheet' };
+    }
+
+    // Backward-compatible guard when user hasn't redeployed updated GAS yet:
+    // Fetch only permitted sides (groom+both or bride+both) so the other family's records never leak.
+    const ownSide = scope === 'groom' ? 'groom' : 'bride';
+    if (side === ownSide || side === 'both') {
+      const safeItems = (Array.isArray(data.items) ? data.items : []).filter((r) => isRowAllowedForScope(r, scope));
+      return { ...data, items: safeItems, source: 'google_sheet' };
+    }
+
+    const [ownRes, bothRes] = await Promise.all([
+      sheetGet(clean, { ...baseParams, side: ownSide, page: '1', pageSize: '50' }),
+      sheetGet(clean, { ...baseParams, side: 'both', page: '1', pageSize: '50' })
+    ]);
+    const combined = [...(ownRes.items || []), ...(bothRes.items || [])].filter((r) => isRowAllowedForScope(r, scope));
+    const totalFiltered = combined.length;
+    const totalPages = Math.max(1, Math.ceil(totalFiltered / pageSize));
+    const safePage = Math.max(1, Math.min(totalPages, page));
+    const start = (safePage - 1) * pageSize;
+
+    return {
+      ok: true,
+      source: 'google_sheet',
+      stats: computeGuestStats(combined),
+      page: safePage,
+      pageSize,
+      totalFiltered,
+      totalPages,
+      items: combined.slice(start, start + pageSize)
+    };
   }
 
   async function listSheetWishes(apiUrl) {

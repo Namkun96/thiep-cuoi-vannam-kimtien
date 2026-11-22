@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Quản Lý Thiệp Cưới &amp; Tạo Link Khách Mời — Văn Nam &amp; Kim Tiến</title>
-  <meta name="description" content="Tạo link thiệp cưới cá nhân hóa theo tên khách mời và cấu hình thông tin Nhà Trai, Nhà Gái, thời gian, địa chỉ, mừng cưới và album ảnh." />
+  <meta name="description" content="Tạo link thiệp cưới cá nhân hóa theo tên khách mời, tra cứu danh sách khách và cấu hình thông tin Nhà Trai, Nhà Gái, thời gian, địa chỉ, mừng cưới và album ảnh." />
   <meta name="robots" content="noindex, nofollow" />
   <meta name="theme-color" content="#6E0C17" />
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%236E0C17'/%3E%3Ctext x='32' y='44' text-anchor='middle' fill='%23E9DEC9' font-family='serif' font-size='34'%3E%E5%9B%8D%3C/text%3E%3C/svg%3E" />
@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600;1,700&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="../assets/admin.css?v=20261121" />
+  <link rel="stylesheet" href="../assets/admin.css?v=20261122" />
 </head>
 <body>
 
@@ -24,16 +24,28 @@
       <h1 class="studio-title">Quản Lý Thiệp Cưới &amp; Tạo Link Mời</h1>
       <p class="studio-sub">Nguyễn Văn Nam &amp; Nguyễn Thị Kim Tiến</p>
 
-      <div class="quick-preview-row">
-        <a href="../nha-trai/" target="_blank" rel="noopener" class="quick-preview-link">
+      <!-- Thanh trạng thái tài khoản & vai trò -->
+      <div id="sessionBar" class="session-bar hidden">
+        <div class="session-user-info">
+          <span id="sessionRolePill" class="role-pill admin">Admin</span>
+          <span id="sessionUserName" class="session-user-name">Quản trị viên</span>
+        </div>
+        <div class="session-actions">
+          <button id="btnOpenSupabaseQuick" type="button" class="session-btn hidden">Bật phân quyền Supabase</button>
+          <button id="btnSignOut" type="button" class="session-btn hidden">Đăng xuất</button>
+        </div>
+      </div>
+
+      <div id="quickPreviewRow" class="quick-preview-row">
+        <a href="../nha-trai/" target="_blank" rel="noopener" class="quick-preview-link" data-preview-side="groom">
           <span>Xem thiệp Nhà Trai</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
         </a>
-        <a href="../nha-gai/" target="_blank" rel="noopener" class="quick-preview-link">
+        <a href="../nha-gai/" target="_blank" rel="noopener" class="quick-preview-link" data-preview-side="bride">
           <span>Xem thiệp Nhà Gái</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
         </a>
-        <a href="../" target="_blank" rel="noopener" class="quick-preview-link">
+        <a href="../" target="_blank" rel="noopener" class="quick-preview-link" data-preview-side="both">
           <span>Xem bản chung (2 họ)</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
         </a>
@@ -43,445 +55,624 @@
 
   <main class="studio-main">
 
-    <div id="autoConnectBanner" class="status-banner ok hidden" style="margin-top:0;" role="status"></div>
-
-    <!-- ===== 1. TẠO LINK THIỆP CÁ NHÂN HÓA THEO TÊN KHÁCH MỜI ===== -->
-    <section class="panel" aria-labelledby="secLinkTitle">
+    <!-- ===== MÀN HÌNH ĐĂNG NHẬP SUPABASE (HIỂN THỊ KHI ĐÃ BẬT PHÂN QUYỀN) ===== -->
+    <section id="authGateSection" class="panel auth-gate-panel hidden" aria-labelledby="authGateTitle">
       <div class="panel-head">
-        <p class="panel-step">Phần 1 · Gửi thiệp mời</p>
-        <h2 id="secLinkTitle" class="panel-title">Tạo Link Thiệp Theo Tên Khách Mời</h2>
-        <p class="panel-desc">Nhập tên khách muốn mời rồi chọn Nhà Trai hoặc Nhà Gái. Tên khách sẽ tự động hiển thị trang trọng trên bìa thiệp, lời mời, phần xác nhận và lời cảm ơn.</p>
+        <p class="panel-step">Đăng nhập hệ thống</p>
+        <h2 id="authGateTitle" class="panel-title">Đăng Nhập Trang Quản Lý Thiệp Cưới</h2>
+        <p id="authGateDesc" class="panel-desc">Vui lòng đăng nhập bằng tài khoản được cấp (Admin, Chú rể hoặc Cô dâu) để tiếp tục thao tác.</p>
       </div>
 
-      <div class="field-group">
-        <label for="guestNameInput" class="field-label">
-          <span>Tên khách mời</span>
-          <span class="field-hint">VD: Anh Minh &amp; Gia Đình</span>
-        </label>
-        <input id="guestNameInput" type="text" class="input" placeholder="Nhập tên khách muốn mời (VD: Anh Minh &amp; Chị Lan, Bạn Hùng...)" autocomplete="off" />
-      </div>
+      <form id="authLoginForm" class="auth-form">
+        <div id="authFirstAdminNameGroup" class="field-group hidden">
+          <label for="authFullNameInput" class="field-label"><span>Họ tên hiển thị (Admin đầu tiên)</span></label>
+          <input id="authFullNameInput" type="text" class="input" placeholder="VD: Nguyễn Văn Nam (Admin)" autocomplete="name" />
+        </div>
 
-      <div class="btn-row-2">
-        <button id="btnCreateGroomLink" type="button" class="btn btn-burgundy">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-          <span>Tạo link Nhà Trai</span>
+        <div class="field-group">
+          <label for="authEmailInput" class="field-label"><span>Email đăng nhập</span></label>
+          <input id="authEmailInput" type="email" required class="input" placeholder="ten@email.com" autocomplete="email" />
+        </div>
+
+        <div class="field-group">
+          <label for="authPasswordInput" class="field-label"><span>Mật khẩu</span></label>
+          <input id="authPasswordInput" type="password" required class="input" placeholder="Nhập mật khẩu (tối thiểu 6 ký tự)" autocomplete="current-password" />
+        </div>
+
+        <button id="btnAuthSubmit" type="submit" class="btn btn-burgundy" style="width:100%;">
+          <span id="authSubmitLabel">Đăng nhập</span>
         </button>
-        <button id="btnCreateBrideLink" type="button" class="btn btn-gold">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-          <span>Tạo link Nhà Gái</span>
+
+        <button id="btnToggleFirstAdmin" type="button" class="btn-ghost-link hidden">
+          Chưa có tài khoản Admin đầu tiên? Đăng ký tài khoản Admin
         </button>
-      </div>
 
-      <button id="btnCreateBothLink" type="button" class="btn-ghost-link">
-        Hoặc tạo link bản đầy đủ (cả Nhà Trai &amp; Nhà Gái)
-      </button>
-
-      <!-- Kết quả đường link vừa tạo -->
-      <div id="linkResultBox" class="link-result hidden" aria-live="polite">
-        <div class="link-result-top">
-          <span id="linkSideTag" class="link-side-tag">Thiệp Nhà Trai</span>
-          <span id="linkGuestPreview" class="link-guest-preview">Kính mời: Quý Khách</span>
-        </div>
-        <div class="link-url-bar">
-          <input id="generatedUrlInput" type="text" readonly class="link-url-input" aria-label="Đường link thiệp cưới vừa tạo" />
-          <button id="btnCopyGeneratedLink" type="button" class="icon-action-btn" title="Sao chép đường link" aria-label="Sao chép đường link">
-            <svg id="copyIconSvg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-            <span id="copyBtnLabel">Copy</span>
-          </button>
-          <a id="btnOpenGeneratedLink" href="#" target="_blank" rel="noopener" class="icon-action-btn secondary" title="Mở xem thử thiệp mời" aria-label="Mở xem thử thiệp mời">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-          </a>
-        </div>
-      </div>
-
-      <!-- Lịch sử link đã tạo gần đây -->
-      <div id="linkHistoryWrap" class="history-block hidden">
-        <div class="history-head">
-          <p class="history-title">Link khách mời gần đây</p>
-          <button id="btnClearHistory" type="button" class="history-clear">Xóa lịch sử</button>
-        </div>
-        <div id="linkHistoryList" class="history-list"></div>
-      </div>
+        <div id="authGateMsg" class="status-banner hidden" role="alert"></div>
+      </form>
     </section>
 
-    <!-- ===== 2. TRA CỨU & THỐNG KÊ KHÁCH MỜI (DATABASE GOOGLE SHEET · 10 BẢN GHI/TRANG) ===== -->
-    <section id="secGuestDb" class="panel" aria-labelledby="secGuestDbTitle">
-      <div class="panel-head">
-        <p class="panel-step">Phần 2 · Database Google Sheet</p>
-        <h2 id="secGuestDbTitle" class="panel-title">Tra Cứu Danh Sách Khách Mời &amp; Phản Hồi</h2>
-        <p class="panel-desc">Ghi nhận tự động khi khách bấm mở 1 trong 3 link thiệp hoặc gửi xác nhận RSVP — tách rõ <strong>khách link riêng</strong> và <strong>khách vãng lai</strong>, phân trang 10 bản ghi/trang.</p>
-      </div>
+    <!-- ===== KHU VỰC LÀM VIỆC CHÍNH (TẤT CẢ PHẦN LỚN MẶC ĐỊNH THU ẨN, BẤM MỚI XỔ RA) ===== -->
+    <div id="studioWorkspace">
 
-      <!-- Khung kết nối Google Sheet -->
-      <details id="sheetConnectDetails" class="sync-details" style="margin-bottom:16px;">
-        <summary>
-          <span>Kết nối Google Sheet (Lưu trữ khách mời)</span>
-          <span id="sheetStatusBadge" class="sync-badge">Chưa gắn Apps Script</span>
-        </summary>
-        <div class="sync-body">
-          <p>
-            Bảng Google Sheet của bạn đã được tạo sẵn:
-            <a id="sheetOpenLink" href="https://docs.google.com/spreadsheets/d/1TAM_jS1z_ugR0zEztDiA2hwzTsZK034Fkw1nUW6jzvY/edit" target="_blank" rel="noopener" class="inline-link">Mở Google Sheet Quản Lý Khách Mời ↗</a>
-          </p>
-          <ol class="sync-steps">
-            <li>Bấm nút bên dưới để copy sẵn mã kết nối, rồi mở Google Sheet ở trên → chọn <strong>Tiện ích mở rộng (Extensions) → Apps Script</strong> → dán đè toàn bộ và bấm Lưu.</li>
-            <li>Bấm <strong>Triển khai (Deploy) → Tùy chọn triển khai mới (New deployment)</strong> → chọn loại <strong>Ứng dụng web (Web app)</strong>, quyền truy cập: <strong>Bất kỳ ai (Anyone)</strong> → bấm <strong>Triển khai</strong>.</li>
-            <li>Copy đường link <code>https://script.google.com/macros/s/.../exec</code> dán vào ô dưới đây rồi bấm <strong>Kết nối Sheet</strong>:</li>
-          </ol>
+      <div id="autoConnectBanner" class="status-banner ok hidden" style="margin-top:0; margin-bottom:16px;" role="status"></div>
 
-          <div style="margin-bottom:10px;">
-            <button id="btnCopyGasCode" type="button" class="btn btn-outline" style="width:100%; min-height:42px;">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-              <span>Copy mã Apps Script (1 chạm)</span>
-            </button>
+      <p class="workspace-collapse-hint">Bấm vào từng mục bên dưới để mở rộng và thao tác.</p>
+
+      <!-- ===== PHẦN 1. TẠO LINK THIỆP CÁ NHÂN HÓA THEO TÊN KHÁCH MỜI ===== -->
+      <details id="secLinkPanel" class="panel panel-acc">
+        <summary class="panel-acc-head">
+          <div class="panel-acc-text">
+            <p class="panel-step">Phần 1 · Gửi thiệp mời</p>
+            <h2 id="secLinkTitle" class="panel-title">Tạo Link Thiệp Theo Tên Khách Mời</h2>
+            <p class="panel-acc-sub">Nhập tên khách mời để tạo link cá nhân hóa có theo dõi lượt mở</p>
           </div>
-
-          <div class="sync-token-row">
-            <input id="cfgSheetApiUrl" type="url" class="input" placeholder="Dán link Apps Script (https://script.google.com/macros/s/.../exec)" autocomplete="off" />
-            <button id="btnConnectSheet" type="button" class="btn btn-burgundy">Kết nối Sheet</button>
-          </div>
-          <div id="sheetConnectMsg" class="status-banner hidden" style="margin-top:8px;"></div>
-        </div>
-      </details>
-
-      <!-- 4 thẻ thống kê nhanh -->
-      <div class="db-stats-grid" aria-label="Thống kê nhanh khách mời">
-        <div class="db-stat-card">
-          <span class="db-stat-lbl">Tổng ghi nhận</span>
-          <strong id="statTotal" class="db-stat-val">0</strong>
-          <span id="statTypeSplit" class="db-stat-sub">0 riêng · 0 vãng lai</span>
-        </div>
-        <div class="db-stat-card">
-          <span class="db-stat-lbl">Đã mở thiệp</span>
-          <strong id="statViewed" class="db-stat-val">0</strong>
-          <span id="statUnviewed" class="db-stat-sub">0 chưa mở</span>
-        </div>
-        <div class="db-stat-card">
-          <span class="db-stat-lbl">Sẽ tham dự</span>
-          <strong id="statAttending" class="db-stat-val" style="color:var(--ok);">0</strong>
-          <span id="statEstPeople" class="db-stat-sub">~0 khách dự kiến</span>
-        </div>
-        <div class="db-stat-card">
-          <span class="db-stat-lbl">Nhà Trai / Gái</span>
-          <strong id="statSideSplit" class="db-stat-val">0 / 0</strong>
-          <span id="statDeclined" class="db-stat-sub">0 báo bận</span>
-        </div>
-      </div>
-
-      <!-- Bộ lọc theo Nhà -->
-      <div class="db-side-tabs" role="tablist" aria-label="Lọc khách mời theo nhà">
-        <button type="button" class="db-side-tab active" data-db-side="all">Tất cả</button>
-        <button type="button" class="db-side-tab" data-db-side="groom">Nhà Trai</button>
-        <button type="button" class="db-side-tab" data-db-side="bride">Nhà Gái</button>
-        <button type="button" class="db-side-tab" data-db-side="both">Bản chung</button>
-      </div>
-
-      <!-- Bộ lọc chi tiết + Tìm kiếm -->
-      <div class="db-filters-row">
-        <select id="dbFilterType" class="select db-filter-sel" aria-label="Lọc theo phân loại khách">
-          <option value="all">Tất cả loại khách</option>
-          <option value="named">Link thiệp riêng (đặt tên)</option>
-          <option value="walkin">Khách vãng lai</option>
-        </select>
-        <select id="dbFilterViewed" class="select db-filter-sel" aria-label="Lọc theo trạng thái xem">
-          <option value="all">Tất cả lượt xem</option>
-          <option value="yes">Đã bấm mở thiệp</option>
-          <option value="no">Chưa mở thiệp</option>
-        </select>
-        <select id="dbFilterRsvp" class="select db-filter-sel" aria-label="Lọc theo xác nhận tham dự">
-          <option value="all">Tất cả RSVP</option>
-          <option value="attending">Sẽ tham dự</option>
-          <option value="declined">Rất tiếc bận</option>
-          <option value="pending">Chưa phản hồi</option>
-        </select>
-      </div>
-
-      <div class="db-search-bar">
-        <input id="dbSearchInput" type="search" class="input" placeholder="Tìm theo tên khách mời, lời chúc..." autocomplete="off" />
-        <button id="btnRefreshGuestDb" type="button" class="icon-action-btn secondary" title="Tải lại dữ liệu từ Google Sheet" aria-label="Tải lại dữ liệu">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-        </button>
-        <a id="btnOpenSheetQuick" href="https://docs.google.com/spreadsheets/d/1TAM_jS1z_ugR0zEztDiA2hwzTsZK034Fkw1nUW6jzvY/edit" target="_blank" rel="noopener" class="icon-action-btn secondary" title="Mở bảng Google Sheet" aria-label="Mở bảng Google Sheet">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
-        </a>
-      </div>
-
-      <p id="dbSourceNote" class="db-source-note"></p>
-
-      <!-- Danh sách khách mời (10 bản ghi / trang) -->
-      <div id="guestDbList" class="guest-db-list"></div>
-
-      <!-- Thanh phân trang 10 bản ghi / trang -->
-      <div id="guestDbPager" class="db-pager hidden">
-        <button id="btnDbPrev" type="button" class="pager-btn">‹ Trước</button>
-        <div id="dbPageNumbers" class="pager-nums"></div>
-        <button id="btnDbNext" type="button" class="pager-btn">Sau ›</button>
-      </div>
-      <p id="dbRangeSummary" class="db-range-summary"></p>
-    </section>
-
-    <!-- ===== 3. CẤU HÌNH THÔNG TIN THIỆP (2 TAB NHÀ TRAI / NHÀ GÁI) ===== -->
-    <section class="panel" aria-labelledby="secConfigTitle">
-      <div class="panel-head">
-        <p class="panel-step">Phần 3 · Cấu hình nội dung</p>
-        <h2 id="secConfigTitle" class="panel-title">Cấu Hình Thông Tin Thiệp Cưới</h2>
-        <p class="panel-desc">Chọn tab <strong>Nhà Trai</strong> hoặc <strong>Nhà Gái</strong> để chỉnh sửa thông tin tương ứng. Khi bấm <strong>Lưu cấu hình</strong>, cả 3 link (Nhà Trai, Nhà Gái và bản chung) sẽ tự động cập nhật đồng bộ.</p>
-      </div>
-
-      <!-- 2 Tab Nhà Trai / Nhà Gái -->
-      <div class="side-tabs" role="tablist" aria-label="Chọn gia đình cấu hình">
-        <button id="tabBtnGroom" type="button" role="tab" aria-selected="true" class="side-tab active" data-side-tab="groom">
-          Nhà Trai · Chú Rể
-        </button>
-        <button id="tabBtnBride" type="button" role="tab" aria-selected="false" class="side-tab" data-side-tab="bride">
-          Nhà Gái · Cô Dâu
-        </button>
-      </div>
-
-      <!-- 2.1 Họ tên mẹ -->
-      <div class="sub-section">
-        <h3 id="secFamilyHeading" class="sub-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          <span>Thông tin gia đình Nhà Trai</span>
-        </h3>
-
-        <div class="field-group">
-          <label for="cfgParentName" class="field-label">
-            <span>Họ tên mẹ</span>
-            <span class="field-hint">Hiển thị tại mục Gia đình</span>
-          </label>
-          <input id="cfgParentName" type="text" class="input" placeholder="VD: Bà: Nguyễn Thị ..." />
-        </div>
-      </div>
-
-      <!-- 2.2 Địa chỉ tư gia (2 cấp: Tỉnh/Thành phố, Xã/Phường + Chi tiết) -->
-      <div class="sub-section">
-        <h3 class="sub-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          <span>Địa chỉ tư gia (2 cấp Tỉnh/TP — Xã/Phường)</span>
-        </h3>
-
-        <div class="grid-2">
-          <div class="field-group">
-            <label for="cfgProvince" class="field-label"><span>Tỉnh / Thành phố</span></label>
-            <select id="cfgProvince" class="select"></select>
-          </div>
-
-          <div class="field-group">
-            <label for="cfgWard" class="field-label"><span>Xã / Phường / Đặc khu</span></label>
-            <div class="ward-picker-stack">
-              <input id="cfgWardSearch" type="search" class="input ward-filter-input" placeholder="Gõ lọc nhanh xã/phường..." autocomplete="off" />
-              <select id="cfgWard" class="select"></select>
-            </div>
-          </div>
-        </div>
-
-        <div class="field-group">
-          <label for="cfgDetailAddress" class="field-label">
-            <span>Địa chỉ chi tiết</span>
-            <span class="field-hint">Thôn, phố, số nhà, khu vực</span>
-          </label>
-          <input id="cfgDetailAddress" type="text" class="input" placeholder="VD: Thị trấn Kim Bài hoặc Thôn Cầu Cả, Cổ Loa..." />
-        </div>
-
-        <div class="field-group">
-          <label for="cfgVenueNote" class="field-label">
-            <span>Ghi chú đỗ xe / chỉ đường</span>
-            <span class="field-hint">Tùy chọn</span>
-          </label>
-          <input id="cfgVenueNote" type="text" class="input" placeholder="VD: Có chỗ đỗ xe thuận tiện ngay gần rạp tiệc" />
-        </div>
-
-        <div id="addrPreviewPill" class="live-preview-pill"></div>
-      </div>
-
-      <!-- 2.3 Thời gian tổ chức (Ngày chọn hộp lịch + Giờ / Phút) -->
-      <div class="sub-section">
-        <h3 class="sub-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          <span>Thời gian tổ chức</span>
-        </h3>
-
-        <div class="event-time-box">
-          <p id="lblPartyTime" class="event-time-label">Tiệc Cưới Nhà Trai</p>
-          <div class="time-row">
-            <div class="field-group time-date-wrap" style="margin-bottom:0;">
-              <label for="cfgPartyDate" class="field-label"><span>Chọn ngày</span></label>
-              <input id="cfgPartyDate" type="date" class="input" />
-            </div>
-            <div class="field-group" style="margin-bottom:0;">
-              <label for="cfgPartyHour" class="field-label"><span>Giờ</span></label>
-              <select id="cfgPartyHour" class="select"></select>
-            </div>
-            <div class="field-group" style="margin-bottom:0;">
-              <label for="cfgPartyMin" class="field-label"><span>Phút</span></label>
-              <select id="cfgPartyMin" class="select"></select>
-            </div>
-          </div>
-          <p id="partyLunarPreview" class="lunar-readout"></p>
-        </div>
-
-        <div class="event-time-box">
-          <p id="lblCeremonyTime" class="event-time-label">Lễ Thành Hôn</p>
-          <div class="time-row">
-            <div class="field-group time-date-wrap" style="margin-bottom:0;">
-              <label for="cfgCeremonyDate" class="field-label"><span>Chọn ngày</span></label>
-              <input id="cfgCeremonyDate" type="date" class="input" />
-            </div>
-            <div class="field-group" style="margin-bottom:0;">
-              <label for="cfgCeremonyHour" class="field-label"><span>Giờ</span></label>
-              <select id="cfgCeremonyHour" class="select"></select>
-            </div>
-            <div class="field-group" style="margin-bottom:0;">
-              <label for="cfgCeremonyMin" class="field-label"><span>Phút</span></label>
-              <select id="cfgCeremonyMin" class="select"></select>
-            </div>
-          </div>
-          <p id="ceremonyLunarPreview" class="lunar-readout"></p>
-        </div>
-      </div>
-
-      <!-- 2.4 Thông tin mừng cưới + Tải ảnh QR -->
-      <div class="sub-section">
-        <h3 id="secBankHeading" class="sub-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/></svg>
-          <span>Thông tin mừng cưới Nhà Trai</span>
-        </h3>
-
-        <div class="grid-2">
-          <div class="field-group">
-            <label for="cfgBankName" class="field-label"><span>Tên ngân hàng</span></label>
-            <input id="cfgBankName" type="text" class="input" placeholder="VD: Vietcombank — CN Hà Nội" />
-          </div>
-          <div class="field-group">
-            <label for="cfgBankAcc" class="field-label"><span>Số tài khoản (STK)</span></label>
-            <input id="cfgBankAcc" type="text" class="input" placeholder="VD: 0011 0045 67890" />
-          </div>
-        </div>
-
-        <div class="field-group">
-          <label for="cfgBankOwner" class="field-label"><span>Chủ tài khoản</span></label>
-          <input id="cfgBankOwner" type="text" class="input" placeholder="VD: NGUYEN VAN NAM" />
-        </div>
-
-        <div class="field-group">
-          <span class="field-label">
-            <span>Hình ảnh mã QR chuyển khoản</span>
-            <span class="field-hint">Tải ảnh từ thư viện điện thoại</span>
+          <span class="panel-acc-chevron" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
           </span>
-          <div class="qr-upload-row">
-            <div class="qr-preview-box">
-              <img id="qrPreviewImg" class="hidden" alt="Ảnh mã QR xem trước" />
-              <span id="qrPlaceholderTxt" class="qr-placeholder-txt">Chưa tải ảnh<br/>(Đang dùng QR mẫu)</span>
-            </div>
-            <div class="qr-upload-actions">
-              <label for="cfgQrFileInput" class="file-btn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                <span>Chọn ảnh QR từ máy</span>
-              </label>
-              <input id="cfgQrFileInput" type="file" accept="image/*" class="hidden" />
-              <button id="btnRemoveQr" type="button" class="btn-remove-img hidden">Xóa ảnh QR đã tải (về mẫu mặc định)</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ===== 4. TẢI ẢNH THIỆP & ALBUM ẢNH THEO ĐÚNG VỊ TRÍ THIẾT KẾ ===== -->
-    <section class="panel" aria-labelledby="secPhotosTitle">
-      <div class="panel-head">
-        <p class="panel-step">Phần 4 · Hình ảnh &amp; Album cưới</p>
-        <h2 id="secPhotosTitle" class="panel-title">Tải Ảnh Thiệp &amp; Album Theo Từng Vị Trí</h2>
-        <p class="panel-desc">Chạm trực tiếp vào từng khung ảnh bên dưới để chọn ảnh từ điện thoại thay thế đúng vị trí trên thiệp (áp dụng đồng bộ cho cả Nhà Trai, Nhà Gái và bản chung).</p>
-      </div>
-
-      <h3 class="sub-title">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-        <span>Ảnh bìa &amp; Ảnh chân dung nổi bật</span>
-      </h3>
-
-      <div id="featuredPhotosGrid" class="featured-photos-grid"></div>
-
-      <h3 class="sub-title" style="margin-top: 8px;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m21 16-5-5L5 20"/></svg>
-        <span>Bố cục Album “Our Album” (7 vị trí như trên thiệp)</span>
-      </h3>
-
-      <div class="album-editor-stage">
-        <p class="album-editor-heading">Our Album — Chạm vào từng khung để đổi ảnh</p>
-
-        <div class="photo-slot wide" data-photo-slot="album:0"></div>
-
-        <div class="ae-row-asym">
-          <div class="ae-stack-col">
-            <div class="photo-slot square" data-photo-slot="album:1"></div>
-            <div class="photo-slot square" data-photo-slot="album:3"></div>
-          </div>
-          <div class="photo-slot fill" data-photo-slot="album:2"></div>
-        </div>
-
-        <div class="photo-slot wide" data-photo-slot="album:4"></div>
-
-        <div class="ae-row-two">
-          <div class="photo-slot tall" data-photo-slot="album:5"></div>
-          <div class="photo-slot tall" data-photo-slot="album:6"></div>
-        </div>
-      </div>
-
-      <input id="sharedPhotoInput" type="file" accept="image/*" class="hidden" />
-    </section>
-
-    <!-- ===== 4. ĐỒNG BỘ LÊN WEB (GITHUB PAGES) & GỬI QUYỀN CHO CÔ DÂU ===== -->
-    <section class="panel" aria-labelledby="secSyncTitle">
-      <details id="githubSyncDetails" class="sync-details" open>
-        <summary id="secSyncTitle">
-          <span>Đồng bộ lên Web &amp; Gửi Cô Dâu tự sửa</span>
-          <span id="syncStatusBadge" class="sync-badge">Lưu trên máy này</span>
         </summary>
-        <div class="sync-body">
-          <p>
-            Để khi bạn hoặc <strong>Cô Dâu</strong> bấm <strong>Lưu</strong>, mọi thay đổi (địa chỉ, giờ, QR, ảnh album) sẽ <strong>tự đẩy lên GitHub</strong> và cập nhật cho <strong>tất cả khách mời trên mọi điện thoại</strong>:
-          </p>
 
-          <ol class="sync-steps">
-            <li><strong>Cách nhanh nhất (10 giây — khuyến nghị):</strong> Chú rể bấm <a href="https://github.com/settings/tokens/new?scopes=repo&amp;description=thiep-cuoi-vannam-kimtien" target="_blank" rel="noopener" class="inline-link">Tạo nhanh Token (đã tích sẵn quyền repo) ↗</a> → kéo xuống cuối bấm nút xanh <strong>Generate token</strong> → copy mã <code>ghp_...</code> dán vào ô dưới.</li>
-            <li><em>(Hoặc nếu dùng Fine-grained Token)</em>: phải chọn <strong>Only select repositories</strong> → <code>thiep-cuoi-vannam-kimtien</code>, rồi bấm <strong>Add permissions</strong> → chọn <strong>Contents</strong> → đổi sang <strong>Read and write</strong>.</li>
-          </ol>
+        <div class="panel-acc-body">
+          <p id="linkGenDesc" class="panel-desc" style="margin-bottom:14px;">Nhập tên khách muốn mời rồi chọn loại thiệp. Tên khách sẽ tự động hiển thị trang trọng trên bìa thiệp, lời mời, phần xác nhận và lời cảm ơn.</p>
 
-          <div class="sync-token-row">
-            <input id="ghTokenInput" type="password" class="input" placeholder="Dán GitHub Token (ghp_... hoặc github_pat_...)" autocomplete="off" />
-            <button id="btnSaveToken" type="button" class="btn btn-outline">Kết nối</button>
+          <div class="field-group">
+            <label for="guestNameInput" class="field-label">
+              <span>Tên khách mời</span>
+              <span class="field-hint">VD: Anh Minh &amp; Gia Đình</span>
+            </label>
+            <input id="guestNameInput" type="text" class="input" placeholder="Nhập tên khách muốn mời (VD: Anh Minh &amp; Chị Lan, Bạn Hùng...)" autocomplete="off" />
           </div>
 
-          <!-- Hiện ra ngay khi đã kết nối: 1 chạm gửi Cô Dâu không cần biết GitHub! -->
-          <div id="shareBrideSetupBox" class="share-bride-box hidden">
-            <p class="share-bride-title">Gửi link cấu hình riêng cho Cô Dâu</p>
-            <p class="share-bride-desc">
-              Cô dâu chỉ cần bấm link này trên Zalo → máy tự kết nối sẵn &amp; mở thẳng tab <strong>Nhà Gái</strong>. Cô dâu sửa địa chỉ, giờ, QR, ảnh rồi bấm <strong>Lưu</strong> là tự đồng bộ lên GitHub cho mọi khách mời (tự gộp thông minh, không làm mất phần Nhà Trai).
-            </p>
-            <button id="btnCopyBrideSetupLink" type="button" class="btn btn-gold" style="width:100%;">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-              <span>Copy link gửi Cô Dâu (tự đồng bộ Nhà Gái)</span>
+          <div id="linkBtnRow" class="btn-row-2">
+            <button id="btnCreateGroomLink" type="button" class="btn btn-burgundy">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              <span>Tạo link Nhà Trai</span>
             </button>
-            <p class="share-bride-warn">⚠️ Link này có quyền sửa thiệp nên chỉ gửi riêng cho Cô Dâu / người nhà, không gửi cho khách mời.</p>
+            <button id="btnCreateBrideLink" type="button" class="btn btn-gold">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              <span>Tạo link Nhà Gái</span>
+            </button>
           </div>
 
-          <div class="sync-actions-row">
-            <button id="btnClearToken" type="button" class="btn-remove-img hidden">Ngắt kết nối Token trên máy này</button>
-            <button id="btnDownloadConfigJson" type="button" class="btn-ghost-link" style="margin-top:0;">Tải file config.json dự phòng</button>
+          <button id="btnCreateBothLink" type="button" class="btn-ghost-link">
+            Hoặc tạo link bản đầy đủ (cả Nhà Trai &amp; Nhà Gái)
+          </button>
+
+          <!-- Kết quả đường link vừa tạo -->
+          <div id="linkResultBox" class="link-result hidden" aria-live="polite">
+            <div class="link-result-top">
+              <span id="linkSideTag" class="link-side-tag">Thiệp Nhà Trai</span>
+              <span id="linkGuestPreview" class="link-guest-preview">Kính mời: Quý Khách</span>
+            </div>
+            <div class="link-url-bar">
+              <input id="generatedUrlInput" type="text" readonly class="link-url-input" aria-label="Đường link thiệp cưới vừa tạo" />
+              <button id="btnCopyGeneratedLink" type="button" class="icon-action-btn" title="Sao chép đường link" aria-label="Sao chép đường link">
+                <svg id="copyIconSvg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                <span id="copyBtnLabel">Copy</span>
+              </button>
+              <a id="btnOpenGeneratedLink" href="#" target="_blank" rel="noopener" class="icon-action-btn secondary" title="Mở xem thử thiệp mời" aria-label="Mở xem thử thiệp mời">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              </a>
+            </div>
+          </div>
+
+          <!-- Lịch sử link đã tạo gần đây -->
+          <div id="linkHistoryWrap" class="history-block hidden">
+            <div class="history-head">
+              <p class="history-title">Link khách mời gần đây</p>
+              <button id="btnClearHistory" type="button" class="history-clear">Xóa lịch sử</button>
+            </div>
+            <div id="linkHistoryList" class="history-list"></div>
           </div>
         </div>
       </details>
 
+      <!-- ===== PHẦN 2. TRA CỨU & THỐNG KÊ KHÁCH MỜI (10 BẢN GHI/TRANG) ===== -->
+      <details id="secGuestDb" class="panel panel-acc">
+        <summary class="panel-acc-head">
+          <div class="panel-acc-text">
+            <p class="panel-step">Phần 2 · Danh sách khách mời</p>
+            <h2 id="secGuestDbTitle" class="panel-title">Tra Cứu Danh Sách Khách Mời &amp; Phản Hồi</h2>
+            <p class="panel-acc-sub">Xem lượt mở thiệp, xác nhận tham dự, lời chúc · Phân trang 10 bản ghi/trang</p>
+          </div>
+          <span class="panel-acc-right">
+            <span id="accGuestCountPill" class="acc-count-pill">0</span>
+            <span class="panel-acc-chevron" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </span>
+          </span>
+        </summary>
+
+        <div class="panel-acc-body">
+          <!-- 4 thẻ thống kê nhanh -->
+          <div class="db-stats-grid" aria-label="Thống kê nhanh khách mời">
+            <div class="db-stat-card">
+              <span class="db-stat-lbl">Tổng ghi nhận</span>
+              <strong id="statTotal" class="db-stat-val">0</strong>
+              <span id="statTypeSplit" class="db-stat-sub">0 riêng · 0 vãng lai</span>
+            </div>
+            <div class="db-stat-card">
+              <span class="db-stat-lbl">Đã mở thiệp</span>
+              <strong id="statViewed" class="db-stat-val">0</strong>
+              <span id="statUnviewed" class="db-stat-sub">0 chưa mở</span>
+            </div>
+            <div class="db-stat-card">
+              <span class="db-stat-lbl">Sẽ tham dự</span>
+              <strong id="statAttending" class="db-stat-val" style="color:var(--ok);">0</strong>
+              <span id="statEstPeople" class="db-stat-sub">~0 khách dự kiến</span>
+            </div>
+            <div class="db-stat-card">
+              <span id="statSideSplitLbl" class="db-stat-lbl">Nhà Trai / Gái</span>
+              <strong id="statSideSplit" class="db-stat-val">0 / 0</strong>
+              <span id="statDeclined" class="db-stat-sub">0 báo bận</span>
+            </div>
+          </div>
+
+          <!-- Bộ lọc theo Nhà -->
+          <div id="dbSideTabs" class="db-side-tabs" role="tablist" aria-label="Lọc khách mời theo nhà">
+            <button type="button" class="db-side-tab active" data-db-side="all">Tất cả</button>
+            <button type="button" class="db-side-tab" data-db-side="groom">Nhà Trai</button>
+            <button type="button" class="db-side-tab" data-db-side="bride">Nhà Gái</button>
+            <button type="button" class="db-side-tab" data-db-side="both">Bản chung</button>
+          </div>
+
+          <!-- Bộ lọc chi tiết + Tìm kiếm -->
+          <div class="db-filters-row">
+            <select id="dbFilterType" class="select db-filter-sel" aria-label="Lọc theo phân loại khách">
+              <option value="all">Tất cả loại khách</option>
+              <option value="named">Link thiệp riêng (đặt tên)</option>
+              <option value="walkin">Khách vãng lai</option>
+            </select>
+            <select id="dbFilterViewed" class="select db-filter-sel" aria-label="Lọc theo trạng thái xem">
+              <option value="all">Tất cả lượt xem</option>
+              <option value="yes">Đã bấm mở thiệp</option>
+              <option value="no">Chưa mở thiệp</option>
+            </select>
+            <select id="dbFilterRsvp" class="select db-filter-sel" aria-label="Lọc theo xác nhận tham dự">
+              <option value="all">Tất cả RSVP</option>
+              <option value="attending">Sẽ tham dự</option>
+              <option value="declined">Rất tiếc bận</option>
+              <option value="pending">Chưa phản hồi</option>
+            </select>
+          </div>
+
+          <div class="db-search-bar">
+            <input id="dbSearchInput" type="search" class="input" placeholder="Tìm theo tên khách mời, lời chúc..." autocomplete="off" />
+            <button id="btnRefreshGuestDb" type="button" class="icon-action-btn secondary" title="Tải lại danh sách khách mời" aria-label="Tải lại dữ liệu">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            </button>
+            <a id="btnOpenSheetQuick" data-admin-only="true" href="https://docs.google.com/spreadsheets/d/1TAM_jS1z_ugR0zEztDiA2hwzTsZK034Fkw1nUW6jzvY/edit" target="_blank" rel="noopener" class="icon-action-btn secondary" title="Mở bảng Google Sheet (Chỉ Admin)" aria-label="Mở bảng Google Sheet">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+            </a>
+          </div>
+
+          <p id="dbSourceNote" class="db-source-note"></p>
+
+          <!-- Danh sách khách mời (10 bản ghi / trang) -->
+          <div id="guestDbList" class="guest-db-list"></div>
+
+          <!-- Thanh phân trang 10 bản ghi / trang -->
+          <div id="guestDbPager" class="db-pager hidden">
+            <button id="btnDbPrev" type="button" class="pager-btn">‹ Trước</button>
+            <div id="dbPageNumbers" class="pager-nums"></div>
+            <button id="btnDbNext" type="button" class="pager-btn">Sau ›</button>
+          </div>
+          <p id="dbRangeSummary" class="db-range-summary"></p>
+        </div>
+      </details>
+
+      <!-- ===== PHẦN 3. CẤU HÌNH THÔNG TIN THIỆP ===== -->
+      <details id="secConfigPanel" class="panel panel-acc">
+        <summary class="panel-acc-head">
+          <div class="panel-acc-text">
+            <p class="panel-step">Phần 3 · Cấu hình nội dung</p>
+            <h2 id="secConfigTitle" class="panel-title">Cấu Hình Thông Tin Thiệp Cưới</h2>
+            <p id="secConfigSub" class="panel-acc-sub">Họ tên mẹ, địa chỉ tư gia, ngày giờ tiệc/lễ &amp; mã QR mừng cưới</p>
+          </div>
+          <span class="panel-acc-chevron" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </span>
+        </summary>
+
+        <div class="panel-acc-body">
+          <p id="configScopeDesc" class="panel-desc" style="margin-bottom:14px;">Chọn tab <strong>Nhà Trai</strong> hoặc <strong>Nhà Gái</strong> để chỉnh sửa thông tin tương ứng. Khi bấm <strong>Lưu</strong>, các link thiệp sẽ tự động cập nhật đồng bộ.</p>
+
+          <!-- 2 Tab Nhà Trai / Nhà Gái (Ẩn với Chú rể / Cô dâu vì khóa cứng theo vai trò) -->
+          <div id="configSideTabs" class="side-tabs" role="tablist" aria-label="Chọn gia đình cấu hình">
+            <button id="tabBtnGroom" type="button" role="tab" aria-selected="true" class="side-tab active" data-side-tab="groom">
+              Nhà Trai · Chú Rể
+            </button>
+            <button id="tabBtnBride" type="button" role="tab" aria-selected="false" class="side-tab" data-side-tab="bride">
+              Nhà Gái · Cô Dâu
+            </button>
+          </div>
+
+          <!-- 3.1 Họ tên mẹ -->
+          <div class="sub-section">
+            <h3 id="secFamilyHeading" class="sub-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <span>Thông tin gia đình Nhà Trai</span>
+            </h3>
+
+            <div class="field-group">
+              <label for="cfgParentName" class="field-label">
+                <span>Họ tên mẹ</span>
+                <span class="field-hint">Hiển thị tại mục Gia đình</span>
+              </label>
+              <input id="cfgParentName" type="text" class="input" placeholder="VD: Bà: Nguyễn Thị ..." />
+            </div>
+          </div>
+
+          <!-- 3.2 Địa chỉ tư gia -->
+          <div class="sub-section">
+            <h3 class="sub-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              <span>Địa chỉ tư gia (2 cấp Tỉnh/TP — Xã/Phường)</span>
+            </h3>
+
+            <div class="grid-2">
+              <div class="field-group">
+                <label for="cfgProvince" class="field-label"><span>Tỉnh / Thành phố</span></label>
+                <select id="cfgProvince" class="select"></select>
+              </div>
+
+              <div class="field-group">
+                <label for="cfgWard" class="field-label"><span>Xã / Phường / Đặc khu</span></label>
+                <div class="ward-picker-stack">
+                  <input id="cfgWardSearch" type="search" class="input ward-filter-input" placeholder="Gõ lọc nhanh xã/phường..." autocomplete="off" />
+                  <select id="cfgWard" class="select"></select>
+                </div>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="cfgDetailAddress" class="field-label">
+                <span>Địa chỉ chi tiết (Số nhà, thôn/xóm, đường...)</span>
+              </label>
+              <input id="cfgDetailAddress" type="text" class="input" placeholder="VD: Thôn Cầu Cả, Cổ Loa / Số 12 đường..." />
+            </div>
+
+            <div class="field-group">
+              <label for="cfgVenueNote" class="field-label">
+                <span>Ghi chú bãi đỗ xe / đường đi</span>
+                <span class="field-hint">Tùy chọn</span>
+              </label>
+              <input id="cfgVenueNote" type="text" class="input" placeholder="VD: Có chỗ đỗ xe thuận tiện ngay gần rạp tiệc" />
+            </div>
+
+            <div id="addrPreviewPill" class="live-preview-pill"></div>
+          </div>
+
+          <!-- 3.3 Thời gian tổ chức (Ngày chọn hộp lịch + Giờ / Phút) -->
+          <div class="sub-section">
+            <h3 class="sub-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <span>Thời gian tổ chức (Tự động đổi Âm lịch)</span>
+            </h3>
+
+            <div class="event-time-box">
+              <p id="lblPartyTime" class="event-time-label">Tiệc Cưới Nhà Trai</p>
+              <div class="time-row">
+                <div class="field-group time-date-wrap" style="margin-bottom:0;">
+                  <label for="cfgPartyDate" class="field-label"><span>Chọn ngày</span></label>
+                  <input id="cfgPartyDate" type="date" class="input" />
+                </div>
+                <div class="field-group" style="margin-bottom:0;">
+                  <label for="cfgPartyHour" class="field-label"><span>Giờ</span></label>
+                  <select id="cfgPartyHour" class="select"></select>
+                </div>
+                <div class="field-group" style="margin-bottom:0;">
+                  <label for="cfgPartyMin" class="field-label"><span>Phút</span></label>
+                  <select id="cfgPartyMin" class="select"></select>
+                </div>
+              </div>
+              <p id="partyLunarPreview" class="lunar-readout"></p>
+            </div>
+
+            <div class="event-time-box">
+              <p id="lblCeremonyTime" class="event-time-label">Lễ Thành Hôn</p>
+              <div class="time-row">
+                <div class="field-group time-date-wrap" style="margin-bottom:0;">
+                  <label for="cfgCeremonyDate" class="field-label"><span>Chọn ngày</span></label>
+                  <input id="cfgCeremonyDate" type="date" class="input" />
+                </div>
+                <div class="field-group" style="margin-bottom:0;">
+                  <label for="cfgCeremonyHour" class="field-label"><span>Giờ</span></label>
+                  <select id="cfgCeremonyHour" class="select"></select>
+                </div>
+                <div class="field-group" style="margin-bottom:0;">
+                  <label for="cfgCeremonyMin" class="field-label"><span>Phút</span></label>
+                  <select id="cfgCeremonyMin" class="select"></select>
+                </div>
+              </div>
+              <p id="ceremonyLunarPreview" class="lunar-readout"></p>
+            </div>
+          </div>
+
+          <!-- 3.4 Thông tin mừng cưới & Tải ảnh QR -->
+          <div class="sub-section">
+            <h3 id="secBankHeading" class="sub-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+              <span>Thông tin Hộp Mừng Cưới Nhà Trai</span>
+            </h3>
+
+            <div class="grid-2">
+              <div class="field-group">
+                <label for="cfgBankName" class="field-label"><span>Tên ngân hàng</span></label>
+                <input id="cfgBankName" type="text" class="input" placeholder="VD: Vietcombank — CN Hà Nội" />
+              </div>
+              <div class="field-group">
+                <label for="cfgBankAcc" class="field-label"><span>Số tài khoản (STK)</span></label>
+                <input id="cfgBankAcc" type="text" class="input" placeholder="VD: 0011 0045 67890" />
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="cfgBankOwner" class="field-label"><span>Chủ tài khoản</span></label>
+              <input id="cfgBankOwner" type="text" class="input" placeholder="VD: NGUYEN VAN NAM" />
+            </div>
+
+            <div class="field-group">
+              <span class="field-label">
+                <span>Hình ảnh mã QR chuyển khoản</span>
+                <span class="field-hint">Tải ảnh từ thư viện điện thoại</span>
+              </span>
+              <div class="qr-upload-row">
+                <div class="qr-preview-box">
+                  <img id="qrPreviewImg" class="hidden" alt="Ảnh mã QR xem trước" />
+                  <span id="qrPlaceholderTxt" class="qr-placeholder-txt">Chưa tải ảnh<br/>(Đang dùng QR mẫu)</span>
+                </div>
+                <div class="qr-upload-actions">
+                  <label for="cfgQrFileInput" class="file-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    <span>Chọn ảnh QR từ máy</span>
+                  </label>
+                  <input id="cfgQrFileInput" type="file" accept="image/*" class="hidden" />
+                  <button id="btnRemoveQr" type="button" class="btn-remove-img hidden">Xóa ảnh QR đã tải (về mẫu mặc định)</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <!-- ===== PHẦN 4. TẢI ẢNH THIỆP & ALBUM ẢNH THEO ĐÚNG VỊ TRÍ THIẾT KẾ ===== -->
+      <details id="secPhotosPanel" class="panel panel-acc">
+        <summary class="panel-acc-head">
+          <div class="panel-acc-text">
+            <p class="panel-step">Phần 4 · Hình ảnh &amp; Album cưới</p>
+            <h2 id="secPhotosTitle" class="panel-title">Tải Ảnh Thiệp &amp; Album Theo Từng Vị Trí</h2>
+            <p class="panel-acc-sub">Chạm trực tiếp vào khung ảnh để thay ảnh bìa, chân dung &amp; 7 vị trí Album</p>
+          </div>
+          <span class="panel-acc-chevron" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </span>
+        </summary>
+
+        <div class="panel-acc-body">
+          <p class="panel-desc" style="margin-bottom:14px;">Chạm trực tiếp vào từng khung ảnh bên dưới để chọn ảnh từ điện thoại thay thế đúng vị trí trên thiệp.</p>
+
+          <h3 class="sub-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <span>Ảnh bìa &amp; Ảnh chân dung nổi bật</span>
+          </h3>
+
+          <div id="featuredPhotosGrid" class="featured-photos-grid"></div>
+
+          <h3 class="sub-title" style="margin-top: 8px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m21 16-5-5L5 20"/></svg>
+            <span>Bố cục Album “Our Album” (7 vị trí như trên thiệp)</span>
+          </h3>
+
+          <div class="album-editor-stage">
+            <p class="album-editor-heading">Our Album — Chạm vào từng khung để đổi ảnh</p>
+
+            <div class="photo-slot wide" data-photo-slot="album:0"></div>
+
+            <div class="ae-row-asym">
+              <div class="ae-stack-col">
+                <div class="photo-slot square" data-photo-slot="album:1"></div>
+                <div class="photo-slot square" data-photo-slot="album:3"></div>
+              </div>
+              <div class="photo-slot fill" data-photo-slot="album:2"></div>
+            </div>
+
+            <div class="photo-slot wide" data-photo-slot="album:4"></div>
+
+            <div class="ae-row-two">
+              <div class="photo-slot tall" data-photo-slot="album:5"></div>
+              <div class="photo-slot tall" data-photo-slot="album:6"></div>
+            </div>
+          </div>
+
+          <input id="sharedPhotoInput" type="file" accept="image/*" class="hidden" />
+        </div>
+      </details>
+
+      <!-- ===== PHẦN 5. QUẢN TRỊ HỆ THỐNG, PHÂN QUYỀN USER & KẾT NỐI (CHỈ ADMIN) ===== -->
+      <details id="secAdminSystem" class="panel panel-acc admin-only-panel" data-admin-only="true">
+        <summary class="panel-acc-head">
+          <div class="panel-acc-text">
+            <p class="panel-step">Phần 5 · Chỉ dành cho Admin</p>
+            <h2 id="secAdminSystemTitle" class="panel-title">Quản Trị Hệ Thống, User &amp; Kết Nối</h2>
+            <p class="panel-acc-sub">Phân quyền Supabase (Admin/Chú rể/Cô dâu), Google Sheet Apps Script &amp; GitHub Token</p>
+          </div>
+          <span class="panel-acc-chevron" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </span>
+        </summary>
+
+        <div class="panel-acc-body">
+          <!-- 5.1 SUPABASE USER MANAGEMENT & RBAC -->
+          <details id="supabaseSetupDetails" class="sync-details" style="margin-bottom:14px;">
+            <summary>
+              <span>1. Phân quyền User &amp; Đăng nhập (Supabase)</span>
+              <span id="supabaseStatusBadge" class="sync-badge">Chưa kết nối</span>
+            </summary>
+            <div class="sync-body">
+              <ol class="sync-steps">
+                <li>Tạo dự án miễn phí tại <a href="https://supabase.com/dashboard" target="_blank" rel="noopener" class="inline-link">supabase.com ↗</a> → vào <strong>Authentication → Providers → Email</strong> → tắt mục <strong>Confirm email</strong> rồi bấm Save (để tài khoản Chú rể/Cô dâu đăng nhập được ngay không cần xác minh mail).</li>
+                <li>Bấm nút bên dưới để copy mã SQL khởi tạo bảng phân quyền → trong Supabase chọn <strong>SQL Editor → New query</strong> → dán toàn bộ và bấm <strong>Run</strong>.</li>
+                <li>Vào <strong>Project Settings → API</strong> (hoặc <strong>Connect</strong>) copy <strong>Project URL</strong> và <strong>Publishable / anon public key</strong> dán vào 2 ô bên dưới rồi bấm <strong>Kết nối Supabase</strong>:</li>
+              </ol>
+
+              <div style="margin-bottom:10px;">
+                <button id="btnCopySupabaseSql" type="button" class="btn btn-outline" style="width:100%; min-height:42px;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                  <span>Copy mã SQL khởi tạo Supabase (1 chạm)</span>
+                </button>
+              </div>
+
+              <div class="field-group" style="margin-bottom:8px;">
+                <label for="cfgSupabaseUrl" class="field-label"><span>Supabase Project URL</span></label>
+                <input id="cfgSupabaseUrl" type="url" class="input" placeholder="https://xxxxxxxxxxxx.supabase.co" autocomplete="off" />
+              </div>
+
+              <div class="field-group" style="margin-bottom:10px;">
+                <label for="cfgSupabaseAnonKey" class="field-label"><span>Supabase Publishable / Anon Key</span></label>
+                <input id="cfgSupabaseAnonKey" type="text" class="input" placeholder="sb_publishable_... hoặc eyJhbGci..." autocomplete="off" />
+              </div>
+
+              <div class="sync-actions-row">
+                <button id="btnConnectSupabase" type="button" class="btn btn-burgundy">Kết nối Supabase</button>
+                <button id="btnDisconnectSupabase" type="button" class="btn-remove-img hidden">Tắt đăng nhập Supabase</button>
+              </div>
+              <div id="supabaseConnectMsg" class="status-banner hidden" style="margin-top:8px;"></div>
+            </div>
+          </details>
+
+          <!-- Quản lý danh sách User (chỉ hiện khi đã kết nối Supabase & đăng nhập Admin) -->
+          <div id="userMgmtPanel" class="user-mgmt-box hidden">
+            <div class="user-mgmt-head">
+              <div>
+                <h3 class="sub-title" style="margin:0;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                  <span>Tạo &amp; Phân Quyền Tài Khoản</span>
+                </h3>
+                <p class="user-mgmt-sub">Tạo tài khoản riêng cho Chú rể (Nhà Trai + Chung) và Cô dâu (Nhà Gái + Chung)</p>
+              </div>
+              <button id="btnRefreshUsers" type="button" class="mini-icon-btn" title="Tải lại danh sách tài khoản" aria-label="Tải lại danh sách tài khoản">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+              </button>
+            </div>
+
+            <form id="createUserForm" class="create-user-form">
+              <div class="grid-2">
+                <div class="field-group" style="margin-bottom:0;">
+                  <label for="newUserName" class="field-label"><span>Tên hiển thị</span></label>
+                  <input id="newUserName" type="text" required class="input" placeholder="VD: Cô dâu Kim Tiến" />
+                </div>
+                <div class="field-group" style="margin-bottom:0;">
+                  <label for="newUserRole" class="field-label"><span>Vai trò (Role)</span></label>
+                  <select id="newUserRole" class="select">
+                    <option value="groom">Chú rể (Nhà Trai + Bản chung)</option>
+                    <option value="bride">Cô dâu (Nhà Gái + Bản chung)</option>
+                    <option value="admin">Admin (Toàn quyền quản trị)</option>
+                  </select>
+                </div>
+              </div>
+              <div class="grid-2">
+                <div class="field-group" style="margin-bottom:0;">
+                  <label for="newUserEmail" class="field-label"><span>Email đăng nhập</span></label>
+                  <input id="newUserEmail" type="email" required class="input" placeholder="codau@email.com" autocomplete="off" />
+                </div>
+                <div class="field-group" style="margin-bottom:0;">
+                  <label for="newUserPassword" class="field-label"><span>Mật khẩu cấp</span></label>
+                  <input id="newUserPassword" type="text" required minlength="6" class="input" placeholder="Tối thiểu 6 ký tự" autocomplete="off" />
+                </div>
+              </div>
+              <button id="btnCreateUser" type="submit" class="btn btn-gold" style="width:100%;">
+                <span>+ Tạo tài khoản &amp; Kích hoạt ngay</span>
+              </button>
+              <div id="userMgmtMsg" class="status-banner hidden" style="margin-top:4px;"></div>
+            </form>
+
+            <div id="usersListContainer" class="users-list"></div>
+          </div>
+
+          <!-- 5.2 KẾT NỐI GOOGLE SHEET (APPS SCRIPT) -->
+          <details id="sheetConnectDetails" class="sync-details" style="margin-bottom:14px;">
+            <summary>
+              <span>2. Kết nối Google Sheet (Apps Script)</span>
+              <span id="sheetStatusBadge" class="sync-badge">Chưa gắn Apps Script</span>
+            </summary>
+            <div class="sync-body">
+              <p>
+                Bảng Google Sheet quản lý khách mời:
+                <a id="sheetOpenLink" href="https://docs.google.com/spreadsheets/d/1TAM_jS1z_ugR0zEztDiA2hwzTsZK034Fkw1nUW6jzvY/edit" target="_blank" rel="noopener" class="inline-link">Mở Google Sheet Quản Lý Khách Mời ↗</a>
+              </p>
+              <ol class="sync-steps">
+                <li>Bấm nút bên dưới để copy mã kết nối → mở Google Sheet → <strong>Tiện ích mở rộng → Apps Script</strong> → dán đè toàn bộ và bấm Lưu.</li>
+                <li>Bấm <strong>Triển khai (Deploy) → Tùy chọn triển khai mới</strong> → loại <strong>Ứng dụng web</strong>, quyền truy cập: <strong>Bất kỳ ai (Anyone)</strong> → Triển khai.</li>
+                <li>Dán link <code>https://script.google.com/macros/s/.../exec</code> vào ô dưới rồi bấm <strong>Kết nối Sheet</strong>:</li>
+              </ol>
+
+              <div style="margin-bottom:10px;">
+                <button id="btnCopyGasCode" type="button" class="btn btn-outline" style="width:100%; min-height:42px;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                  <span>Copy mã Apps Script (1 chạm)</span>
+                </button>
+              </div>
+
+              <div class="sync-token-row">
+                <input id="cfgSheetApiUrl" type="url" class="input" placeholder="Dán link Apps Script (https://script.google.com/macros/s/.../exec)" autocomplete="off" />
+                <button id="btnConnectSheet" type="button" class="btn btn-burgundy">Kết nối Sheet</button>
+              </div>
+              <div id="sheetConnectMsg" class="status-banner hidden" style="margin-top:8px;"></div>
+            </div>
+          </details>
+
+          <!-- 5.3 ĐỒNG BỘ GITHUB PAGES (TOKEN LƯU BẢO MẬT TRONG SUPABASE ĐỂ CHÚ RỂ/CÔ DÂU DÙNG ÂM THẦM) -->
+          <details id="githubSyncDetails" class="sync-details">
+            <summary id="secSyncTitle">
+              <span>3. Đồng bộ lên Web (GitHub Pages Token)</span>
+              <span id="syncStatusBadge" class="sync-badge">Lưu trên máy này</span>
+            </summary>
+            <div class="sync-body">
+              <p>
+                Khi Admin kết nối GitHub Token tại đây (và đã bật Supabase), Token sẽ được lưu bảo mật trong bảng <code>app_settings</code> để <strong>Chú rể &amp; Cô dâu bấm Lưu là tự đồng bộ lên Web</strong> mà không bao giờ thấy Token hay hướng dẫn kỹ thuật.
+              </p>
+
+              <ol class="sync-steps">
+                <li>Bấm <a href="https://github.com/settings/tokens/new?scopes=repo&amp;description=thiep-cuoi-vannam-kimtien-admin" target="_blank" rel="noopener" class="inline-link">Tạo nhanh Token (đã tích sẵn quyền repo) ↗</a> → kéo xuống cuối bấm <strong>Generate token</strong> → copy mã <code>ghp_...</code> dán vào ô dưới.</li>
+              </ol>
+
+              <div class="sync-token-row">
+                <input id="ghTokenInput" type="password" class="input" placeholder="Dán GitHub Token (ghp_... hoặc github_pat_...)" autocomplete="off" />
+                <button id="btnSaveToken" type="button" class="btn btn-outline">Kết nối</button>
+              </div>
+
+              <div id="shareBrideSetupBox" class="share-bride-box hidden">
+                <p class="share-bride-title">Link dự phòng gửi Cô Dâu (khi chưa dùng Supabase)</p>
+                <p class="share-bride-desc">
+                  Nếu chưa bật đăng nhập Supabase, bạn có thể gửi nhanh link tự đồng bộ tab Nhà Gái qua Zalo. Khi đã bật Supabase, chỉ cần gửi tài khoản Email/Mật khẩu cho Cô dâu &amp; Chú rể!
+                </p>
+                <button id="btnCopyBrideSetupLink" type="button" class="btn btn-gold" style="width:100%;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                  <span>Copy link cấu hình nhanh Nhà Gái</span>
+                </button>
+                <p class="share-bride-warn">⚠️ Không gửi link này cho khách mời.</p>
+              </div>
+
+              <div class="sync-actions-row">
+                <button id="btnClearToken" type="button" class="btn-remove-img hidden">Ngắt kết nối Token trên máy này</button>
+                <button id="btnDownloadConfigJson" type="button" class="btn-ghost-link" style="margin-top:0;">Tải file config.json dự phòng</button>
+              </div>
+            </div>
+          </details>
+        </div>
+      </details>
+
+      <!-- Thông báo trạng thái Lưu toàn cục (hiển thị cho mọi vai trò) -->
       <div id="saveStatusBanner" class="status-banner hidden" role="status"></div>
-    </section>
+
+    </div>
 
   </main>
 
   <!-- ===== STICKY SAVE ACTION BAR ===== -->
-  <div class="sticky-save-bar">
+  <div id="stickySaveBar" class="sticky-save-bar">
     <div class="sticky-save-inner">
-      <button id="btnResetDefaults" type="button" class="btn btn-outline" title="Khôi phục giá trị mặc định ban đầu">Mặc định</button>
+      <button id="btnResetDefaults" data-admin-only="true" type="button" class="btn btn-outline" title="Khôi phục giá trị mặc định ban đầu">Mặc định</button>
       <button id="btnSaveAllConfig" type="button" class="btn btn-burgundy">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
         <span id="btnSaveLabel">Lưu cấu hình thiệp</span>
@@ -492,7 +683,8 @@
   <!-- TOAST -->
   <div id="toast" class="toast hidden"></div>
 
-  <script src="../assets/wedding-store.js?v=20261121"></script>
-  <script src="../assets/admin.js?v=20261121"></script>
+  <script src="../assets/wedding-store.js?v=20261122"></script>
+  <script src="../assets/supabase-auth.js?v=20261122"></script>
+  <script src="../assets/admin.js?v=20261122"></script>
 </body>
 </html>

@@ -11,6 +11,7 @@
   'use strict';
 
   const WS = window.WeddingStore;
+  const SB = window.WeddingSupabase;
   const BASE = '..';
   const HISTORY_KEY = 'thiep_cuoi_guest_link_history_v1';
   const GH_TOKEN_KEY = 'thiep_cuoi_gh_token_v1';
@@ -18,12 +19,12 @@
   const $ = (id) => document.getElementById(id);
 
   const FEATURED_SLOTS = [
-    { key: 'hero', label: 'Ảnh bìa đầu trang (Hero)', sub: 'Khung mở đầu toàn màn hình' },
-    { key: 'interlude', label: 'Ảnh “Forever & Always”', sub: 'Ảnh ngang dưới phong bì' },
-    { key: 'polaroidGroom', label: 'Ảnh Polaroid Chú Rể', sub: 'Khung “The Groom”' },
-    { key: 'polaroidBride', label: 'Ảnh Polaroid Cô Dâu', sub: 'Khung “The Bride”' },
-    { key: 'vinylLabel', label: 'Ảnh tâm đĩa nhạc Vinyl', sub: 'Ảnh tròn giữa đĩa nhạc' },
-    { key: 'footerBg', label: 'Ảnh nền lời cảm ơn', sub: 'Ảnh nền mục “Thank you!”' }
+    { key: 'hero', label: 'Ảnh bìa đầu trang (Hero)', sub: 'Khung mở đầu toàn màn hình', scope: 'both' },
+    { key: 'interlude', label: 'Ảnh “Forever & Always”', sub: 'Ảnh ngang dưới phong bì', scope: 'both' },
+    { key: 'polaroidGroom', label: 'Ảnh Polaroid Chú Rể', sub: 'Khung “The Groom”', scope: 'groom' },
+    { key: 'polaroidBride', label: 'Ảnh Polaroid Cô Dâu', sub: 'Khung “The Bride”', scope: 'bride' },
+    { key: 'vinylLabel', label: 'Ảnh tâm đĩa nhạc Vinyl', sub: 'Ảnh tròn giữa đĩa nhạc', scope: 'both' },
+    { key: 'footerBg', label: 'Ảnh nền lời cảm ơn', sub: 'Ảnh nền mục “Thank you!”', scope: 'both' }
   ];
 
   const ALBUM_LABELS = [
@@ -45,9 +46,19 @@
     groom: false,
     bride: false,
     sheet: false,
+    supabase: false,
     photoKeys: new Set(),
     albumIndices: new Set(),
     forceFullReplace: false
+  };
+
+  let authState = {
+    mode: 'open_admin', // 'open_admin' | 'login_required' | 'authenticated'
+    role: 'admin',      // 'admin' | 'groom' | 'bride'
+    session: null,
+    profile: null,
+    remoteGhToken: '',
+    firstAdminRegMode: false
   };
 
   const DB_PAGE_SIZE = 10;
@@ -63,7 +74,13 @@
   let dbSearchTimer = null;
 
   function resetDirty() {
-    dirty = { groom: false, bride: false, sheet: false, photoKeys: new Set(), albumIndices: new Set(), forceFullReplace: false };
+    dirty = { groom: false, bride: false, sheet: false, supabase: false, photoKeys: new Set(), albumIndices: new Set(), forceFullReplace: false };
+  }
+
+  function getRoleScope() {
+    if (authState.role === 'groom') return 'groom';
+    if (authState.role === 'bride') return 'bride';
+    return 'all';
   }
 
   function encodeTokenHash(tok) {
@@ -173,8 +190,14 @@
     } catch (_) {}
   }
 
+  function isLinkSideAllowed(side) {
+    if (authState.role === 'groom') return side === 'nha-trai' || side === 'both';
+    if (authState.role === 'bride') return side === 'nha-gai' || side === 'both';
+    return true;
+  }
+
   function renderHistory() {
-    const list = loadHistory();
+    const list = loadHistory().filter((item) => isLinkSideAllowed(item.side));
     const wrap = $('linkHistoryWrap');
     const container = $('linkHistoryList');
     if (!list.length) {
@@ -182,7 +205,7 @@
       return;
     }
     wrap.classList.remove('hidden');
-    container.innerHTML = list.map((item, idx) => {
+    container.innerHTML = list.map((item) => {
       const sideLabel = item.side === 'nha-trai' ? 'Nhà Trai' : (item.side === 'nha-gai' ? 'Nhà Gái' : 'Bản 2 họ');
       return `
         <div class="history-item">
@@ -191,7 +214,7 @@
             <div class="history-sub">${escHtml(item.url)}</div>
           </div>
           <div class="history-actions">
-            <button type="button" class="mini-icon-btn" data-hist-copy="${idx}" title="Copy link" aria-label="Copy link">${COPY_SVG}</button>
+            <button type="button" class="mini-icon-btn" data-hist-url="${escHtml(item.url)}" data-hist-guest="${escHtml(item.guest)}" title="Copy link" aria-label="Copy link">${COPY_SVG}</button>
             <a href="${escHtml(item.url)}" target="_blank" rel="noopener" class="mini-icon-btn" title="Mở thiệp" aria-label="Mở thiệp">${EXT_SVG}</a>
           </div>
         </div>
@@ -200,6 +223,10 @@
   }
 
   function generateGuestLink(side) {
+    if (!isLinkSideAllowed(side)) {
+      showToast('Tài khoản của bạn không có quyền tạo link phía nhà còn lại.');
+      return;
+    }
     const name = $('guestNameInput').value.trim();
     if (!name) {
       showToast('Vui lòng nhập tên khách mời trước khi tạo link!');
@@ -259,7 +286,8 @@
     $('guestNameInput').addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
-        generateGuestLink(lastSideCreated);
+        const fallbackSide = authState.role === 'bride' ? 'nha-gai' : 'nha-trai';
+        generateGuestLink(isLinkSideAllowed(lastSideCreated) ? lastSideCreated : fallbackSide);
       }
     });
 
@@ -283,14 +311,14 @@
     });
 
     $('linkHistoryList').addEventListener('click', (e) => {
-      const btn = e.target.closest('[data-hist-copy]');
+      const btn = e.target.closest('[data-hist-url]');
       if (!btn) return;
-      const idx = parseInt(btn.dataset.histCopy, 10);
-      const item = loadHistory()[idx];
-      if (!item) return;
-      copyText(item.url).then(() => {
+      const url = btn.dataset.histUrl;
+      const guest = btn.dataset.histGuest || '';
+      if (!url) return;
+      copyText(url).then(() => {
         btn.innerHTML = CHECK_SVG;
-        showToast(`Đã copy link của ${item.guest}!`);
+        showToast(`Đã copy link của ${guest}!`);
         setTimeout(() => { btn.innerHTML = COPY_SVG; }, 1400);
       });
     });
@@ -588,8 +616,13 @@
 
   function renderAllPhotoSlots() {
     const featGrid = $('featuredPhotosGrid');
-    featGrid.innerHTML = FEATURED_SLOTS.map((s) => `<div class="photo-slot" data-photo-slot="${s.key}"></div>`).join('');
-    FEATURED_SLOTS.forEach((s) => {
+    const visibleFeatured = FEATURED_SLOTS.filter((s) => {
+      if (authState.role === 'groom' && s.scope === 'bride') return false;
+      if (authState.role === 'bride' && s.scope === 'groom') return false;
+      return true;
+    });
+    featGrid.innerHTML = visibleFeatured.map((s) => `<div class="photo-slot" data-photo-slot="${s.key}"></div>`).join('');
+    visibleFeatured.forEach((s) => {
       const el = featGrid.querySelector(`[data-photo-slot="${s.key}"]`);
       if (el) renderSlotInner(el, s.key, s.label, s.sub);
     });
@@ -646,18 +679,32 @@
     try { return (localStorage.getItem(GH_TOKEN_KEY) || '').trim(); } catch (_) { return ''; }
   }
 
+  function getEffectiveToken() {
+    if (authState.role === 'admin') {
+      return getSavedToken() || authState.remoteGhToken || '';
+    }
+    // Groom & Bride silently use protected token from Supabase app_settings (never exposed in UI)
+    return authState.remoteGhToken || getSavedToken() || '';
+  }
+
   function updateSyncBadge() {
-    const hasToken = Boolean(getSavedToken());
+    const hasLocalToken = Boolean(getSavedToken());
+    const hasEffectiveToken = Boolean(getEffectiveToken());
     const badge = $('syncStatusBadge');
-    badge.textContent = hasToken ? 'Đã kết nối GitHub' : 'Lưu trên máy này';
-    badge.classList.toggle('connected', hasToken);
-    $('btnClearToken').classList.toggle('hidden', !hasToken);
-    $('shareBrideSetupBox').classList.toggle('hidden', !hasToken);
-    $('btnSaveLabel').textContent = hasToken ? 'Lưu & Cập nhật lên Web' : 'Lưu cấu hình thiệp';
+    if (badge) {
+      badge.textContent = hasEffectiveToken ? 'Đã kết nối GitHub' : 'Lưu trên máy này';
+      badge.classList.toggle('connected', hasEffectiveToken);
+    }
+    $('btnClearToken')?.classList.toggle('hidden', !hasLocalToken);
+    $('shareBrideSetupBox')?.classList.toggle('hidden', !hasLocalToken);
+    if ($('btnSaveLabel')) {
+      $('btnSaveLabel').textContent = hasEffectiveToken ? 'Lưu & Cập nhật lên Web' : 'Lưu cấu hình thiệp';
+    }
   }
 
   function setStatusBanner(type, htmlMsg) {
     const el = $('saveStatusBanner');
+    if (!el) return;
     el.className = `status-banner ${type}`;
     el.innerHTML = htmlMsg;
     el.classList.remove('hidden');
@@ -687,10 +734,11 @@
 
   function initSaveAndSync() {
     const savedTok = getSavedToken();
-    if (savedTok) $('ghTokenInput').value = savedTok;
+    if (savedTok && $('ghTokenInput')) $('ghTokenInput').value = savedTok;
     updateSyncBadge();
 
-    $('btnSaveToken').addEventListener('click', async () => {
+    $('btnSaveToken')?.addEventListener('click', async () => {
+      if (authState.role !== 'admin') return;
       const tok = $('ghTokenInput').value.trim();
       if (!tok) {
         showToast('Vui lòng dán GitHub Token trước khi kết nối!');
@@ -702,10 +750,23 @@
       try {
         await WS.verifyGitHubToken(tok);
         try { localStorage.setItem(GH_TOKEN_KEY, tok); } catch (_) {}
+        authState.remoteGhToken = tok;
+
+        // If Supabase is active & logged in as Admin, store token securely in app_settings so Groom/Bride auto-sync silently
+        let savedToCloud = false;
+        if (SB && SB.isConfigured(draft) && authState.session && authState.role === 'admin') {
+          try {
+            await SB.setAppSetting(draft, authState.session, 'github_token', tok);
+            savedToCloud = true;
+          } catch (_) {}
+        }
+
         updateSyncBadge();
         setStatusBanner(
           'ok',
-          '✅ Kết nối GitHub thành công! Từ giờ mỗi lần bấm <strong>Lưu &amp; Cập nhật lên Web</strong>, thiệp sẽ tự đồng bộ cho tất cả khách mời. Bạn có thể bấm nút <strong>Copy link gửi Cô Dâu</strong> ngay ở trên để gửi qua Zalo cho cô dâu tự sửa tab Nhà Gái!'
+          savedToCloud
+            ? '✅ Kết nối GitHub thành công &amp; đã đồng bộ bảo mật vào Supabase! Từ giờ cả <strong>Admin, Chú rể và Cô dâu</strong> chỉ cần bấm <strong>Lưu &amp; Cập nhật lên Web</strong> là tự xuất bản mà không cần nhập Token.'
+            : '✅ Kết nối GitHub thành công! Từ giờ mỗi lần bấm <strong>Lưu &amp; Cập nhật lên Web</strong>, thiệp sẽ tự đồng bộ cho tất cả khách mời.'
         );
         showToast('Kết nối GitHub thành công!');
       } catch (err) {
@@ -717,7 +778,8 @@
       }
     });
 
-    $('btnCopyBrideSetupLink').addEventListener('click', () => {
+    $('btnCopyBrideSetupLink')?.addEventListener('click', () => {
+      if (authState.role !== 'admin') return;
       const tok = getSavedToken();
       if (!tok) {
         showToast('Vui lòng kết nối GitHub Token trước!');
@@ -730,14 +792,16 @@
       });
     });
 
-    $('btnClearToken').addEventListener('click', () => {
+    $('btnClearToken')?.addEventListener('click', () => {
+      if (authState.role !== 'admin') return;
       try { localStorage.removeItem(GH_TOKEN_KEY); } catch (_) {}
       $('ghTokenInput').value = '';
       updateSyncBadge();
       showToast('Đã ngắt kết nối GitHub Token khỏi máy này');
     });
 
-    $('btnDownloadConfigJson').addEventListener('click', () => {
+    $('btnDownloadConfigJson')?.addEventListener('click', () => {
+      if (authState.role !== 'admin') return;
       const exportData = WS.mergeConfig(draft);
       exportData.updatedAt = Date.now();
       const blob = new Blob([JSON.stringify(exportData, null, 2) + '\n'], { type: 'application/json' });
@@ -750,7 +814,8 @@
       showToast('Đã tải xuống file config.json!');
     });
 
-    $('btnResetDefaults').addEventListener('click', async () => {
+    $('btnResetDefaults')?.addEventListener('click', async () => {
+      if (authState.role !== 'admin') return;
       const ok = window.confirm('Khôi phục toàn bộ thông tin & hình ảnh về giá trị mặc định ban đầu của thiệp?');
       if (!ok) return;
       draft = WS.clone(WS.DEFAULT_CONFIG);
@@ -759,6 +824,7 @@
       loadSideToForm(activeSide);
       renderAllPhotoSlots();
       syncSheetConnectionUI();
+      syncSupabaseConnectionUI();
       loadGuestDb(1);
       setStatusBanner('warn', 'Đã khôi phục toàn bộ thông tin về giá trị mặc định ban đầu. Bấm <strong>Lưu &amp; Cập nhật lên Web</strong> nếu bạn muốn xuất bản bản mặc định cho mọi khách mời.');
       showToast('Đã khôi phục về mặc định!');
@@ -767,7 +833,8 @@
     $('btnSaveAllConfig').addEventListener('click', async () => {
       const saveBtn = $('btnSaveAllConfig');
       const labelEl = $('btnSaveLabel');
-      const token = getSavedToken();
+      const token = getEffectiveToken();
+      const isAdmin = authState.role === 'admin';
 
       saveBtn.disabled = true;
       labelEl.textContent = 'Đang lưu...';
@@ -777,12 +844,21 @@
         await WS.saveLocalConfig(draft);
 
         if (token) {
-          const hasAnyDirty = dirty.groom || dirty.bride || dirty.sheet || dirty.photoKeys.size > 0 || dirty.albumIndices.size > 0;
+          // Enforce role-strict dirty flags so Groom can never touch Bride & Bride can never touch Groom
+          const allowGroom = isAdmin || authState.role === 'groom';
+          const allowBride = isAdmin || authState.role === 'bride';
+          const dirtyGroom = allowGroom && dirty.groom;
+          const dirtyBride = allowBride && dirty.bride;
+          const dirtySheet = isAdmin && dirty.sheet;
+          const dirtySupabase = isAdmin && dirty.supabase;
+
+          const hasAnyDirty = dirtyGroom || dirtyBride || dirtySheet || dirtySupabase || dirty.photoKeys.size > 0 || dirty.albumIndices.size > 0;
           const dirtyPayload = hasAnyDirty
             ? {
-                groom: dirty.groom,
-                bride: dirty.bride,
-                sheet: dirty.sheet,
+                groom: dirtyGroom,
+                bride: dirtyBride,
+                sheet: dirtySheet,
+                supabase: dirtySupabase,
                 photoKeys: Array.from(dirty.photoKeys),
                 albumIndices: Array.from(dirty.albumIndices)
               }
@@ -791,32 +867,61 @@
           const { config: published } = await WS.publishConfigToGitHub(draft, {
             token,
             dirty: dirtyPayload,
-            forceFullReplace: dirty.forceFullReplace,
-            onProgress: (step) => { labelEl.textContent = step; }
+            forceFullReplace: isAdmin && dirty.forceFullReplace,
+            onProgress: (step) => {
+              labelEl.textContent = isAdmin ? step : 'Đang cập nhật lên thiệp cưới...';
+            }
           });
           draft = published;
           resetDirty();
           loadSideToForm(activeSide);
           renderAllPhotoSlots();
           syncSheetConnectionUI();
-          setStatusBanner(
-            'ok',
-            '✅ Đã lưu và đồng bộ trực tiếp lên <strong>GitHub</strong>! Cả 3 đường dẫn (<a href="../nha-trai/" target="_blank" style="text-decoration:underline;">Nhà Trai</a>, <a href="../nha-gai/" target="_blank" style="text-decoration:underline;">Nhà Gái</a>, <a href="../" target="_blank" style="text-decoration:underline;">Bản chung</a>) đã cập nhật ngay trên máy này và mọi khách mời sẽ xem được bản mới nhất sau ~30 giây.'
-          );
-          showToast('Đã lưu & đồng bộ lên GitHub thành công!');
+          syncSupabaseConnectionUI();
+
+          if (isAdmin) {
+            setStatusBanner(
+              'ok',
+              '✅ Đã lưu và đồng bộ trực tiếp lên <strong>GitHub</strong>! Cả 3 đường dẫn (<a href="../nha-trai/" target="_blank" style="text-decoration:underline;">Nhà Trai</a>, <a href="../nha-gai/" target="_blank" style="text-decoration:underline;">Nhà Gái</a>, <a href="../" target="_blank" style="text-decoration:underline;">Bản chung</a>) đã cập nhật ngay trên máy này và mọi khách mời sẽ xem được bản mới nhất sau ~30 giây.'
+            );
+            showToast('Đã lưu & đồng bộ lên GitHub thành công!');
+          } else {
+            const ownLink = authState.role === 'groom'
+              ? '<a href="../nha-trai/" target="_blank" style="text-decoration:underline;">Thiệp Nhà Trai</a> · <a href="../" target="_blank" style="text-decoration:underline;">Bản chung</a>'
+              : '<a href="../nha-gai/" target="_blank" style="text-decoration:underline;">Thiệp Nhà Gái</a> · <a href="../" target="_blank" style="text-decoration:underline;">Bản chung</a>';
+            setStatusBanner(
+              'ok',
+              `✅ <strong>Đã lưu và cập nhật thiệp cưới thành công!</strong> Mở xem ngay: ${ownLink} (mọi khách mời sẽ thấy bản mới nhất sau ~30 giây).`
+            );
+            showToast('Đã lưu & cập nhật thiệp cưới thành công!');
+          }
         } else {
-          setStatusBanner(
-            'ok',
-            '✅ Đã lưu cấu hình thành công trên máy này! Mở xem ngay: <a href="../nha-trai/" target="_blank" style="text-decoration:underline;">Thiệp Nhà Trai</a> · <a href="../nha-gai/" target="_blank" style="text-decoration:underline;">Thiệp Nhà Gái</a> · <a href="../" target="_blank" style="text-decoration:underline;">Bản chung (2 họ)</a>.<br/><span style="font-weight:500; color:var(--muted);">Để mọi khách mời trên điện thoại khác đều thấy thay đổi mới, hãy kết nối GitHub Token ở mục <strong>Đồng bộ lên Web</strong> bên trên (1 lần duy nhất).</span>'
-          );
-          showToast('Đã lưu cấu hình cho cả 3 link thiệp!');
+          if (isAdmin) {
+            setStatusBanner(
+              'ok',
+              '✅ Đã lưu cấu hình thành công trên máy này!<br/><span style="font-weight:500; color:var(--muted);">Để mọi khách mời trên điện thoại khác đều thấy thay đổi mới, hãy mở <strong>Phần 5 → Đồng bộ lên Web</strong> và kết nối GitHub Token (1 lần duy nhất).</span>'
+            );
+          } else {
+            setStatusBanner(
+              'ok',
+              '✅ Đã lưu cấu hình tạm trên máy này. Hãy báo quản trị viên (Admin) bật đồng bộ Web để cập nhật công khai cho khách mời.'
+            );
+          }
+          showToast('Đã lưu cấu hình thiệp!');
         }
       } catch (err) {
-        setStatusBanner(
-          'err',
-          `⚠️ Đã lưu xem trước trên máy này, nhưng đồng bộ lên GitHub gặp lỗi: <strong>${escHtml(err.message)}</strong>. Vui lòng kiểm tra lại GitHub Token.`
-        );
-        showToast('Lưu máy thành công, lỗi đồng bộ GitHub!');
+        if (isAdmin) {
+          setStatusBanner(
+            'err',
+            `⚠️ Đã lưu xem trước trên máy này, nhưng đồng bộ lên GitHub gặp lỗi: <strong>${escHtml(err.message)}</strong>. Vui lòng kiểm tra lại GitHub Token.`
+          );
+        } else {
+          setStatusBanner(
+            'err',
+            '⚠️ Đã lưu tạm trên máy này nhưng tạm thời chưa cập nhật được lên mạng. Vui lòng thử lại sau ít phút hoặc báo Admin kiểm tra.'
+          );
+        }
+        showToast('Có lỗi khi cập nhật lên Web!');
       } finally {
         saveBtn.disabled = false;
         updateSyncBadge();
@@ -865,12 +970,23 @@
   function renderGuestStats(stats) {
     const s = stats || {};
     if ($('statTotal')) $('statTotal').textContent = String(s.total || 0);
+    if ($('accGuestCountPill')) $('accGuestCountPill').textContent = String(s.total || 0);
     if ($('statTypeSplit')) $('statTypeSplit').textContent = `${s.named || 0} riêng · ${s.walkin || 0} vãng lai`;
     if ($('statViewed')) $('statViewed').textContent = String(s.viewed || 0);
     if ($('statUnviewed')) $('statUnviewed').textContent = `${s.unviewed || 0} chưa mở`;
     if ($('statAttending')) $('statAttending').textContent = String(s.attending || 0);
     if ($('statEstPeople')) $('statEstPeople').textContent = `~${s.estPeople || 0} khách dự kiến`;
-    if ($('statSideSplit')) $('statSideSplit').textContent = `${s.groom || 0} / ${s.bride || 0}`;
+
+    if (authState.role === 'groom') {
+      if ($('statSideSplitLbl')) $('statSideSplitLbl').textContent = 'Trai / Chung';
+      if ($('statSideSplit')) $('statSideSplit').textContent = `${s.groom || 0} / ${s.both || 0}`;
+    } else if (authState.role === 'bride') {
+      if ($('statSideSplitLbl')) $('statSideSplitLbl').textContent = 'Gái / Chung';
+      if ($('statSideSplit')) $('statSideSplit').textContent = `${s.bride || 0} / ${s.both || 0}`;
+    } else {
+      if ($('statSideSplitLbl')) $('statSideSplitLbl').textContent = 'Nhà Trai / Gái';
+      if ($('statSideSplit')) $('statSideSplit').textContent = `${s.groom || 0} / ${s.bride || 0}`;
+    }
     if ($('statDeclined')) $('statDeclined').textContent = `${s.declined || 0} báo bận`;
   }
 
@@ -899,12 +1015,15 @@
 
     const noteEl = $('dbSourceNote');
     if (noteEl) {
-      if (res.source === 'google_sheet') {
+      if (authState.role !== 'admin') {
+        const scopeLabel = authState.role === 'groom' ? 'Nhà Trai &amp; Bản chung' : 'Nhà Gái &amp; Bản chung';
+        noteEl.innerHTML = `🟢 Đang hiển thị danh sách khách mời thuộc <strong>${scopeLabel}</strong> (${res.stats?.total || 0} bản ghi · tự động cập nhật khi khách mở thiệp hoặc xác nhận).`;
+      } else if (res.source === 'google_sheet') {
         noteEl.innerHTML = `🟢 Đang tra cứu trực tiếp từ <strong>Google Sheet</strong> (${res.stats?.total || 0} bản ghi · tự động ghi nhận từ cả 3 link thiệp).`;
       } else if (fallbackErrorMsg) {
         noteEl.innerHTML = `⚠️ Không kết nối được Google Sheet (${escHtml(fallbackErrorMsg)}). Đang hiển thị tạm dữ liệu lưu trên máy này.`;
       } else {
-        noteEl.innerHTML = '🟡 Đang tra cứu dữ liệu lưu tạm trên máy này. Hãy mở mục <strong>Kết nối Google Sheet</strong> phía trên và dán link Apps Script để đồng bộ realtime mọi khách mời vào Google Sheet.';
+        noteEl.innerHTML = '🟡 Đang tra cứu dữ liệu lưu tạm trên máy này. Hãy mở <strong>Phần 5 → Kết nối Google Sheet</strong> để đồng bộ realtime vào Google Sheet.';
       }
     }
 
@@ -1014,12 +1133,14 @@
   }
 
   async function loadGuestDb(targetPage) {
+    if (authState.mode === 'login_required') return;
     const reqId = ++dbRequestSeq;
     if (typeof targetPage === 'number' && !Number.isNaN(targetPage)) {
       dbState.page = Math.max(1, targetPage);
     }
 
     const queryParams = {
+      scope: getRoleScope(),
       side: dbState.side,
       type: dbState.type,
       viewed: dbState.viewed,
@@ -1031,7 +1152,7 @@
 
     const apiUrl = String(draft.sheetApiUrl || '').trim();
     if (apiUrl && $('guestDbList') && !$('guestDbList').children.length) {
-      $('guestDbList').innerHTML = '<div class="guest-db-empty">Đang tải danh sách khách mời từ Google Sheet...</div>';
+      $('guestDbList').innerHTML = '<div class="guest-db-empty">Đang tải danh sách khách mời...</div>';
     }
 
     try {
@@ -1050,14 +1171,14 @@
   }
 
   function initGuestDatabase() {
-    // 1. Side filter tabs (Tất cả / Nhà Trai / Nhà Gái / Bản chung)
-    document.querySelectorAll('[data-db-side]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('[data-db-side]').forEach((b) => b.classList.remove('active'));
-        btn.classList.add('active');
-        dbState.side = btn.dataset.dbSide || 'all';
-        loadGuestDb(1);
-      });
+    // 1. Side filter tabs (delegated so dynamic role tabs work cleanly)
+    $('dbSideTabs')?.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-db-side]');
+      if (!btn) return;
+      $('dbSideTabs').querySelectorAll('[data-db-side]').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      dbState.side = btn.dataset.dbSide || 'all';
+      loadGuestDb(1);
     });
 
     // 2. Dropdown filters
@@ -1123,8 +1244,9 @@
       });
     });
 
-    // 7. Copy Google Apps Script source code (1-click)
+    // 7. Copy Google Apps Script source code (1-click, Admin only)
     $('btnCopyGasCode')?.addEventListener('click', async () => {
+      if (authState.role !== 'admin') return;
       const btn = $('btnCopyGasCode');
       btn.disabled = true;
       try {
@@ -1141,8 +1263,9 @@
       }
     });
 
-    // 8. Connect Google Apps Script Web App URL
+    // 8. Connect Google Apps Script Web App URL (Admin only)
     $('btnConnectSheet')?.addEventListener('click', async () => {
+      if (authState.role !== 'admin') return;
       const input = $('cfgSheetApiUrl');
       const btn = $('btnConnectSheet');
       const url = (input?.value || '').trim();
@@ -1181,12 +1304,12 @@
         await WS.saveLocalConfig(draft);
         syncSheetConnectionUI();
 
-        const tok = getSavedToken();
+        const tok = getEffectiveToken();
         if (tok) {
           btn.textContent = 'Đang đồng bộ Web...';
           const { config: published } = await WS.publishConfigToGitHub(draft, {
             token: tok,
-            dirty: { groom: false, bride: false, sheet: true, photoKeys: [], albumIndices: [] }
+            dirty: { groom: false, bride: false, sheet: true, supabase: false, photoKeys: [], albumIndices: [] }
           });
           draft = published;
           dirty.sheet = false;
@@ -1218,6 +1341,632 @@
   }
 
   /* =========================================================================
+     6. SUPABASE AUTH, ROLE-BASED PERMISSIONS (ADMIN / GROOM / BRIDE) & USER CRUD
+     ========================================================================= */
+  function collapseAllMajorPanels() {
+    document.querySelectorAll('details.panel-acc').forEach((d) => {
+      d.removeAttribute('open');
+    });
+  }
+
+  function setAuthGateMsg(type, html) {
+    const el = $('authGateMsg');
+    if (!el) return;
+    if (!html) {
+      el.classList.add('hidden');
+      el.innerHTML = '';
+      return;
+    }
+    el.className = `status-banner ${type}`;
+    el.innerHTML = html;
+    el.classList.remove('hidden');
+  }
+
+  function setSupabaseConnectMsg(type, html) {
+    const el = $('supabaseConnectMsg');
+    if (!el) return;
+    if (!html) {
+      el.classList.add('hidden');
+      el.innerHTML = '';
+      return;
+    }
+    el.className = `status-banner ${type}`;
+    el.innerHTML = html;
+    el.classList.remove('hidden');
+  }
+
+  function setUserMgmtMsg(type, html) {
+    const el = $('userMgmtMsg');
+    if (!el) return;
+    if (!html) {
+      el.classList.add('hidden');
+      el.innerHTML = '';
+      return;
+    }
+    el.className = `status-banner ${type}`;
+    el.innerHTML = html;
+    el.classList.remove('hidden');
+  }
+
+  function syncSupabaseConnectionUI() {
+    const configured = SB && SB.isConfigured(draft);
+    if ($('cfgSupabaseUrl')) $('cfgSupabaseUrl').value = draft.supabaseUrl || '';
+    if ($('cfgSupabaseAnonKey')) $('cfgSupabaseAnonKey').value = draft.supabaseAnonKey || '';
+
+    const badge = $('supabaseStatusBadge');
+    if (badge) {
+      badge.textContent = configured ? 'Đã kết nối Supabase' : 'Chưa kết nối';
+      badge.classList.toggle('connected', Boolean(configured));
+    }
+    $('btnDisconnectSupabase')?.classList.toggle('hidden', !configured);
+
+    const canManageUsers = Boolean(configured && authState.mode === 'authenticated' && authState.role === 'admin' && authState.session);
+    $('userMgmtPanel')?.classList.toggle('hidden', !canManageUsers);
+  }
+
+  function renderSessionBar() {
+    const bar = $('sessionBar');
+    const pill = $('sessionRolePill');
+    const nameEl = $('sessionUserName');
+    const btnSignOut = $('btnSignOut');
+    const btnQuickSb = $('btnOpenSupabaseQuick');
+    if (!bar) return;
+
+    if (authState.mode === 'login_required') {
+      bar.classList.add('hidden');
+      return;
+    }
+
+    bar.classList.remove('hidden');
+    if (authState.mode === 'open_admin') {
+      pill.className = 'role-pill admin';
+      pill.textContent = 'Admin';
+      nameEl.textContent = 'Chưa bật đăng nhập';
+      btnSignOut?.classList.add('hidden');
+      btnQuickSb?.classList.remove('hidden');
+      return;
+    }
+
+    const roleMap = {
+      admin: { cls: 'admin', label: 'Admin' },
+      groom: { cls: 'groom', label: 'Chú rể' },
+      bride: { cls: 'bride', label: 'Cô dâu' }
+    };
+    const r = roleMap[authState.role] || roleMap.groom;
+    pill.className = `role-pill ${r.cls}`;
+    pill.textContent = r.label;
+    nameEl.textContent = authState.profile?.full_name || authState.profile?.email || r.label;
+    btnSignOut?.classList.remove('hidden');
+    btnQuickSb?.classList.add('hidden');
+  }
+
+  function renderScopedDbSideTabs(role) {
+    const container = $('dbSideTabs');
+    if (!container) return;
+    if (role === 'groom') {
+      container.classList.add('cols-3');
+      container.innerHTML = `
+        <button type="button" class="db-side-tab active" data-db-side="groom_both">Tất cả</button>
+        <button type="button" class="db-side-tab" data-db-side="groom">Nhà Trai</button>
+        <button type="button" class="db-side-tab" data-db-side="both">Bản chung</button>
+      `;
+      dbState.side = 'groom_both';
+    } else if (role === 'bride') {
+      container.classList.add('cols-3');
+      container.innerHTML = `
+        <button type="button" class="db-side-tab active" data-db-side="bride_both">Tất cả</button>
+        <button type="button" class="db-side-tab" data-db-side="bride">Nhà Gái</button>
+        <button type="button" class="db-side-tab" data-db-side="both">Bản chung</button>
+      `;
+      dbState.side = 'bride_both';
+    } else {
+      container.classList.remove('cols-3');
+      container.innerHTML = `
+        <button type="button" class="db-side-tab active" data-db-side="all">Tất cả</button>
+        <button type="button" class="db-side-tab" data-db-side="groom">Nhà Trai</button>
+        <button type="button" class="db-side-tab" data-db-side="bride">Nhà Gái</button>
+        <button type="button" class="db-side-tab" data-db-side="both">Bản chung</button>
+      `;
+      dbState.side = 'all';
+    }
+  }
+
+  function applyRolePermissions(preferredTab) {
+    const role = authState.role;
+    const isAdmin = role === 'admin';
+    const isGroom = role === 'groom';
+    const isBride = role === 'bride';
+
+    // 1. Toggle Auth Gate vs Workspace
+    const showLogin = authState.mode === 'login_required';
+    $('authGateSection')?.classList.toggle('hidden', !showLogin);
+    $('studioWorkspace')?.classList.toggle('hidden', showLogin);
+    $('stickySaveBar')?.classList.toggle('hidden', showLogin);
+    $('quickPreviewRow')?.classList.toggle('hidden', showLogin);
+
+    renderSessionBar();
+    if (showLogin) return;
+
+    // 2. Admin-only elements (Phần 5, Reset Defaults, Raw Google Sheet link...)
+    document.querySelectorAll('[data-admin-only="true"]').forEach((el) => {
+      el.classList.toggle('hidden', !isAdmin);
+    });
+
+    // 3. Header Quick Preview Links
+    document.querySelectorAll('[data-preview-side]').forEach((a) => {
+      const s = a.dataset.previewSide;
+      const allowed = isAdmin || s === 'both' || (isGroom && s === 'groom') || (isBride && s === 'bride');
+      a.classList.toggle('hidden', !allowed);
+    });
+
+    // 4. Phần 1: Guest Link Generator buttons & description
+    $('btnCreateGroomLink')?.classList.toggle('hidden', isBride);
+    $('btnCreateBrideLink')?.classList.toggle('hidden', isGroom);
+    $('linkBtnRow')?.classList.toggle('single-col', isGroom || isBride);
+    if (isGroom) {
+      lastSideCreated = 'nha-trai';
+      if ($('linkGenDesc')) $('linkGenDesc').textContent = 'Nhập tên khách mời để tạo link thiệp Nhà Trai hoặc bản chung (2 họ). Tên khách sẽ tự hiển thị trang trọng trên thiệp.';
+    } else if (isBride) {
+      lastSideCreated = 'nha-gai';
+      if ($('linkGenDesc')) $('linkGenDesc').textContent = 'Nhập tên khách mời để tạo link thiệp Nhà Gái hoặc bản chung (2 họ). Tên khách sẽ tự hiển thị trang trọng trên thiệp.';
+    } else {
+      if ($('linkGenDesc')) $('linkGenDesc').textContent = 'Nhập tên khách muốn mời rồi chọn Nhà Trai, Nhà Gái hoặc bản chung. Tên khách sẽ tự động hiển thị trang trọng trên thiệp.';
+    }
+    $('linkResultBox')?.classList.add('hidden');
+    renderHistory();
+
+    // 5. Phần 2: Guest DB Tabs scoped to role
+    renderScopedDbSideTabs(role);
+
+    // 6. Phần 3: Config Form side tabs locked for Groom / Bride
+    $('configSideTabs')?.classList.toggle('hidden', !isAdmin);
+    if (isGroom) {
+      if ($('secConfigSub')) $('secConfigSub').textContent = 'Thông tin Nhà Trai: Họ tên mẹ, địa chỉ tư gia, ngày giờ tiệc/lễ & mã QR';
+      if ($('configScopeDesc')) $('configScopeDesc').innerHTML = 'Chỉnh sửa thông tin <strong>Nhà Trai</strong>. Khi bấm <strong>Lưu</strong> bên dưới, thiệp Nhà Trai và bản chung sẽ tự động cập nhật đồng bộ.';
+      loadSideToForm('groom');
+    } else if (isBride) {
+      if ($('secConfigSub')) $('secConfigSub').textContent = 'Thông tin Nhà Gái: Họ tên mẹ, địa chỉ tư gia, ngày giờ tiệc/lễ & mã QR';
+      if ($('configScopeDesc')) $('configScopeDesc').innerHTML = 'Chỉnh sửa thông tin <strong>Nhà Gái</strong>. Khi bấm <strong>Lưu</strong> bên dưới, thiệp Nhà Gái và bản chung sẽ tự động cập nhật đồng bộ.';
+      loadSideToForm('bride');
+    } else {
+      if ($('secConfigSub')) $('secConfigSub').textContent = 'Họ tên mẹ, địa chỉ tư gia, ngày giờ tiệc/lễ & mã QR mừng cưới';
+      if ($('configScopeDesc')) $('configScopeDesc').innerHTML = 'Chọn tab <strong>Nhà Trai</strong> hoặc <strong>Nhà Gái</strong> để chỉnh sửa thông tin tương ứng. Khi bấm <strong>Lưu</strong>, cả 3 link thiệp sẽ tự động cập nhật đồng bộ.';
+      loadSideToForm(preferredTab || activeSide || 'groom');
+    }
+
+    // 7. Phần 4: Role-scoped Featured Photos + Shared Album
+    renderAllPhotoSlots();
+
+    // 8. Sync Admin UI & Load Role-scoped Guest DB
+    syncSheetConnectionUI();
+    syncSupabaseConnectionUI();
+    updateSyncBadge();
+    loadGuestDb(1);
+    if (isAdmin && authState.mode === 'authenticated') {
+      loadUsersList();
+    }
+  }
+
+  async function renderUsersList(users) {
+    const container = $('usersListContainer');
+    if (!container) return;
+    if (!Array.isArray(users) || !users.length) {
+      container.innerHTML = '<div class="guest-db-empty">Chưa có tài khoản nào trong Supabase.</div>';
+      return;
+    }
+
+    const myId = authState.profile?.id || authState.session?.user?.id || '';
+    const roleBadgeMap = {
+      admin: { cls: 'admin', label: 'Admin' },
+      groom: { cls: 'groom', label: 'Chú rể' },
+      bride: { cls: 'bride', label: 'Cô dâu' }
+    };
+
+    container.innerHTML = users.map((u) => {
+      const rb = roleBadgeMap[u.role] || roleBadgeMap.groom;
+      const isSelf = u.id === myId;
+      const isActive = Boolean(u.is_active);
+      return `
+        <div class="user-row-card" data-user-id="${escHtml(u.id)}">
+          <div class="user-row-top">
+            <div style="min-width:0;">
+              <div class="user-row-name">${escHtml(u.full_name || u.email)} ${isSelf ? '<span style="color:var(--gold); font-size:11px;">(Bạn)</span>' : ''}</div>
+              <div class="user-row-email">${escHtml(u.email)}</div>
+            </div>
+            <span class="role-pill ${rb.cls}">${rb.label}</span>
+          </div>
+          <div class="user-row-controls">
+            <select class="select user-role-select" data-user-role-sel="${escHtml(u.id)}" ${isSelf ? 'disabled title="Không thể tự đổi quyền Admin của chính mình"' : ''}>
+              <option value="groom" ${u.role === 'groom' ? 'selected' : ''}>Chú rể (Nhà Trai + Chung)</option>
+              <option value="bride" ${u.role === 'bride' ? 'selected' : ''}>Cô dâu (Nhà Gái + Chung)</option>
+              <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Admin (Toàn quyền)</option>
+            </select>
+            <button type="button" class="user-ctrl-btn ${isActive ? 'active-ok' : 'locked'}" data-user-toggle-active="${escHtml(u.id)}" data-cur-active="${isActive ? '1' : '0'}" ${isSelf ? 'disabled' : ''}>
+              ${isActive ? 'Đang mở' : 'Đang khóa'}
+            </button>
+            ${!isSelf ? `<button type="button" class="user-ctrl-btn" data-user-delete="${escHtml(u.id)}" data-user-email="${escHtml(u.email)}" title="Xóa hồ sơ phân quyền">Xóa</button>` : ''}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  async function loadUsersList() {
+    if (!SB || !SB.isConfigured(draft) || !authState.session || authState.role !== 'admin') return;
+    const container = $('usersListContainer');
+    if (container && !container.children.length) {
+      container.innerHTML = '<div class="guest-db-empty">Đang tải danh sách tài khoản...</div>';
+    }
+    try {
+      const users = await SB.listUsers(draft, authState.session);
+      renderUsersList(users);
+    } catch (err) {
+      if (container) {
+        container.innerHTML = `<div class="guest-db-empty">Không tải được danh sách user: ${escHtml(err.message)}</div>`;
+      }
+    }
+  }
+
+  async function activateAuthenticatedSession(session, preferredTab) {
+    const profile = await SB.getCurrentProfile(draft, session);
+    if (!profile) {
+      await SB.signOut(draft, session);
+      throw new Error('Không tìm thấy hồ sơ phân quyền cho tài khoản này trong bảng user_profiles.');
+    }
+    if (!profile.is_active) {
+      await SB.signOut(draft, session);
+      throw new Error('Tài khoản của bạn đang bị khóa hoặc chưa được Admin kích hoạt.');
+    }
+
+    authState.mode = 'authenticated';
+    authState.session = session;
+    authState.profile = profile;
+    authState.role = profile.role || 'groom';
+
+    // Load protected GitHub token from Supabase app_settings for silent sync
+    const settings = await SB.getAppSettings(draft, session);
+    authState.remoteGhToken = String(settings.github_token || '').trim();
+
+    // If Admin has a local GitHub token not yet pushed to Supabase app_settings, sync it automatically!
+    const localTok = getSavedToken();
+    if (authState.role === 'admin' && localTok && !authState.remoteGhToken) {
+      try {
+        await SB.setAppSetting(draft, session, 'github_token', localTok);
+        authState.remoteGhToken = localTok;
+      } catch (_) {}
+    }
+
+    // If we now have an effective token, pull the freshest config from GitHub too
+    const effTok = getEffectiveToken();
+    if (effTok) {
+      const freshGh = await WS.fetchLatestGitHubConfig(effTok);
+      if (freshGh && (freshGh.updatedAt || 0) > (draft.updatedAt || 0)) {
+        draft = freshGh;
+      }
+    }
+
+    collapseAllMajorPanels();
+    applyRolePermissions(preferredTab);
+  }
+
+  async function refreshLoginGateMode() {
+    if (!SB || !SB.isConfigured(draft)) return;
+    const hasAdmin = await SB.hasAnyAdmin(draft);
+    const toggleBtn = $('btnToggleFirstAdmin');
+    if (!hasAdmin) {
+      authState.firstAdminRegMode = true;
+      toggleBtn?.classList.add('hidden');
+      $('authFirstAdminNameGroup')?.classList.remove('hidden');
+      if ($('authGateTitle')) $('authGateTitle').textContent = 'Tạo Tài Khoản Admin Đầu Tiên';
+      if ($('authGateDesc')) $('authGateDesc').textContent = 'Hệ thống Supabase vừa kết nối chưa có Admin. Hãy tạo tài khoản quản trị đầu tiên của bạn (sẽ tự động nhận quyền Admin toàn quyền).';
+      if ($('authSubmitLabel')) $('authSubmitLabel').textContent = 'Tạo tài khoản Admin & Đăng nhập';
+    } else {
+      authState.firstAdminRegMode = false;
+      toggleBtn?.classList.add('hidden');
+      $('authFirstAdminNameGroup')?.classList.add('hidden');
+      if ($('authGateTitle')) $('authGateTitle').textContent = 'Đăng Nhập Trang Quản Lý Thiệp Cưới';
+      if ($('authGateDesc')) $('authGateDesc').textContent = 'Vui lòng đăng nhập bằng tài khoản được cấp (Admin, Chú rể hoặc Cô dâu) để tiếp tục thao tác.';
+      if ($('authSubmitLabel')) $('authSubmitLabel').textContent = 'Đăng nhập';
+    }
+  }
+
+  function initSupabaseAndAuth() {
+    // Quick button in header (when Supabase is not yet set up) -> open Phần 5 directly
+    $('btnOpenSupabaseQuick')?.addEventListener('click', () => {
+      const sec5 = $('secAdminSystem');
+      const sbDetails = $('supabaseSetupDetails');
+      if (sec5) sec5.setAttribute('open', '');
+      if (sbDetails) sbDetails.setAttribute('open', '');
+      sec5?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    // Sign out
+    $('btnSignOut')?.addEventListener('click', async () => {
+      await SB.signOut(draft, authState.session);
+      authState.session = null;
+      authState.profile = null;
+      authState.remoteGhToken = '';
+      authState.mode = 'login_required';
+      authState.role = 'groom';
+      collapseAllMajorPanels();
+      applyRolePermissions();
+      await refreshLoginGateMode();
+      setAuthGateMsg('ok', 'Đã đăng xuất an toàn.');
+      showToast('Đã đăng xuất!');
+    });
+
+    // Login / First-Admin Registration Form
+    $('authLoginForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = ($('authEmailInput')?.value || '').trim();
+      const password = $('authPasswordInput')?.value || '';
+      const fullName = ($('authFullNameInput')?.value || '').trim();
+      const submitBtn = $('btnAuthSubmit');
+      const labelEl = $('authSubmitLabel');
+      const origLabel = labelEl?.textContent || 'Đăng nhập';
+
+      if (!email || !password) {
+        setAuthGateMsg('err', 'Vui lòng nhập đầy đủ Email và Mật khẩu.');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      if (labelEl) labelEl.textContent = authState.firstAdminRegMode ? 'Đang tạo Admin...' : 'Đang đăng nhập...';
+      setAuthGateMsg('', '');
+
+      try {
+        let session = null;
+        if (authState.firstAdminRegMode) {
+          const signUpRes = await SB.signUpStateless(draft, {
+            email,
+            password,
+            fullName: fullName || 'Admin Quản Trị',
+            role: 'admin'
+          });
+          if (signUpRes && signUpRes.access_token) {
+            SB.saveSession(signUpRes);
+            session = SB.getStoredSession();
+          } else {
+            // Try direct password sign-in immediately
+            session = await SB.signIn(draft, email, password);
+          }
+        } else {
+          session = await SB.signIn(draft, email, password);
+        }
+
+        await activateAuthenticatedSession(session);
+        $('authPasswordInput').value = '';
+        showToast(`Xin chào ${authState.profile?.full_name || authState.profile?.email}!`);
+      } catch (err) {
+        setAuthGateMsg('err', `⚠️ ${escHtml(err.message)}`);
+      } finally {
+        submitBtn.disabled = false;
+        if (labelEl) labelEl.textContent = origLabel;
+      }
+    });
+
+    // Copy Supabase SQL schema (1-click, Admin only)
+    $('btnCopySupabaseSql')?.addEventListener('click', async () => {
+      if (authState.role !== 'admin') return;
+      const btn = $('btnCopySupabaseSql');
+      btn.disabled = true;
+      try {
+        const res = await fetch(`${BASE}/scripts/supabase-schema.sql?v=${Date.now()}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const sql = await res.text();
+        await copyText(sql);
+        setSupabaseConnectMsg('ok', '✅ Đã copy toàn bộ mã <strong>SQL khởi tạo Supabase</strong>! Hãy mở Supabase → <strong>SQL Editor → New query</strong> → dán vào và bấm <strong>Run</strong>.');
+        showToast('Đã copy mã SQL Supabase!');
+      } catch (err) {
+        setSupabaseConnectMsg('err', `⚠️ Không tải được mã SQL (${escHtml(err.message)}). Bạn có thể lấy từ file <code>scripts/supabase-schema.sql</code> trong GitHub.`);
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    // Connect Supabase URL + Anon Key (Admin only)
+    $('btnConnectSupabase')?.addEventListener('click', async () => {
+      if (authState.role !== 'admin') return;
+      const url = SB.cleanUrl($('cfgSupabaseUrl')?.value || '');
+      const key = ($('cfgSupabaseAnonKey')?.value || '').trim();
+      const btn = $('btnConnectSupabase');
+
+      if (!url || !key) {
+        setSupabaseConnectMsg('err', '⚠️ Vui lòng nhập đầy đủ cả <strong>Supabase Project URL</strong> và <strong>Publishable / Anon Key</strong>.');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Đang kiểm tra...';
+      setSupabaseConnectMsg('warn', 'Đang kiểm tra kết nối tới Supabase & bảng user_profiles...');
+
+      try {
+        await SB.testConnection(url, key);
+        draft.supabaseUrl = url;
+        draft.supabaseAnonKey = key;
+        dirty.supabase = true;
+        draft.updatedAt = Date.now();
+        await WS.saveLocalConfig(draft);
+
+        const tok = getEffectiveToken();
+        if (tok) {
+          btn.textContent = 'Đang đồng bộ Web...';
+          const { config: published } = await WS.publishConfigToGitHub(draft, {
+            token: tok,
+            dirty: { groom: false, bride: false, sheet: false, supabase: true, photoKeys: [], albumIndices: [] }
+          });
+          draft = published;
+          dirty.supabase = false;
+        }
+
+        syncSupabaseConnectionUI();
+        showToast('Kết nối Supabase thành công! Hãy tạo/đăng nhập tài khoản Admin.');
+
+        // Transition immediately to Auth Gate so Admin signs in / creates first Admin account
+        const existingSess = await SB.ensureValidSession(draft);
+        if (existingSess) {
+          try {
+            await activateAuthenticatedSession(existingSess);
+            setSupabaseConnectMsg('ok', '✅ Đã kết nối Supabase &amp; đăng nhập Admin thành công!');
+            return;
+          } catch (_) {}
+        }
+
+        authState.mode = 'login_required';
+        authState.session = null;
+        authState.profile = null;
+        collapseAllMajorPanels();
+        applyRolePermissions();
+        await refreshLoginGateMode();
+        setAuthGateMsg('ok', '✅ Kết nối Supabase thành công! Hãy đăng nhập (hoặc tạo tài khoản Admin đầu tiên ngay bên trên).');
+      } catch (err) {
+        setSupabaseConnectMsg('err', `⚠️ Chưa kết nối được Supabase: <strong>${escHtml(err.message)}</strong>`);
+        showToast('Lỗi kết nối Supabase!');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Kết nối Supabase';
+      }
+    });
+
+    // Disconnect Supabase (Admin only)
+    $('btnDisconnectSupabase')?.addEventListener('click', async () => {
+      if (authState.role !== 'admin') return;
+      const ok = window.confirm('Tắt yêu cầu đăng nhập Supabase trên trang quản lý? (Dữ liệu user trong Supabase vẫn được giữ nguyên)');
+      if (!ok) return;
+      await SB.signOut(draft, authState.session);
+      draft.supabaseUrl = '';
+      draft.supabaseAnonKey = '';
+      dirty.supabase = true;
+      draft.updatedAt = Date.now();
+      await WS.saveLocalConfig(draft);
+
+      const tok = getEffectiveToken();
+      if (tok) {
+        try {
+          const { config: published } = await WS.publishConfigToGitHub(draft, {
+            token: tok,
+            dirty: { groom: false, bride: false, sheet: false, supabase: true, photoKeys: [], albumIndices: [] }
+          });
+          draft = published;
+          dirty.supabase = false;
+        } catch (_) {}
+      }
+
+      authState.mode = 'open_admin';
+      authState.role = 'admin';
+      authState.session = null;
+      authState.profile = null;
+      syncSupabaseConnectionUI();
+      applyRolePermissions();
+      setSupabaseConnectMsg('warn', 'Đã tắt chế độ đăng nhập Supabase.');
+      showToast('Đã tắt đăng nhập Supabase!');
+    });
+
+    // Create new User (Admin only)
+    $('createUserForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (authState.role !== 'admin' || !authState.session) return;
+
+      const fullName = ($('newUserName')?.value || '').trim();
+      const email = ($('newUserEmail')?.value || '').trim().toLowerCase();
+      const password = $('newUserPassword')?.value || '';
+      const role = $('newUserRole')?.value || 'groom';
+      const btn = $('btnCreateUser');
+
+      btn.disabled = true;
+      setUserMgmtMsg('warn', 'Đang tạo tài khoản &amp; gán quyền trên Supabase...');
+
+      try {
+        const res = await SB.signUpStateless(draft, { email, password, fullName, role });
+        const newUid = res?.user?.id || res?.id;
+        if (!newUid) {
+          throw new Error('Supabase không trả về mã người dùng. Hãy kiểm tra cài đặt Email Signup.');
+        }
+
+        // Wait a brief moment for handle_new_user trigger to insert user_profiles row, then activate & assign exact role
+        await new Promise((r) => setTimeout(r, 350));
+        await SB.updateUserProfile(draft, authState.session, newUid, {
+          full_name: fullName,
+          role,
+          is_active: true
+        });
+
+        $('createUserForm').reset();
+        const roleLabel = role === 'admin' ? 'Admin' : (role === 'bride' ? 'Cô dâu' : 'Chú rể');
+        setUserMgmtMsg('ok', `✅ Đã tạo tài khoản <strong>${escHtml(fullName)}</strong> (<code>${escHtml(email)}</code> · Vai trò: <strong>${roleLabel}</strong>) và kích hoạt ngay! Bạn có thể gửi Email + Mật khẩu này cho người dùng đăng nhập tại trang <code>/quan-ly/</code>.`);
+        showToast(`Đã tạo tài khoản ${roleLabel}!`);
+        await loadUsersList();
+      } catch (err) {
+        setUserMgmtMsg('err', `⚠️ Không tạo được tài khoản: <strong>${escHtml(err.message)}</strong>`);
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    // Refresh users list
+    $('btnRefreshUsers')?.addEventListener('click', () => {
+      loadUsersList();
+      showToast('Đã làm mới danh sách tài khoản!');
+    });
+
+    // Inline Role change / Lock toggle / Delete on users list
+    $('usersListContainer')?.addEventListener('change', async (e) => {
+      const sel = e.target.closest('[data-user-role-sel]');
+      if (!sel || authState.role !== 'admin' || !authState.session) return;
+      const uid = sel.dataset.userRoleSel;
+      const newRole = sel.value;
+      sel.disabled = true;
+      try {
+        await SB.updateUserProfile(draft, authState.session, uid, { role: newRole });
+        showToast('Đã cập nhật vai trò người dùng!');
+        await loadUsersList();
+      } catch (err) {
+        showToast(`Lỗi đổi quyền: ${err.message}`);
+      } finally {
+        sel.disabled = false;
+      }
+    });
+
+    $('usersListContainer')?.addEventListener('click', async (e) => {
+      if (authState.role !== 'admin' || !authState.session) return;
+
+      const toggleBtn = e.target.closest('[data-user-toggle-active]');
+      if (toggleBtn) {
+        const uid = toggleBtn.dataset.userToggleActive;
+        const nextActive = toggleBtn.dataset.curActive !== '1';
+        toggleBtn.disabled = true;
+        try {
+          await SB.updateUserProfile(draft, authState.session, uid, { is_active: nextActive });
+          showToast(nextActive ? 'Đã mở khóa tài khoản!' : 'Đã khóa tài khoản!');
+          await loadUsersList();
+        } catch (err) {
+          showToast(`Lỗi cập nhật trạng thái: ${err.message}`);
+        } finally {
+          toggleBtn.disabled = false;
+        }
+        return;
+      }
+
+      const delBtn = e.target.closest('[data-user-delete]');
+      if (delBtn) {
+        const uid = delBtn.dataset.userDelete;
+        const email = delBtn.dataset.userEmail || '';
+        if (!window.confirm(`Xóa quyền truy cập của tài khoản ${email}?`)) return;
+        delBtn.disabled = true;
+        try {
+          await SB.deleteUserProfile(draft, authState.session, uid);
+          showToast('Đã thu hồi tài khoản khỏi trang quản lý!');
+          await loadUsersList();
+        } catch (err) {
+          showToast(`Lỗi xóa tài khoản: ${err.message}`);
+        } finally {
+          delBtn.disabled = false;
+        }
+      }
+    });
+  }
+
+  /* =========================================================================
      INIT
      ========================================================================= */
   async function init() {
@@ -1229,17 +1978,23 @@
     bindConfigFormEvents();
     initPhotoUploader();
     initSaveAndSync();
+    initSupabaseAndAuth();
+
+    // Ensure all major sections start collapsed by default
+    collapseAllMajorPanels();
 
     const savedTok = getSavedToken();
     if (setupInfo.autoConnected) {
-      $('githubSyncDetails').removeAttribute('open');
+      $('githubSyncDetails')?.removeAttribute('open');
       const banner = $('autoConnectBanner');
-      banner.innerHTML = '🎉 <strong>Đã tự động kết nối đồng bộ lên Web!</strong> Bạn chỉ cần chỉnh sửa thông tin ở tab <strong>Nhà Gái · Cô Dâu</strong> (và tải ảnh QR/album nếu muốn) rồi bấm <strong>Lưu &amp; Cập nhật lên Web</strong> bên dưới — toàn bộ khách mời sẽ tự động xem được bản mới nhất mà không làm mất thông tin Nhà Trai.';
-      banner.classList.remove('hidden');
-      showToast('Đã kết nối sẵn quyền đồng bộ cho Cô Dâu!');
+      if (banner) {
+        banner.innerHTML = '🎉 <strong>Đã tự động kết nối đồng bộ lên Web!</strong> Hãy bấm vào mục <strong>Phần 3 · Cấu Hình Thông Tin Thiệp Cưới</strong> để chỉnh sửa rồi bấm <strong>Lưu &amp; Cập nhật lên Web</strong> bên dưới.';
+        banner.classList.remove('hidden');
+      }
+      showToast('Đã kết nối sẵn quyền đồng bộ!');
     }
 
-    // Load 2-level Vietnam units + freshest wedding config (prefer direct GitHub API when connected!)
+    // Load 2-level Vietnam units + freshest wedding config
     const [unitsRes, loaded, freshGh] = await Promise.all([
       fetch(`${BASE}/data/vn-units-2cap.json`).then((r) => (r.ok ? r.json() : [])).catch(() => []),
       WS.loadConfig(BASE),
@@ -1256,29 +2011,46 @@
       draft = loaded.config;
     }
 
-    loadSideToForm(setupInfo.tab || 'groom');
-    renderAllPhotoSlots();
-    syncSheetConnectionUI();
-    loadGuestDb(1);
-
-    if (setupInfo.tab === 'bride' && setupInfo.autoConnected) {
-      setTimeout(() => {
-        $('secConfigTitle')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 450);
+    // Check if Supabase RBAC is enabled
+    if (SB && SB.isConfigured(draft)) {
+      const session = await SB.ensureValidSession(draft);
+      if (session) {
+        try {
+          await activateAuthenticatedSession(session, setupInfo.tab);
+        } catch (err) {
+          authState.mode = 'login_required';
+          authState.role = 'groom';
+          applyRolePermissions();
+          await refreshLoginGateMode();
+          setAuthGateMsg('warn', `⚠️ ${escHtml(err.message)}`);
+        }
+      } else {
+        authState.mode = 'login_required';
+        authState.role = 'groom';
+        applyRolePermissions();
+        await refreshLoginGateMode();
+      }
+    } else {
+      // Pre-Supabase open admin setup mode
+      authState.mode = 'open_admin';
+      authState.role = 'admin';
+      applyRolePermissions(setupInfo.tab || 'groom');
     }
 
     window.addEventListener('hashchange', () => {
       const next = consumeSetupHash();
       if (next.autoConnected) {
-        $('ghTokenInput').value = getSavedToken();
+        if ($('ghTokenInput')) $('ghTokenInput').value = getSavedToken();
         updateSyncBadge();
-        $('githubSyncDetails').removeAttribute('open');
+        $('githubSyncDetails')?.removeAttribute('open');
         const banner = $('autoConnectBanner');
-        banner.innerHTML = '🎉 <strong>Đã tự động kết nối đồng bộ lên Web!</strong> Bạn chỉ cần chỉnh sửa thông tin ở tab <strong>Nhà Gái · Cô Dâu</strong> (và tải ảnh QR/album nếu muốn) rồi bấm <strong>Lưu &amp; Cập nhật lên Web</strong> bên dưới — toàn bộ khách mời sẽ tự động xem được bản mới nhất mà không làm mất thông tin Nhà Trai.';
-        banner.classList.remove('hidden');
-        showToast('Đã kết nối sẵn quyền đồng bộ cho Cô Dâu!');
+        if (banner) {
+          banner.innerHTML = '🎉 <strong>Đã tự động kết nối đồng bộ lên Web!</strong> Hãy bấm vào mục cần sửa rồi bấm <strong>Lưu &amp; Cập nhật lên Web</strong> bên dưới.';
+          banner.classList.remove('hidden');
+        }
+        showToast('Đã kết nối sẵn quyền đồng bộ!');
       }
-      if (next.tab) loadSideToForm(next.tab);
+      if (next.tab && authState.role === 'admin') loadSideToForm(next.tab);
     });
   }
 

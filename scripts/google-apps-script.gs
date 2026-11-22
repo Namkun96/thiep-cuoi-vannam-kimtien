@@ -279,7 +279,14 @@ function handleWriteAction_(payload) {
 
 function handleListGuests_(params) {
   var sh = getGuestSheet_();
-  var allRows = readAllRows_(sh).reverse(); // Mới nhất lên đầu
+  var rawRows = readAllRows_(sh).reverse(); // Mới nhất lên đầu
+  var roleScope = String(params.scope || 'all');
+
+  var allRows = rawRows.filter(function(item) {
+    if (roleScope === 'groom') return item.side === 'Nhà Trai' || item.side === 'Bản chung';
+    if (roleScope === 'bride') return item.side === 'Nhà Gái' || item.side === 'Bản chung';
+    return true;
+  });
 
   var stats = {
     total: allRows.length,
@@ -328,6 +335,8 @@ function handleListGuests_(params) {
     if (sideFilter === 'groom' && item.side !== 'Nhà Trai') return false;
     if (sideFilter === 'bride' && item.side !== 'Nhà Gái') return false;
     if (sideFilter === 'both' && item.side !== 'Bản chung') return false;
+    if (sideFilter === 'groom_both' && item.side !== 'Nhà Trai' && item.side !== 'Bản chung') return false;
+    if (sideFilter === 'bride_both' && item.side !== 'Nhà Gái' && item.side !== 'Bản chung') return false;
 
     if (typeFilter === 'named' && item.type !== 'Link riêng') return false;
     if (typeFilter === 'walkin' && item.type !== 'Vãng lai') return false;
@@ -355,6 +364,7 @@ function handleListGuests_(params) {
 
   return {
     ok: true,
+    scopeApplied: true,
     stats: stats,
     page: page,
     pageSize: pageSize,
