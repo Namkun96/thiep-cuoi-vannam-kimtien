@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "updatedAt": 1795270992800,
+  "updatedAt": 1795312956210,
   "groomName": "Nguyễn Văn Nam",
   "brideName": "Nguyễn Thị Kim Tiến",
   "sheetViewUrl": "https://docs.google.com/spreadsheets/d/1TAM_jS1z_ugR0zEztDiA2hwzTsZK034Fkw1nUW6jzvY/edit",
-  "sheetApiUrl": "",
+  "sheetApiUrl": "https://script.google.com/macros/s/AKfycbzu9k75BGDFtuCeWKLkPi_NXxsQCsXEz8ZNDLH2lryPV4pCBRm726BJ7quw5pRxdQDxGQ/exec",
   "groom": {
     "parent": "Bà: Nguyễn Thị Xuyến",
     "province": "Thành phố Hà Nội",
